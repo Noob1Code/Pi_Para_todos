@@ -31,16 +31,13 @@ public class PontoColeta {
     @SequenceGenerator(name = "pontos_coleta_id_seq", sequenceName = "pontos_coleta_id_SEQ", allocationSize = 1)
     private Long id;
 
-    // ALTERADO: A propriedade bairroId foi substituída por um relacionamento Muitos-Para-Um.
-    // O JPA usará a coluna 'bairro_id' existente no banco de dados para essa relação.
-    @ManyToOne(fetch = FetchType.LAZY) // LAZY é uma boa prática para performance
+    @ManyToOne(fetch = FetchType.LAZY) 
     @JoinColumn(name = "bairro_id") 
     private Bairro bairro; 
 
     @Column(nullable = false, unique = true, length = 100)
     private String nome;
 
-    // ... o resto da classe continua igual ...
     @Column(nullable = false, length = 100)
     private String responsavel; 
 

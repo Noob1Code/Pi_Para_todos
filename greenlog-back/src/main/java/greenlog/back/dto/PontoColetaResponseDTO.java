@@ -23,17 +23,15 @@ import java.util.List;
 @AllArgsConstructor
 public class PontoColetaResponseDTO {
 
-    // NOVO: Classe interna para representar o bairro na resposta
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class BairroDTO {
-        private Integer id; // O ID do bairro na sua entidade é Integer
+        private Integer id; 
         private String nome;
     }
 
     private Long id;
-    // ALTERADO: a propriedade bairroId foi trocada pelo objeto BairroDTO
     private BairroDTO bairro;
     private String nome;
     private String responsavel;
