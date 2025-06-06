@@ -1,0 +1,25 @@
+<input
+  type="text"
+  [ngModel]="termoBuscaCaminhao"
+  (ngModelChange)="onTermoBuscaChange($event)"
+  placeholder="Buscar por placa, ID ou tipo de resíduo"
+/>
+
+<table class="tabela-caminhao">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Placa</th>
+      <th>Tipo de Resíduo</th>
+      <th>Ação</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let c of caminhoesFiltrados">
+      <td>{{ c.id }}</td>
+      <td>{{ c.placa }}</td>
+      <td>{{ c.residuos }}</td>
+      <td><button class="btn salvar" (click)="onSelecionar(c)">Selecionar</button></td>
+    </tr>
+  </tbody>
+</table>

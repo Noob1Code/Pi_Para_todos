@@ -1,0 +1,38 @@
+<!-- Modal do Cadastro de Bairros -->
+<div class="modal-overlay" *ngIf="visivel">
+  <div class="modal">
+    <h2>Cadastro de Bairros</h2>
+
+    <div class="form-group">
+      <label for="bairros">Bairros:</label>
+      <input id="bairros" [(ngModel)]="bairros" type="text" placeholder="Digite o Nome do Bairros" />
+    </div>
+
+    <div class="button-group">
+      <button class="btn salvar" (click)="salvar()">💾 {{ idEditando !== null ? 'Atualizar' : 'Salvar' }}</button>
+      <button class="btn cancelar" (click)="fechar()">❌ Fechar</button>
+    </div>
+
+    <hr />
+    <h3>Bairross Cadastrados:</h3>
+    <table class="tabela-Bairros">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of bairross">
+          <td>{{ d.id }}</td>
+          <td>{{ d.nome }}</td>
+          <td>
+            <button class="btn editar" (click)="editar(d,d.id)">✏️ Editar</button>
+            <button class="btn excluir" (click)="excluir(d.id)">🗑️ Excluir</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,104 @@
+/* Container principal do cadastro */
+.cadastro-container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 25px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Título do formulário */
+.cadastro-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Grupos de inputs */
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
+}
+
+input,
+select {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  background-color: white;
+}
+
+input:focus,
+select:focus {
+  border-color: #007bff;
+}
+
+/* Estilo para campo inválido */
+.invalid-input {
+  border-color: #dc3545 !important;
+}
+
+/* Estilo para mensagens de erro */
+.error-message {
+  color: #dc3545;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.api-field-error {
+  margin-top: 2px;
+}
+
+/* Estilo para mensagens de sucesso */
+.success-message {
+  color: #28a745;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.api-error {
+  text-align: center;
+  margin-bottom: 10px;
+  color: #dc3545;
+}
+
+.api-success {
+  text-align: center;
+  margin-bottom: 10px;
+  color: #28a745;
+}
+
+/* Botão de cadastro */
+.cadastro-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cadastro-button:disabled {
+  background-color: #a5d6a7;
+  cursor: not-allowed;
+}
+
+.cadastro-button:hover:enabled {
+  background-color: #218838;
+}

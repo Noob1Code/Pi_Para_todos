@@ -1,0 +1,113 @@
+<app-topbar></app-topbar>
+<app-sidebar></app-sidebar>
+
+<app-modal-bairros
+  [visivel]="mostrarModalBairros"
+  (fechado)="fecharModalBairros()"
+  (bairroSelecionado)="selecionarBairro($event)">
+</app-modal-bairros>
+
+<div class="form-container">
+  <h2>{{ idEditando !== null ? 'Editar' : 'Cadastro de' }} Ponto de Coleta</h2>
+
+  <div class="form-group">
+    <label for="bairro">Bairro:</label>
+    <input id="bairro" name="bairro" type="text"
+           [value]="pontoColetaAtual.bairro?.nome || ''"
+           placeholder="Selecione um bairro" readonly>
+    <button (click)="abrirModalBairros()" class="btn abrir-modal">Selecionar Bairro</button>
+  </div>
+
+  <div class="form-group">
+    <label for="nome">Nome do Ponto:</label>
+    <input id="nome" name="nome" [(ngModel)]="pontoColetaAtual.nome" type="text" placeholder="Ex: Centro Comunitário">
+  </div>
+
+  <div class="form-group">
+    <label for="responsavel">Responsável:</label>
+    <input id="responsavel" name="responsavel" [(ngModel)]="pontoColetaAtual.responsavel" type="text" placeholder="Nome completo do responsável">
+  </div>
+
+  <div class="form-group">
+    <label for="telefoneResponsavel">Telefone do Responsável:</label>
+    <input id="telefoneResponsavel" name="telefoneResponsavel" [(ngModel)]="pontoColetaAtual.telefoneResponsavel" type="text" placeholder="Ex: (62) 99999-9999">
+  </div>
+
+  <div class="form-group">
+    <label for="emailResponsavel">Email do Responsável:</label>
+    <input type="email" placeholder="Ex: email@dominio.com"
+           name="emailResponsavel"
+           [(ngModel)]="pontoColetaAtual.emailResponsavel">
+  </div>
+
+  <div class="form-group">
+    <label for="endereco">Endereço:</label>
+    <input id="endereco" name="endereco" [(ngModel)]="pontoColetaAtual.endereco" type="text" placeholder="Ex: Rua X, Qd. Y, Lt. Z, Setor W">
+  </div>
+
+  <div class="form-group">
+    <label for="horarioFuncionamento">Horário de Funcionamento:</label>
+    <input id="horarioFuncionamento" name="horarioFuncionamento" [(ngModel)]="pontoColetaAtual.horarioFuncionamento" type="text" placeholder="Ex: Seg-Sex 08:00-18:00">
+  </div>
+
+  <div class="form-group">
+    <label>Tipos de Resíduos Aceitos: (Selecione ao menos um)</label>
+    <div class="checkbox-group">
+      <div *ngFor="let tipo of opcoesTiposResiduos" class="checkbox-item">
+        <input type="checkbox"
+               id="tipo-{{tipo}}"
+               name="tipo-{{tipo}}"
+               [value]="tipo"
+               [checked]="tiposResiduosSelecionados[tipo]"
+               (change)="onTipoResiduoChange(tipo, $event)">
+        <label class="checkbox-label" for="tipo-{{tipo}}">{{ tipo }}</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="button-group">
+    <button type="button" class="btn salvar" (click)="salvar()">
+      💾 {{ idEditando !== null ? 'Atualizar' : 'Salvar' }}
+    </button>
+    <button type="button" *ngIf="idEditando !== null" class="btn cancelar" (click)="finalizarEdicao()">
+      ❌ Cancelar Edição
+    </button>
+  </div>
+</div>
+
+<hr />
+<h3>Pontos de Coleta Cadastrados:</h3>
+<table class="tabela-dados">
+  <thead>
+    <tr>
+      <th>Bairro</th>
+      <th>Nome</th>
+      <th>Responsável</th>
+      <th>Telefone</th>
+      <th>Email</th>
+      <th>Endereço</th>
+      <th>Funcionamento</th>
+      <th>Tipos Resíduos</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let pc of pontosColeta">
+      <td>{{ pc.bairro?.nome }}</td>
+      <td>{{ pc.nome }}</td>
+      <td>{{ pc.responsavel }}</td>
+      <td>{{ pc.telefoneResponsavel }}</td>
+      <td>{{ pc.emailResponsavel }}</td>
+      <td>{{ pc.endereco }}</td>
+      <td>{{ pc.horarioFuncionamento }}</td>
+      <td>{{ pc.tiposResiduosAceitos.join(', ') }}</td>
+      <td>
+        <button class="btn editar" (click)="editarPontoColeta(pc)">✏️ Editar</button>
+        <button class="btn excluir" (click)="excluirPontoColeta(pc.id)">🗑️ Excluir</button>
+      </td>
+    </tr>
+    <tr *ngIf="pontosColeta.length === 0">
+        <td colspan="9" style="text-align: center;">Nenhum ponto de coleta cadastrado.</td>
+    </tr>
+  </tbody>
+</table>

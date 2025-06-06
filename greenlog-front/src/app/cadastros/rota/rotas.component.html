@@ -1,0 +1,89 @@
+<app-topbar></app-topbar>
+<app-sidebar></app-sidebar>
+
+<div class="form-container">
+    <h2>Cadastro de Rota de Caminhão</h2>
+
+    <div class="form-group">
+        <label for="caminhao">Caminhão:</label>
+        <input id="caminhao" [(ngModel)]="caminhao" type="text" placeholder="Clique para buscar caminhão" readonly 
+        (click)="abrirModalCaminhao()"/>
+    </div>
+    
+<app-modal-caminhao
+  *ngIf="mostrarModalCaminhao"
+  [(termoBuscaCaminhao)]="termoBuscaCaminhao"
+  [mostrarCaminhao]="mostrarModalCaminhao"
+  (selecionar)="selecionarCaminhao($event)"
+  (fechar)="fecharModalCaminhao()"
+/>
+
+    <div class="form-group">
+        <label for="data">Data:</label>
+        <input id="data" [(ngModel)]="data" type="date" />
+    </div>
+
+    <div class="form-group">
+        <label for="origem">Origem:</label>
+        <input id="origem" [(ngModel)]="origem" type="text" placeholder="Digite a origem" readonly 
+        (click)="abrirModalOrigem()"/>
+    </div>
+    
+<app-modal-origem-destino
+  *ngIf="mostrarModalOrigem"
+  [(termoBuscaOrigemDestino)]="termoBuscaOrigem"
+  [mostrarOrigemDestino]="mostrarModalOrigem"
+  (selecionar)="selecionarOrigem($event)"
+  (fechar)="fecharModalOrigem()"
+/>
+
+
+    <div class="form-group">
+        <label for="destino">Destino:</label>
+        <input id="destino" [(ngModel)]="destino" type="text" placeholder="Clique para buscar destino" readonly
+        (click)="abrirModalDestino()"/>
+    </div>
+    
+<app-modal-origem-destino
+  *ngIf="mostrarModalDestino"
+  [(termoBuscaOrigemDestino)]="termoBuscaDestino"
+  [mostrarOrigemDestino]="mostrarModalDestino"
+  [origemSelecionadaId]="selectedOrigem?.id ?? null"
+  (selecionar)="selecionarDestino($event)"
+  (fechar)="fecharModalDestino()"
+/>
+
+
+    <div class="button-group">
+        <button class="btn salvar" (click)="salvar()">💾 {{ idEditando !== null ? 'Atualizar' : 'Salvar' }}</button>
+        <button *ngIf="idEditando !== null" class="btn cancelar" (click)="limparCampos()">❌ Cancelar</button>
+    </div>
+</div>
+
+<hr />
+<h3>Rotas Cadastradas:</h3>
+
+<table class="tabela-rotas">
+    <thead>
+        <tr>
+            <th>Caminhão</th>
+            <th>Data</th>
+            <th>Origem</th>
+            <th>Destino</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let r of rotas">
+            <td>{{ r.caminhao.placa + ' (' + r.caminhao.residuos + ')' }}</td>
+            <td>{{ r.data }}</td>
+            <td>{{ r.origem.nome + '('+ r.origem.tiposResiduosAceitos+ ')' }}</td>
+            <td>{{ r.destino.nome + '('+ r.destino.tiposResiduosAceitos+ ')'  }}</td>
+            <td>
+                <button class="btn editar" (click)="editar(r,r.id)">✏️ Editar</button>
+                <button class="btn excluir" (click)="excluir(r.id)">🗑️ Excluir</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+

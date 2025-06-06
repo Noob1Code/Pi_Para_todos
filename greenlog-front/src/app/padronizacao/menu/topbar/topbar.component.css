@@ -1,0 +1,83 @@
+/* Topbar */
+.topbar-content {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  background-color: #0088ff;
+}
+
+.topbar-content .menu-button {
+  top: 0px;
+  left: 0px;
+  z-index: 1000;
+  font-size: 19px;     
+  padding: 10px 10px;  
+  background-color: transparent;
+  color: black;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.topbar-content .app-title {
+  flex: 1;
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: black;
+}
+
+.topbar-content {
+  z-index: 1100; /* maior que o z-index da .menu-button e sidebar */
+}
+
+.topbar-content .menu-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.profile-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-menu img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background-color: white;
+  color: black;
+  min-width: 150px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  z-index: 999;
+  padding: 10px 0;
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 10px 20px;
+  text-decoration: none;
+  color: black;
+}
+
+.dropdown-menu a:hover {
+  background-color: #f0f0f0;
+}
+
+.dropdown-menu.show {
+  display: block;
+}

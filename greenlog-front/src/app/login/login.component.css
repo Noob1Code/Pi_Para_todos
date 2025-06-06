@@ -1,0 +1,99 @@
+/* Estilo principal do container de login */
+.login-container {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Título do formulário */
+.login-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Grupos de input */
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
+}
+
+input {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+input:focus {
+  border-color: #007bff;
+}
+
+/* Inputs inválidos */
+.invalid-input {
+  border-color: #dc3545 !important;
+}
+
+/* Mensagens de erro */
+.error-message {
+  color: #dc3545;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* Erros da API */
+.api-error {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* Botão de login */
+.login-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-button:disabled {
+  background-color: #b0d4ff;
+  cursor: not-allowed;
+}
+
+.login-button:hover:enabled {
+  background-color: #0056b3;
+}
+
+/* Link para registro */
+.register-link {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.register-link a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}

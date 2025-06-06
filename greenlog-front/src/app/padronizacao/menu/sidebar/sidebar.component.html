@@ -1,0 +1,17 @@
+<div class="sidebar" [class.open]="sidebarOpen">
+<div class="sidebar" [class.open]="sidebarOpen">
+  <ul>
+    <li><button (click)="navegarPara('Menu')">Dashboard</button></li>
+    <li (click)="toggleCadastro()" class="menu-header">
+      <a href="javascript:void(0)">Cadastro</a>
+    </li>
+    <ul *ngIf="cadastroAberto" class="submenu">
+      <li><button (click)="navegarPara('PontosColeta')">Pontos de Coleta/Bairros</button></li>
+      <li><button (click)="navegarPara('Bairros')">Bairros</button></li>
+      <li><button (click)="navegarPara('Ruas')">Ruas entre Bairros</button></li>
+      <li><button (click)="navegarPara('Rotas')">Rotas</button></li>
+      <li><button (click)="navegarPara('Caminhao')">Caminhão</button></li>
+    </ul>
+  </ul>
+</div>
+</div>

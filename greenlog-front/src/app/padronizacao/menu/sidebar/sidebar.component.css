@@ -1,0 +1,49 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  width: 250px;
+  height: 100%;
+  background-color: #0878e8;
+  color: white;
+  padding-top: 60px;
+  transition: left 0.3s;
+}
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.menu-header a {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.submenu {
+  padding-left: 20px;
+}
+
+.submenu li button {
+  background: none;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 5px 0;
+  text-align: left;
+  width: 100%;
+}
+
+ul li button {
+  background: none;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 5px 0;
+  text-align: left;
+  width: 100%;
+  font-weight: bold;
+}

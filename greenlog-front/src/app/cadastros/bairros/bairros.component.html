@@ -1,0 +1,61 @@
+<app-topbar></app-topbar>
+<app-sidebar></app-sidebar>
+
+<div class="form-container">
+  <h2>{{ idEditando ? 'Editar' : 'Cadastro de' }} Bairro</h2>
+
+  <div (click)="limparMensagens()">
+    <div class="form-group">
+      <label for="nome">Nome do Bairro:</label>
+      <input 
+        id="nome" 
+        name="nome" 
+        type="text" 
+        [(ngModel)]="bairroAtual.nome" 
+        placeholder="Ex: Setor Bueno"
+      >
+    </div>
+
+    <div *ngIf="mensagemErro" class="error-message api-error">
+      {{ mensagemErro }}
+    </div>
+    <div *ngIf="mensagemSucesso" class="success-message api-success">
+      {{ mensagemSucesso }}
+    </div>
+
+    <div class="button-group">
+      <button type="button" class="btn salvar" (click)="salvar()">
+        💾 {{ idEditando ? 'Atualizar' : 'Salvar' }}
+      </button>
+      <button type="button" *ngIf="idEditando" class="btn cancelar" (click)="resetForm()">
+        ❌ Cancelar Edição
+      </button>
+    </div>
+  </div>
+</div>
+
+<hr />
+<h3>Bairros Cadastrados:</h3>
+
+<table class="tabela-dados">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nome</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let bairro of bairros">
+      <td>{{ bairro.id }}</td>
+      <td>{{ bairro.nome }}</td>
+      <td>
+        <button class="btn editar" (click)="editar(bairro)">✏️ Editar</button>
+        <button class="btn excluir" (click)="excluir(bairro.id)">🗑️ Excluir</button>
+      </td>
+    </tr>
+    <tr *ngIf="bairros.length === 0">
+      <td colspan="3" style="text-align: center;">Nenhum bairro cadastrado.</td>
+    </tr>
+  </tbody>
+</table>

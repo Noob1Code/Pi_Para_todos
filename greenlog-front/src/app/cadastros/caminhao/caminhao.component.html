@@ -1,0 +1,76 @@
+<app-topbar></app-topbar>
+<app-sidebar></app-sidebar>
+
+<div class="form-container">
+  <h2>Cadastro de Caminhão</h2>
+
+  <div class="form-group">
+    <label for="placa">Placa:</label>
+    <input id="placa" [(ngModel)]="placa" type="text" placeholder="Digite a placa do caminhão" />
+    <small class="info erro" *ngIf="formEnviado && placa?.trim() === ''">
+      A placa do caminhão é obrigatória.
+    </small>
+  </div>
+
+  <div class="form-group">
+    <label for="motorista">Nome do Motorista:</label>
+    <input id="motorista" [(ngModel)]="motorista" type="text" placeholder="Digite o nome do motorista" (keypress)="permitirSomenteLetras($event)" />
+    <small class="info erro" *ngIf="formEnviado && motorista?.trim() === ''">
+      O nome do motorista é obrigatório.
+    </small>
+  </div>
+
+  <div class="form-group">
+    <label for="capacidade">Capacidade Máxima (kg):</label>
+    <input id="capacidade" [(ngModel)]="capacidade" min="1" type="number" placeholder="Digite a capacidade em kg" />
+    <small class="info erro" *ngIf="formEnviado && (capacidade === null || capacidade <= 0)">
+      A capacidade é obrigatória e deve ser maior que zero.
+    </small>
+  </div>
+
+  <div class="form-group">
+    <label for="residuo">Tipo de Resíduo:</label>
+    <select id="residuo" [(ngModel)]="residuoSelecionado">
+      <option value="" disabled [selected]="residuoSelecionado === ''">Selecione o tipo de resíduo</option>
+      <option value="Plástico">Plástico</option>
+      <option value="Papel">Papel</option>
+      <option value="Metal">Metal</option>
+      <option value="Orgânico">Orgânico</option>
+    </select>
+    <small class="info erro" *ngIf="formEnviado && residuoSelecionado === ''">
+      Selecione um resíduo.
+    </small>
+  </div>
+
+  <div class="button-group">
+    <button class="btn salvar" (click)="salvar()">💾 {{ idEditando !== null ? 'Atualizar' : 'Salvar' }}</button>
+    <button *ngIf="idEditando !== null" class="btn cancelar" (click)="limparCampos()">❌ Cancelar</button>
+  </div>
+</div>
+
+<hr />
+<h3>Caminhões Cadastrados:</h3>
+
+<table class="tabela-pessoas">
+  <thead>
+    <tr>
+      <th>Placa</th>
+      <th>Motorista</th>
+      <th>Capacidade (kg)</th>
+      <th>Tipos de Resíduos</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let c of caminhoes">
+    <td>{{ c.placa }}</td>
+    <td>{{ c.motorista }}</td>
+    <td>{{ c.capacidade }}</td>
+    <td>{{ c.residuos }}</td> <!-- Agora string -->
+    <td>
+      <button class="btn editar" (click)="editar(c)">✏️ Editar</button>
+      <button *ngIf="c.id !== undefined" class="btn excluir" (click)="excluir(c.id)">🗑️ Excluir</button>
+    </td>
+  </tr>
+</tbody>
+</table>

@@ -1,0 +1,138 @@
+.form-container {
+    max-width: 400px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+  }
+  
+  input {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+  }
+  
+  .button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .btn {
+    flex: 1;
+    padding: 10px;
+    margin: 0 5px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s ease;
+  }
+  
+  .salvar {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .salvar:hover {
+    background-color: #218838;
+  }
+  
+  .listar {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  select {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background-color: white;
+  }
+
+  /* Estilo para título da listagem */
+h3 {
+  text-align: center;
+  margin-top: 40px;
+  color: #333;
+}
+
+/* Estilo da tabela de pessoas */
+.tabela-rotas {
+  width: 100%;
+  max-width: 800px;
+  margin: 20px auto;
+  border-collapse: collapse;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.tabela-rotas th,
+.tabela-rotas td {
+  border: 1px solid #ccc;
+  padding: 12px;
+  text-align: left;
+}
+
+.tabela-rotas th {
+  background-color: #007bff;
+  color: white;
+}
+
+.tabela-rotas tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.tabela-rotas tr:hover {
+  background-color: #e9f5ff;
+}
+
+/* Botões de ação */
+.btn.editar {
+  background-color: #ffc107;
+  color: white;
+}
+
+.btn.editar:hover {
+  background-color: #e0a800;
+}
+
+.btn.excluir {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn.excluir:hover {
+  background-color: #c82333;
+}
+
+/* Botão cancelar */
+.btn.cancelar {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn.cancelar:hover {
+  background-color: #5a6268;
+}

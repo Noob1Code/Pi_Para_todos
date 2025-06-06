@@ -1,0 +1,21 @@
+<div class="topbar">
+  <div class="topbar-content">
+    <!-- Botão do menu lateral -->
+    <button class="menu-button" (click)="toggleSidebar()">☰</button>
+
+    <span class="app-title">Meu Dashboard</span>
+
+    <!-- Ícone de perfil com menu suspenso -->
+    <div class="profile-menu">
+      <img
+        src="https://www.w3schools.com/howto/img_avatar.png"
+        alt="Perfil"
+        (click)="toggleProfileMenu()"
+      />
+      <div class="dropdown-menu" [class.show]="profileMenuOpen">
+        <a href="#">Configurações</a>
+        <a href="#"><button (click)="logout()">Sair</button></a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,152 @@
+/* Estilos do Container do Formulário */
+.form-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 25px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #333;
+  font-weight: 600;
+}
+
+/* Estilos dos Grupos de Formulário e Labels */
+.form-group {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #555;
+}
+
+/* Estilos dos Inputs */
+input {
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+/* Grupo de Botões do Formulário */
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+/* Estilos Gerais de Botão */
+.btn {
+  flex: 1;
+  padding: 12px;
+  margin: 0 5px;
+  font-size: 15px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+/* Botões Específicos */
+.btn.salvar {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn.salvar:hover {
+  background-color: #218838;
+}
+
+.btn.cancelar {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn.cancelar:hover {
+  background-color: #5a6268;
+}
+
+
+/* --- Estilos da Tabela de Dados --- */
+
+h3 {
+  text-align: center;
+  margin-top: 50px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* ALTERADO: A classe da tabela foi corrigida de .tabela-rotas para .tabela-dados */
+.tabela-dados {
+  width: 100%;
+  max-width: 800px;
+  margin: 20px auto;
+  border-collapse: collapse;
+  font-family: 'Segoe UI', sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.tabela-dados th,
+.tabela-dados td {
+  border: 1px solid #ddd;
+  padding: 14px;
+  text-align: left;
+}
+
+.tabela-dados th {
+  background-color: #007bff;
+  color: white;
+  font-weight: 600;
+}
+
+.tabela-dados tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.tabela-dados tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Botões de Ação na Tabela */
+.tabela-dados .btn {
+  padding: 8px 12px;
+  margin-right: 5px;
+}
+
+.btn.editar {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.btn.editar:hover {
+  background-color: #e0a800;
+}
+
+.btn.excluir {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn.excluir:hover {
+  background-color: #c82333;
+}

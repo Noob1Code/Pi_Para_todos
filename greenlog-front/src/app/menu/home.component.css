@@ -1,0 +1,11 @@
+
+/*tela principal*/
+.main-content {
+  margin-left: 0;
+  margin-top: 60px; /* espaço para a topbar */
+  transition: margin-left 0.3s;
+  padding: 20px;
+}
+.main-content.shift {
+  margin-left: 250px;
+}

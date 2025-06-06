@@ -1,0 +1,25 @@
+<input
+  type="text"
+  [ngModel]="termoBuscaOrigemDestino"
+  (ngModelChange)="onTermoBuscaChange($event)"
+  placeholder="Buscar por nome do ponto de coleta, tipo de residuos ou id"
+/>
+
+<table class="tabela-origem-destino">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nome</th>
+      <th>Típos de Resíduos</th>
+      <th>Ação</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let o of origensDestinosFiltadros">
+      <td>{{ o.id }}</td>
+      <td>{{ o.nome }}</td>
+      <td>{{ o.tiposResiduosAceitos.join(', ') }}</td>
+      <td><button class="btn salvar" (click)="onSelecionar(o)">Selecionar</button></td>
+    </tr>
+  </tbody>
+</table>

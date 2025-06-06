@@ -1,0 +1,58 @@
+<app-topbar></app-topbar>
+<app-sidebar></app-sidebar>
+
+<div class="form-container">
+    <h2>Cadastro de Ruas de Conexões</h2>
+
+    <div class="form-group">
+        <label for="rua">Rua:</label>
+        <input id="rua" [(ngModel)]="rua" type="text" placeholder="Digite o nome da Rua"/>
+    </div>
+
+    <div class="form-group">
+        <label for="origem">Origem:</label>
+        <input id="origem" [(ngModel)]="origem" type="text" placeholder="Digite a origem" />
+    </div>
+
+    <div class="form-group">
+        <label for="destino">Destino:</label>
+        <input id="destino" [(ngModel)]="destino" type="text" placeholder="Digite o destino" />
+    </div>
+
+    <div class="form-group">
+        <label for="quilometros">Quilometros:</label>
+        <input id="quilometros" [(ngModel)]="quilometros" type="number" placeholder="Digite a Distancia" />
+    </div>
+
+    <div class="button-group">
+        <button class="btn salvar" (click)="salvar()">💾 {{ idEditando !== null ? 'Atualizar' : 'Salvar' }}</button>
+        <button *ngIf="idEditando !== null" class="btn cancelar" (click)="limparCampos()">❌ Cancelar</button>
+    </div>
+</div>
+
+<hr />
+<h3>Ruas Cadastradas:</h3>
+
+<table class="tabela-Ruas">
+    <thead>
+        <tr>
+            <th>Rua</th>
+            <th>Origem</th>
+            <th>Destino</th>
+            <th>Quilometros</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let r of conexoes">
+            <td>{{ r.rua }}</td>
+            <td>{{ r.origem }}</td>
+            <td>{{ r.destino }}</td>
+            <td>{{ r.quilometros }}</td>
+            <td>
+                <button class="btn editar" (click)="editar(r,r.id)">✏️ Editar</button>
+                <button class="btn excluir" (click)="excluir(r.id)">🗑️ Excluir</button>
+            </td>
+        </tr>
+    </tbody>
+</table>

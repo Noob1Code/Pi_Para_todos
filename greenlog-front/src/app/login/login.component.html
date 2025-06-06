@@ -1,0 +1,55 @@
+<div class="login-container">
+  <form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="login-form">
+    <h2>Login</h2>
+
+    <div class="form-group">
+      <label for="usuario">Usuário:</label>
+      <input
+        type="text"
+        id="usuario"
+        name="usuario"
+        [(ngModel)]="usuario"
+        required
+        #usuarioInput="ngModel"
+        [ngClass]="{ 'invalid-input': usuarioInput.invalid && (usuarioInput.dirty || usuarioInput.touched) }"
+        placeholder="Digite seu usuário"
+      />
+      <div *ngIf="usuarioInput.invalid && (usuarioInput.dirty || usuarioInput.touched)" class="error-message">
+        <small *ngIf="usuarioInput.errors?.['required']">Usuário é obrigatório.</small>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="senha">Senha:</label>
+      <input
+        type="password"
+        id="senha"
+        name="senha"
+        [(ngModel)]="senha"
+        required
+        #senhaInput="ngModel"
+        [ngClass]="{ 'invalid-input': senhaInput.invalid && (senhaInput.dirty || senhaInput.touched) }"
+        placeholder="Digite sua senha"
+      />
+      <div *ngIf="senhaInput.invalid && (senhaInput.dirty || senhaInput.touched)" class="error-message">
+        <small *ngIf="senhaInput.errors?.['required']">Senha é obrigatória.</small>
+      </div>
+    </div>
+
+    <div *ngIf="mensagemErro" class="error-message api-error">
+      {{ mensagemErro }}
+    </div>
+
+    <button type="submit" [disabled]="loginForm.invalid" class="login-button">
+      Entrar
+    </button>
+
+    <div class="register-link">
+      <p>
+        Não tem uma conta?
+        <a routerLink="/cadastro">Cadastre-se aqui</a>
+      </p>
+    </div>
+
+  </form>
+</div>

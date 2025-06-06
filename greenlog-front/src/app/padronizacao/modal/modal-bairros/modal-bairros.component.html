@@ -1,0 +1,22 @@
+<div class="modal-overlay" *ngIf="visivel" (click)="fechar()">
+  
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    
+    <div class="modal-header">
+      <h2>Selecione um Bairro</h2>
+      <button class="close-button" (click)="fechar()">X</button>
+    </div>
+
+    <div class="modal-body">
+      <ul class="bairro-list">
+        <li *ngFor="let bairro of bairros" (click)="selecionar(bairro)">
+          {{ bairro.nome }}
+        </li>
+        <li *ngIf="bairros.length === 0">
+          Nenhum bairro encontrado.
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</div>
