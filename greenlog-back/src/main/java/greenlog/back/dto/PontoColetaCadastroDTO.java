@@ -25,23 +25,20 @@ import java.util.List;
 @Data
 public class PontoColetaCadastroDTO {
 
-    // NOVO: Uma classe interna para representar o objeto bairro que vem do frontend
     @Data
     public static class BairroIdDTO {
         @NotNull(message = "O ID do bairro dentro do objeto bairro é obrigatório")
         private Long id;
     }
 
-    // ALTERADO: A propriedade bairroId foi trocada por um objeto que contém o ID.
     @NotNull(message = "O objeto Bairro é obrigatório")
-    @Valid // @Valid garante que as validações dentro de BairroIdDTO (como @NotNull) sejam checadas
+    @Valid 
     private BairroIdDTO bairro;
 
     @NotBlank(message = "Nome do ponto de coleta é obrigatório")
     @Size(min = 3, max = 100, message = "Nome deve ter entre 3 e 100 caracteres")
     private String nome;
-
-    // ... o resto da classe continua igual ...
+    
     @NotBlank(message = "Nome do responsável é obrigatório")
     @Size(min = 3, max = 100, message = "Nome do responsável deve ter entre 3 e 100 caracteres")
     private String responsavel;
