@@ -1,0 +1,72 @@
+<div class="form-container">
+  <!-- Popups -->
+  <div *ngIf="mensagemSalvo" class="popup success">✅ Bairro cadastrado com sucesso!</div>
+  <div *ngIf="mensagemEditado" class="popup success">✏️ Bairro atualizado com sucesso!</div>
+  <div *ngIf="mensagemExcluido" class="popup success">🗑️ Bairro excluído com sucesso!</div>
+  <div *ngIf="mensagemErro" class="popup error">❌ {{ mensagemErro }}</div>
+
+  <header>
+    <h2>{{ idEditando ? 'Editar' : 'Cadastro de' }} Bairro</h2>
+  </header>
+
+  <form (ngSubmit)="salvar(formBairro)" #formBairro="ngForm">
+    <div class="form-group">
+      <label for="nome">Nome do Bairro:</label>
+      <input 
+        id="nome" 
+        name="nome" 
+        type="text" 
+        [(ngModel)]="bairroAtual.nome" 
+        placeholder="Ex: Setor Bueno"
+        required
+        #nomeInput="ngModel"
+        [ngClass]="{ 'invalid-input': nomeInput.invalid && (nomeInput.dirty || nomeInput.touched) }"
+      />
+      <div *ngIf="nomeInput.invalid && (nomeInput.dirty || nomeInput.touched)" class="error-message">
+        <small *ngIf="nomeInput.errors?.['required']">Nome do bairro é obrigatório.</small>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button type="submit" class="btn salvar">
+        💾 {{ idEditando ? 'Atualizar' : 'Salvar' }}
+      </button>
+
+      <button
+        type="button"
+        *ngIf="idEditando"
+        class="btn cancelar"
+        (click)="resetForm()"
+      >
+        ❌ Cancelar Edição
+      </button>
+    </div>
+  </form>
+</div>
+
+<hr />
+
+<header>
+  <h3>Bairros Cadastrados:</h3>
+</header>
+
+<table class="tabela-dados">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let bairro of bairros">
+      <td>{{ bairro.nome }}</td>
+      <td>
+        <button class="btn editar" (click)="editar(bairro)">✏️ Editar</button>
+        <button class="btn excluir" (click)="excluir(bairro.id!)">🗑️ Excluir</button>
+      </td>
+    </tr>
+    <tr *ngIf="bairros.length === 0">
+      <td colspan="3" style="text-align: center;">Nenhum Bairro cadastrado.</td>
+    </tr>
+  </tbody>
+</table>

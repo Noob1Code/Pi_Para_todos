@@ -1,0 +1,110 @@
+<div class="form-container">
+  <!-- Popups -->
+  <div *ngIf="mensagemSalvo" class="popup success">✅ Rota cadastrado com sucesso!</div>
+  <div *ngIf="mensagemEditado" class="popup success">✏️ Rota atualizado com sucesso!</div>
+  <div *ngIf="mensagemExcluido" class="popup success">🗑️ Rota excluído com sucesso!</div>
+  <div *ngIf="mensagemErro" class="popup error">❌ {{ mensagemErro }}</div>
+
+  <header>
+    <h2>{{ idEditando ? 'Editar' : 'Cadastro de' }} Rota</h2>
+  </header>
+
+  <form (ngSubmit)="salvar()" #formRota="ngForm">
+    <div class="form-group">
+      <label for="caminhao">Caminhão:</label>
+      <input 
+        id="caminhao" 
+        name="caminhao" 
+        type="text" 
+        [(ngModel)]="rotaAtual.caminhao.placa" 
+        placeholder="Click aqui para selicionar o Caminhão"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="origem">Origem:</label>
+      <input 
+        id="origem" 
+        name="origem" 
+        type="text" 
+        [(ngModel)]="rotaAtual.origem.nome" 
+        placeholder="Click aqui para selicionar a Origem"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="destino">Destino:</label>
+      <input 
+        id="destino" 
+        name="destino" 
+        type="text" 
+        [(ngModel)]="rotaAtual.destino.nome" 
+        placeholder="Click aqui para selicionar o Destino"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="tipoResiduo">Tipo de Resíduo:</label>
+        <select 
+          id="tipoResiduo" 
+          name="tipoResiduo"
+          [(ngModel)]="rotaAtual.tipoResiduo">
+          <option value="" disabled [selected]="rotaAtual.tipoResiduo === ''">Selecione o tipo de resíduo</option>
+          <option value="Plástico">Plástico</option>
+          <option value="Papel">Papel</option>
+          <option value="Metal">Metal</option>
+          <option value="Orgânico">Orgânico</option>
+        </select>
+  </div>
+
+    <div class="button-group">
+      <button type="submit" class="btn salvar">
+        💾 {{ idEditando ? 'Atualizar' : 'Salvar' }}
+      </button>
+      <button
+        type="button"
+        *ngIf="idEditando"
+        class="btn cancelar"
+        (click)="resetForm()"
+      >
+        ❌ Cancelar Edição
+      </button>
+    </div>
+  </form>
+</div>
+
+<hr />
+
+<header>
+  <h3>Rotas Cadastradas:</h3>
+</header>
+
+<table class="tabela-dados">
+  <thead>
+    <tr>
+      <th>Caminhão</th>
+      <th>Origem</th>
+      <th>Destino</th>
+      <th>Tipo Residuo</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let rota of rotas">
+      <td>{{ rota.caminhao.placa + ' (' + rota.caminhao.residuos + ')' }}</td>
+      <td>{{ rota.destino.nome + '('+ rota.destino.tiposResiduosAceitos+ ')'  }}</td>
+      <td>{{ rota.destino.nome + '('+ rota.destino.tiposResiduosAceitos+ ')'  }}</td>
+      <td>{{ rota.tipoResiduo }}</td>
+      <td>
+        <button class="btn editar" (click)="editar(rota)">✏️ Editar</button>
+        <button class="btn excluir" (click)="excluir(rota.id!)">🗑️ Excluir</button>
+      </td>
+    </tr>
+    <tr *ngIf="rotas.length === 0">
+      <td colspan="5" style="text-align: center;">Nenhum rota cadastrado.</td>
+    </tr>
+  </tbody>
+</table>

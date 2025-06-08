@@ -1,0 +1,125 @@
+<!-- Modal -->
+<app-modal-bairros
+  [visivel]="modalOrigemVisivel"
+  (fechado)="fecharModalOrigem()"
+  (bairroSelecionado)="onOrigemSelecionado($event)">
+</app-modal-bairros>
+
+<app-modal-bairros 
+  [visivel]="modalDestinoVisivel"
+  (fechado)="fecharModalDestino()"
+  (bairroSelecionado)="onDestinoSelecionado($event)">
+</app-modal-bairros>
+
+<div class="form-container">
+  <!-- Popups -->
+  <div *ngIf="mensagemSalvo" class="popup success">✅ Rua cadastrado com sucesso!</div>
+  <div *ngIf="mensagemEditado" class="popup success">✏️ Rua atualizado com sucesso!</div>
+  <div *ngIf="mensagemExcluido" class="popup success">🗑️ Rua excluído com sucesso!</div>
+  <div *ngIf="mensagemErro" class="popup error">❌ {{ mensagemErro }}</div>
+
+  <header>
+    <h2>{{ idEditando ? 'Editar' : 'Cadastro de' }} Rua</h2>
+  </header>
+
+  <form (ngSubmit)="salvar()" #formRua="ngForm">
+    <div class="form-group">
+      <label for="nome">Nome da Rua:</label>
+      <input 
+        id="nome" 
+        name="nome" 
+        type="text" 
+        [(ngModel)]="ruaAtual.nome" 
+        placeholder="Ex: Rua São Juaquim"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="origem">Origem:</label>
+      <input 
+        id="origem" 
+        name="origem" 
+        type="text" 
+        [(ngModel)]="ruaAtual.origem.nome" 
+        placeholder="Click aqui para selicionar a Origem"
+        readonly
+        (click)="abrirModalOrigem()"
+        class="modal-input"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="destino">Destino:</label>
+      <input 
+        id="destino" 
+        name="destino" 
+        type="text" 
+        [(ngModel)]="ruaAtual.destino.nome " 
+        placeholder="Click aqui para selicionar o Destino"
+        readonly
+        (click)="abrirModalDestino()"
+        class="modal-input"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="distancia">Distancia (Km):</label>
+      <input 
+        id="distancia" 
+        name="distancia" 
+        type="text" 
+        [(ngModel)]="ruaAtual.distancia" 
+        placeholder="Ex: 100"
+        required
+      />
+    </div>
+
+    <div class="button-group">
+      <button type="submit" class="btn salvar">
+        💾 {{ idEditando ? 'Atualizar' : 'Salvar' }}
+      </button>
+      <button
+        type="button"
+        *ngIf="idEditando"
+        class="btn cancelar"
+        (click)="resetForm()"
+      >
+        ❌ Cancelar Edição
+      </button>
+    </div>
+  </form>
+</div>
+
+<hr />
+
+<header>
+  <h3>Ruas Cadastradas:</h3>
+</header>
+
+<table class="tabela-dados">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Origem</th>
+      <th>Destino</th>
+      <th>Distancia</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let rua of ruas">
+      <td>{{ rua.nome }}</td>
+      <td>{{ rua.origem.nome }}</td>
+      <td>{{ rua.destino.nome }}</td>
+      <td>{{ rua.distancia}}</td>
+      <td>
+        <button class="btn editar" (click)="editar(rua)">✏️ Editar</button>
+        <button class="btn excluir" (click)="excluir(rua.id!)">🗑️ Excluir</button>
+      </td>
+    </tr>
+    <tr *ngIf="ruas.length === 0">
+      <td colspan="5" style="text-align: center;">Nenhum rua cadastrado.</td>
+    </tr>
+  </tbody>
+</table>

@@ -1,0 +1,174 @@
+<!-- Modal -->
+<app-modal-bairros 
+  [visivel]="modalBairrosVisivel"
+  (fechado)="fecharModalBairros()"
+  (bairroSelecionado)="onBairroSelecionado($event)">
+</app-modal-bairros>
+
+<div class="form-container">
+  <!-- Popups -->
+  <div *ngIf="mensagemSalvo" class="popup success">✅ Ponto De Coleta cadastrado com sucesso!</div>
+  <div *ngIf="mensagemEditado" class="popup success">✏️ Ponto De Coleta atualizado com sucesso!</div>
+  <div *ngIf="mensagemExcluido" class="popup success">🗑️ Ponto De Coleta excluído com sucesso!</div>
+  <div *ngIf="mensagemErro" class="popup error">❌ {{ mensagemErro }}</div>
+
+  <header>
+    <h2>{{ idEditando ? 'Editar' : 'Cadastro de' }} Ponto De Coleta</h2>
+  </header>
+
+  <form (ngSubmit)="salvar()" #formRua="ngForm">
+    <div class="form-group">
+      <label for="bairro">Bairro:</label>
+      <input 
+        id="bairro"
+        name="bairro" 
+        type="text"
+        [value]="pontoColetaAtual.bairro.nome"
+        placeholder="Clique aqui para selecionar o bairro"
+        readonly
+        (click)="abrirModalBairros()"
+        class="bairro-input"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="nome">Nome do Ponto:</label>
+      <input 
+        id="nome" 
+        name="nome" 
+        [(ngModel)]="pontoColetaAtual.nome" 
+        type="text" 
+        placeholder="Ex: Centro Comunitário"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="responsavel">Responsável:</label>
+      <input 
+        id="responsavel" 
+        name="responsavel" 
+        [(ngModel)]="pontoColetaAtual.responsavel" 
+        type="text" 
+        placeholder="Nome completo do responsável"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="telefoneResponsavel">Telefone do Responsável:</label>
+      <input 
+        id="telefoneResponsavel" 
+        name="telefoneResponsavel" 
+        [(ngModel)]="pontoColetaAtual.telefoneResponsavel" 
+        type="text" 
+        placeholder="Ex: (62) 99999-9999"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="emailResponsavel">Email do Responsável:</label>
+      <input 
+        id="emailResponsavel" 
+        name="emailResponsavel"
+        [(ngModel)]="pontoColetaAtual.emailResponsavel"
+        type="text" 
+        placeholder="Ex: email@dominio.com"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="endereco">Endereço:</label>
+      <input 
+        id="endereco" 
+        name="endereco" 
+        [(ngModel)]="pontoColetaAtual.endereco" 
+        type="text" 
+        placeholder="Ex: Rua X, Qd. Y, Lt. Z, Setor W"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="horarioFuncionamento">Horário de Funcionamento:</label>
+      <input 
+        id="horarioFuncionamento" 
+        name="horarioFuncionamento" 
+        [(ngModel)]="pontoColetaAtual.horarioFuncionamento" 
+        type="text" 
+        placeholder="Ex: Seg-Sex 08:00-18:00"
+      />
+    </div>
+
+    <div class="form-group">
+      <label class="group-label">Tipos de Resíduos Aceitos:</label>
+      <small class="form-hint">(Selecione ao menos um)</small>
+
+      <div class="checkbox-group">
+        <div *ngFor="let tipo of opcoesTiposResiduos" class="checkbox-item">
+          <input 
+            type="checkbox"
+            [id]="'tipo-' + tipo"
+            [name]="'tipo-' + tipo"
+            [value]="tipo"
+            [(ngModel)]="tiposResiduosSelecionados[tipo]"
+            (ngModelChange)="onTipoResiduoChange(tipo, $event)"
+          />
+          <label [for]="'tipo-' + tipo" class="checkbox-label">{{ tipo }}</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button type="submit" class="btn salvar">
+        💾 {{ idEditando ? 'Atualizar' : 'Salvar' }}
+      </button>
+      <button
+        type="button"
+        *ngIf="idEditando"
+        class="btn cancelar"
+        (click)="resetForm()"
+      >
+        ❌ Cancelar Edição
+      </button>
+    </div>
+  </form>
+</div>
+
+<hr />
+
+<header>
+  <h3>Pontos de Coleta Cadastrados:</h3>
+</header>
+
+<table class="tabela-dados">
+  <thead>
+    <tr>
+      <th>Bairro</th>
+      <th>Nome</th>
+      <th>Responsável</th>
+      <th>Telefone</th>
+      <th>Email</th>
+      <th>Endereço</th>
+      <th>Funcionamento</th>
+      <th>Tipos Resíduos</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let pontoColeta of pontosColeta">
+      <td>{{ pontoColeta.bairro.nome}}</td>
+      <td>{{ pontoColeta.nome }}</td>
+      <td>{{ pontoColeta.responsavel }}</td>
+      <td>{{ pontoColeta.telefoneResponsavel }}</td>
+      <td>{{ pontoColeta.emailResponsavel }}</td>
+      <td>{{ pontoColeta.endereco }}</td>
+      <td>{{ pontoColeta.horarioFuncionamento }}</td>
+      <td>{{ pontoColeta.tiposResiduosAceitos.join(', ') }}</td>
+      <td>
+        <button class="btn editar" (click)="editar(pontoColeta)">✏️ Editar</button>
+        <button class="btn excluir" (click)="excluir(pontoColeta.id!)">🗑️ Excluir</button>
+      </td>
+    </tr>
+    <tr *ngIf="pontosColeta.length === 0">
+      <td colspan="9" style="text-align: center;">Nenhum Ponto de Coleta cadastrado.</td>
+    </tr>
+  </tbody>
+</table>

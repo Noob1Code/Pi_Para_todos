@@ -1,0 +1,37 @@
+<header class="topbar">
+  <div class="topbar-content">
+    <!-- Botão acessível do menu -->
+    <button
+      class="menu-button"
+      aria-label="Abrir menu lateral"
+      (click)="toggleSidebar()"
+    >
+      ☰
+    </button>
+
+    <span class="app-title">teste</span>
+
+    <!-- Menu de perfil acessível -->
+    <div class="profile-menu">
+      <button
+        class="profile-button"
+        aria-label="Abrir menu do perfil"
+        (click)="toggleProfileMenu()"
+      >
+        <img
+          src="https://www.w3schools.com/howto/img_avatar.png"
+          alt="Avatar do usuário"
+        />
+      </button>
+
+      <nav
+        class="dropdown-menu"
+        [class.show]="profileMenuOpen"
+        aria-label="Menu do perfil"
+      >
+        <a href="#">Configurações</a>
+        <button (click)="logout()">Sair</button>
+      </nav>
+    </div>
+  </div>
+</header>

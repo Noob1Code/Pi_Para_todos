@@ -1,0 +1,49 @@
+<div 
+  class="modal-overlay" 
+  *ngIf="visivel" 
+  (click)="fechar()" 
+  aria-hidden="false"
+  role="dialog"
+  aria-modal="true"
+>
+  <div 
+    class="modal-content" 
+    (click)="$event.stopPropagation()" 
+    tabindex="-1"
+    aria-labelledby="modal-title"
+    role="document"
+  >
+    <header class="modal-header">
+      <h2 id="modal-title">Selecione um Bairro</h2>
+      <button 
+        type="button" 
+        class="close-button" 
+        (click)="fechar()" 
+        aria-label="Fechar modal"
+      >
+        &times;
+      </button>
+    </header>
+
+    <section class="modal-body">
+      <input 
+        type="text" 
+        placeholder="Pesquisar bairro..." 
+        [(ngModel)]="termoPesquisa" 
+        (input)="filtrar()" 
+        class="form-control"
+      />
+  
+      <p *ngIf="carregando">Carregando bairros...</p>
+
+      <ul class="modal-list">
+        <li *ngFor="let bairro of bairrosFiltrados" (click)="selecionar(bairro)">
+          {{ bairro.nome }}
+        </li>
+        <li *ngIf="bairros.length === 0" class="nenhum-resultado">
+          Nenhum bairro encontrado.
+        </li>
+      </ul>
+    </section>
+  </div>
+</div>

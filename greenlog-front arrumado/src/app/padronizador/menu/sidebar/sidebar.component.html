@@ -1,0 +1,51 @@
+
+
+<aside class="sidebar" [class.open]="sidebarOpen">
+  <nav aria-label="Menu lateral">
+    <div class="sidebar-header">
+        <button class="close-button" (click)="fecharSidebar()">✖</button>
+    </div>
+    <ul>
+      <li>
+        <button (click)="navegarPara('Menu')" aria-label="Ir para o Dashboard">
+          Dashboard
+        </button>
+      </li>
+
+      <li class="menu-header">
+        <button
+  (click)="toggleCadastro()"
+  [attr.aria-expanded]="cadastroAberto"
+  aria-controls="submenu-cadastro"
+>
+  Cadastro
+</button>
+      </li>
+
+      <ul
+        *ngIf="cadastroAberto"
+        class="submenu"
+        id="submenu-cadastro"
+        aria-label="Submenu de cadastro"
+      >
+        <li>
+          <button (click)="navegarPara('PontosColeta')">
+            Pontos de Coleta
+          </button>
+        </li>
+        <li>
+          <button (click)="navegarPara('Bairros')">Bairros</button>
+        </li>
+        <li>
+          <button (click)="navegarPara('Ruas')">Ruas entre Bairros</button>
+        </li>
+        <li>
+          <button (click)="navegarPara('Rotas')">Rotas</button>
+        </li>
+        <li>
+          <button (click)="navegarPara('Caminhao')">Caminhão</button>
+        </li>
+      </ul>
+    </ul>
+  </nav>
+</aside>

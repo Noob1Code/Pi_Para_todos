@@ -1,0 +1,8 @@
+<ng-container *ngIf="isLayoutVisible()">
+  <app-topbar></app-topbar>
+  <app-sidebar></app-sidebar>
+</ng-container>
+
+<main class="content">
+  <router-outlet></router-outlet>
+</main>

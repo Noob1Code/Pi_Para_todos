@@ -1,0 +1,115 @@
+<div class="form-container">
+  <!-- Popups -->
+  <div *ngIf="mensagemSalvo" class="popup success">✅ Caminhão cadastrado com sucesso!</div>
+  <div *ngIf="mensagemEditado" class="popup success">✏️ Caminhão atualizado com sucesso!</div>
+  <div *ngIf="mensagemExcluido" class="popup success">🗑️ Caminhão excluído com sucesso!</div>
+  <div *ngIf="mensagemErro" class="popup error">❌ {{ mensagemErro }}</div>
+
+  <header>
+    <h2>{{ idEditando ? 'Editar' : 'Cadastro de' }} Caminhão</h2>
+  </header>
+
+  <form (ngSubmit)="salvar()" #formCaminhao="ngForm">
+    <div class="form-group">
+      <label for="placa">Placa:</label>
+      <input 
+        id="placa" 
+        name="placa" 
+        type="text" 
+        [(ngModel)]="caminhaoAtual.placa" 
+        placeholder="Ex: ABC-1234"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="motorista">Motorista:</label>
+      <input 
+        id="motorista" 
+        name="motorista" 
+        type="text" 
+        [(ngModel)]="caminhaoAtual.motorista" 
+        placeholder="Ex: João da Silva"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="capacidade">Capacidade (Kg):</label>
+      <input 
+        id="capacidade" 
+        name="capacidade" 
+        type="number" 
+        [(ngModel)]="caminhaoAtual.capacidade" 
+        placeholder="Ex: 5000"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label class="group-label">Tipos de Resíduos Aceitos:</label>
+      <small class="form-hint">(Selecione ao menos um)</small>
+
+      <div class="checkbox-group">
+        <div *ngFor="let tipo of opcoesTiposResiduos" class="checkbox-item">
+          <input 
+            type="checkbox"
+            [id]="'tipo-' + tipo"
+            [name]="'tipo-' + tipo"
+            [value]="tipo"
+            [(ngModel)]="tiposResiduosSelecionados[tipo]"
+            (ngModelChange)="onTipoResiduoChange(tipo, $event)"
+          />
+          <label [for]="'tipo-' + tipo" class="checkbox-label">{{ tipo }}</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button type="submit" class="btn salvar">
+        💾 {{ idEditando ? 'Atualizar' : 'Salvar' }}
+      </button>
+      <button
+        type="button"
+        *ngIf="idEditando"
+        class="btn cancelar"
+        (click)="resetForm()"
+      >
+        ❌ Cancelar Edição
+      </button>
+    </div>
+  </form>
+</div>
+
+<hr />
+
+<header>
+  <h3>Caminhões Cadastrados:</h3>
+</header>
+
+<table class="tabela-dados">
+  <thead>
+    <tr>
+      <th>Placa</th>
+      <th>Motorista</th>
+      <th>Capacidade (Kg)</th>
+      <th>Resíduos</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let caminhao of caminhoes">
+      <td>{{ caminhao.placa }}</td>
+      <td>{{ caminhao.motorista }}</td>
+      <td>{{ caminhao.capacidade }}</td>
+      <td>{{ caminhao.residuos.join(', ') }}</td>
+      <td>
+        <button class="btn editar" (click)="editar(caminhao)">✏️ Editar</button>
+        <button class="btn excluir" (click)="excluir(caminhao.id!)">🗑️ Excluir</button>
+      </td>
+    </tr>
+    <tr *ngIf="caminhoes.length === 0">
+      <td colspan="5" style="text-align: center;">Nenhum caminhão cadastrado.</td>
+    </tr>
+  </tbody>
+</table>
