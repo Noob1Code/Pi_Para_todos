@@ -53,6 +53,9 @@ export class SidebarComponent implements OnInit {
       case 'Bairros':
         this.router.navigate(['/bairros']);
         break;
+      case 'Intinerario':
+        this.router.navigate(['/intinerario']);
+        break;
     }
 
     console.log('Ir para:', destino);

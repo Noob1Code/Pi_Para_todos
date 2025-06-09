@@ -48,7 +48,6 @@ export class BairroComponent implements OnInit{
   }
 
   salvar(form: NgForm): void {
-  
 
   if (this.idEditando) {
     this.bairroService.atualizar(this.idEditando, this.bairroAtual).subscribe({
@@ -87,14 +86,11 @@ export class BairroComponent implements OnInit{
   editar(bairro: Bairro): void {
     this.idEditando = bairro.id ?? null;
     this.bairroAtual = { ...bairro };
-    
   }
 
   resetForm(form?: NgForm): void {
   this.bairroAtual = { nome: '' };
   this.idEditando = null;
-  
-
   if (form) {
     form.resetForm(); // <-- Isso limpa os estados touched, dirty, etc.
   }

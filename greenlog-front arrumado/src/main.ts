@@ -1,6 +1,20 @@
+// main.ts
 import { bootstrapApplication } from '@angular/platform-browser';
-import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
+import { provideHttpClient } from '@angular/common/http';
+import { LOCALE_ID } from '@angular/core';
+import { appConfig } from './app/app.config';
 
-bootstrapApplication(AppComponent, appConfig)
-  .catch((err) => console.error(err));
+// LOCALE em português
+import { registerLocaleData } from '@angular/common';
+import localePt from '@angular/common/locales/pt';
+registerLocaleData(localePt);
+
+bootstrapApplication(AppComponent, {
+  ...appConfig,
+  providers: [
+    ...(appConfig.providers || []),
+    provideHttpClient(),
+    { provide: LOCALE_ID, useValue: 'pt-BR' }
+  ]
+}).catch(err => console.error(err));

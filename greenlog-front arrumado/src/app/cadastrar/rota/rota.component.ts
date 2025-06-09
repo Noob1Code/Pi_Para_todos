@@ -1,175 +1,144 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Rota } from './rota.model';
 import { RotaService } from './rota.service';
+import { ModalBairrosComponent } from "../../padronizador/modal/modal-bairro/modal-bairro.component";
+import { ModalCaminhaoComponent } from "../../padronizador/modal/modal-caminhao/modal-caminhao.component";
+import { Caminhao } from '../caminhao/caminhao.modal';
+import { Bairro } from '../bairro/bairro.model';
 
 @Component({
   selector: 'app-rota',
   standalone: true,
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule, FormsModule, ModalBairrosComponent, ModalCaminhaoComponent],
   templateUrl: './rota.component.html',
   styleUrl: './rota.component.css'
 })
 export class RotaComponent implements OnInit{
-  
-  rotas: Rota [] = [];
+  modalCaminhoesVisivel = false;
+  modalBairrosVisivel = false;
+  rotas: Rota[] = [];
   rotaAtual: Rota = {
-      caminhao: { placa: '', motorista: '', capacidade: 0, residuos: []}, 
-      destino:{
-        nome: '',
-        responsavel: '',
-        telefoneResponsavel: '',
-        emailResponsavel: '',
-        endereco: '',
-        horarioFuncionamento: '',
-        bairro: { id: 0, nome: '' },
-        tiposResiduosAceitos: []
-      }, 
-      origem:{
-        nome: '',
-        responsavel: '',
-        telefoneResponsavel: '',
-        emailResponsavel: '',
-        endereco: '',
-        horarioFuncionamento: '',
-        bairro: { id: 0, nome: '' },
-        tiposResiduosAceitos: []
-      }, 
-      tipoResiduo: ''
-    };
-
+    caminhao: null,
+    destino: null,
+    tipoResiduo: '',
+    bairrosPercorridos: [],
+    distanciaTotal:0
+  }
   idEditando: number | null = null;
-  
-  mensagemSalvo = false;
-  mensagemEditado = false;
-  mensagemExcluido = false;
-  mensagemErro = '';
-  
-  constructor(private rotaService: RotaService) {}
 
+  mensagem: { tipo: 'salvo' | 'editado' | 'excluido' | 'erro' | null; texto: string } = {
+    tipo: null,
+    texto: ''
+  };
+
+  constructor(private rotaService: RotaService) {}
+  
   ngOnInit(): void {
     this.buscarTodos();
   }
-
-  mostrarMensagem(tipo: 'salvo' | 'editado' | 'excluido') {
-    if (tipo === 'salvo') this.mensagemSalvo = true;
-    if (tipo === 'editado') this.mensagemEditado = true;
-    if (tipo === 'excluido') this.mensagemExcluido = true;
-
-    setTimeout(() => {
-      this.mensagemSalvo = false;
-      this.mensagemEditado = false;
-      this.mensagemExcluido = false;
-    }, 3000);
+  
+  mostrarMensagem(tipo: 'salvo' | 'editado' | 'excluido' | 'erro', textoPersonalizado?: string): void {
+    this.mensagem = {
+      tipo,
+      texto:
+        tipo === 'salvo' ? 'Rota cadastrado com sucesso!' :
+        tipo === 'editado' ? 'Rota atualizado com sucesso!' :
+        tipo === 'excluido' ? 'Rota excluído com sucesso!' :
+        textoPersonalizado || '❌ Ocorreu um erro ao processar a solicitação.'
+    };
+  
+    if (tipo !== 'erro') {
+      setTimeout(() => {
+        this.mensagem = { tipo: null, texto: '' };
+      }, 6000);
+    }
   }
 
   buscarTodos(): void {
     this.rotaService.listar().subscribe({
       next: (res) => (this.rotas = res),
-      error: () => (this.mensagemErro = 'Erro ao buscar ruas.'),
+      error: () => (this.mostrarMensagem('erro','Erro ao buscar rotas.')),
     });
   }
 
-  salvar(): void {
-    this.limparMensagens();
-  
-    if (this.idEditando) {
-      this.rotaService.atualizar(this.idEditando, this.rotaAtual).subscribe({
-        next: () => {
-          this.mostrarMensagem('editado');
-          this.resetForm();
-          this.buscarTodos();
-        },
-        error: () => (this.mensagemErro = 'Erro ao atualizar rua.'),
-      });
-    } else {
-      this.rotaService.salvar(this.rotaAtual).subscribe({
-        next: () => {
-          this.mostrarMensagem('salvo');
-          this.resetForm();
-          this.buscarTodos();
-        },
-      error: () => (this.mensagemErro = 'Erro ao cadastrar rua.'),
-      });
-    }
+  resetForm(form?: NgForm): void {
+    this.rotaAtual = {
+      caminhao: null,
+      destino: null,
+      tipoResiduo: '',
+      bairrosPercorridos: [],
+      distanciaTotal:0
+    };
+    this.idEditando = null;
+  }
+  editar(rota: Rota): void {
+    this.idEditando = rota.id ?? null;
+    this.rotaAtual = { ...rota };
+  }
+
+  abrirModalBairros(){
+    this.modalBairrosVisivel = true;
+    this.fecharModalCaminhoes();
+  }
+
+  fecharModalBairros(){
+    this.modalBairrosVisivel = false;
   }
   
+  onBairroSelecionado(event: Bairro): void {
+    this.rotaAtual.destino = event;
+    this.modalBairrosVisivel = false;
+  }
+
+  abrirModalCaminhoes(){
+    this.modalCaminhoesVisivel = true;
+    this.fecharModalBairros();
+  }
+
+  fecharModalCaminhoes(){
+    this.modalCaminhoesVisivel = false;
+  }
+
+  onCaminhaoSelecionado(caminhao : Caminhao){
+    this.rotaAtual.caminhao = caminhao;
+    this.modalCaminhoesVisivel = false;
+  }
+
+  salvar(form: NgForm): void {
+
+  if (this.idEditando) {
+    this.rotaService.atualizar(this.idEditando, this.rotaAtual).subscribe({
+      next: () => {
+        this.mostrarMensagem('editado');
+        this.resetForm(form);
+        this.buscarTodos();
+      },
+      error: () => (this.mostrarMensagem('erro','Erro ao atualizar bairro.')),
+    });
+  } else {
+    this.rotaService.salvar(this.rotaAtual).subscribe({
+      next: () => {
+        this.mostrarMensagem('salvo');
+        this.resetForm(form);
+        this.buscarTodos();
+      },
+      error: () => (this.mostrarMensagem('erro','Erro ao cadastrar bairro.')),
+    });
+  }
+  }
+
   excluir(id: number): void {
-    const confirmar = confirm('Tem certeza que deseja excluir este rua?');
+    const confirmar = confirm('Tem certeza que deseja excluir este ponto de coleta?');
     if (confirmar) {
       this.rotaService.excluir(id).subscribe({
         next: () => {
           this.mostrarMensagem('excluido');
           this.buscarTodos();
         },
-        error: () => (this.mensagemErro = 'Erro ao excluir rua.'),
+        error: () => this.mostrarMensagem('erro', 'Erro ao excluir ponto de coleta.'),
       });
     }
   }
-  
-  editar(rota: Rota): void {
-    this.idEditando = rota.id ?? null;
-    this.rotaAtual = { ...rota };
-    this.limparMensagens();
-  }
-  
-  resetForm(): void {
-    this.rotaAtual = {
-      caminhao: { placa: '', motorista: '', capacidade: 0, residuos: []}, 
-      destino:{
-        nome: '',
-        responsavel: '',
-        telefoneResponsavel: '',
-        emailResponsavel: '',
-        endereco: '',
-        horarioFuncionamento: '',
-        bairro: { id: 0, nome: '' },
-        tiposResiduosAceitos: []
-      }, 
-      origem:{
-        nome: '',
-        responsavel: '',
-        telefoneResponsavel: '',
-        emailResponsavel: '',
-        endereco: '',
-        horarioFuncionamento: '',
-        bairro: { id: 0, nome: '' },
-        tiposResiduosAceitos: []
-      },  
-      tipoResiduo: ''
-    };
-    this.idEditando = null;
-    this.limparMensagens();
-  }
-  
-  limparMensagens(): void {
-    this.mensagemErro = '';
-  }
-  
-  validarCampos(rotaAtual: Rota): boolean {
-    
-    if (!rotaAtual.caminhao || rotaAtual.caminhao === null) {
-      this.mensagemErro = 'O caminhao é obrigatório.';
-      return false;
-    }
-
-    if (!rotaAtual.origem || rotaAtual.origem === null) {
-      this.mensagemErro = 'A origem é obrigatório.';
-      return false;
-    }
-
-    if (!rotaAtual.destino || rotaAtual.destino === null) {
-      this.mensagemErro = 'O destino é obrigatório.';
-      return false;
-    }
-
-    if (!rotaAtual.tipoResiduo || rotaAtual.tipoResiduo.trim() === '') {
-      this.mensagemErro = 'O tipo de residuo é obrigatória.';
-      return false;
-    }
-
-    return true;
-  }
-
 }

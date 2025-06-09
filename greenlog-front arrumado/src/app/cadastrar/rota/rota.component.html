@@ -1,110 +1,151 @@
-<div class="form-container">
-  <!-- Popups -->
-  <div *ngIf="mensagemSalvo" class="popup success">✅ Rota cadastrado com sucesso!</div>
-  <div *ngIf="mensagemEditado" class="popup success">✏️ Rota atualizado com sucesso!</div>
-  <div *ngIf="mensagemExcluido" class="popup success">🗑️ Rota excluído com sucesso!</div>
-  <div *ngIf="mensagemErro" class="popup error">❌ {{ mensagemErro }}</div>
+<app-modal-bairros 
+  [visivel]="modalBairrosVisivel"
+  (fechado)="fecharModalBairros()"
+  (bairroSelecionado)="onBairroSelecionado($event)">
+</app-modal-bairros>
 
+<app-modal-caminhao
+  [visivel]="modalCaminhoesVisivel"
+  (fechado)="fecharModalCaminhoes()"
+  (caminhaoSelecionado)="onCaminhaoSelecionado($event)">
+</app-modal-caminhao>
+
+<div class="form-container">
   <header>
     <h2>{{ idEditando ? 'Editar' : 'Cadastro de' }} Rota</h2>
   </header>
 
-  <form (ngSubmit)="salvar()" #formRota="ngForm">
+  <form (ngSubmit)="salvar(formRota)" #formRota="ngForm">
+
+    <!-- Botão de seleção de caminhão -->
     <div class="form-group">
-      <label for="caminhao">Caminhão:</label>
-      <input 
-        id="caminhao" 
-        name="caminhao" 
-        type="text" 
-        [(ngModel)]="rotaAtual.caminhao.placa" 
-        placeholder="Click aqui para selicionar o Caminhão"
+      <label for="caminhao">Caminhão Selecionado:</label>
+      <input
+        type="text"
+        id="caminhao"
+        name="caminhao"
+        readonly
+        [value]="rotaAtual.caminhao?.placa || ''"
+        placeholder="Clique para selecionar"
+        (click)="abrirModalCaminhoes()"
+        class="select-button"
         required
+        [ngClass]="{ 'invalid-input': !rotaAtual.caminhao && formRota.submitted }"
       />
+      <div *ngIf="!rotaAtual.caminhao && formRota.submitted" class="error-message">
+        <small>Selecione um caminhão.</small>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label for="origem">Origem:</label>
-      <input 
-        id="origem" 
-        name="origem" 
-        type="text" 
-        [(ngModel)]="rotaAtual.origem.nome" 
-        placeholder="Click aqui para selicionar a Origem"
+    <!-- Seleção do tipo de resíduo (limitado aos do caminhão) -->
+    <div class="form-group" *ngIf="rotaAtual.caminhao">
+      <label for="residuo">Tipo de Resíduo (1 por rota):</label>
+      <select
+        id="residuo"
+        name="residuo"
         required
-      />
+        [(ngModel)]="rotaAtual.tipoResiduo"
+        #residuoInput="ngModel"
+        [ngClass]="{ 'invalid-input': residuoInput.invalid && (residuoInput.dirty || residuoInput.touched || formRota.submitted) }"
+      >
+        <option [ngValue]="null" disabled selected>Selecione</option>
+        <option *ngFor="let tipo of rotaAtual.caminhao.residuos" [value]="tipo">{{ tipo }}</option>
+      </select>
+      <div *ngIf="residuoInput.invalid && (residuoInput.dirty || residuoInput.touched || formRota.submitted)" class="error-message">
+        <small>Escolha um tipo de resíduo.</small>
+      </div>
     </div>
 
+    <!-- Botão de seleção de bairro -->
     <div class="form-group">
-      <label for="destino">Destino:</label>
-      <input 
-        id="destino" 
-        name="destino" 
-        type="text" 
-        [(ngModel)]="rotaAtual.destino.nome" 
-        placeholder="Click aqui para selicionar o Destino"
+      <label for="destino">Destino (Ponto de Coleta):</label>
+      <input
+        type="text"
+        id="destino"
+        name="destino"
+        readonly
+        [value]="rotaAtual.destino?.nome || ''"
+        placeholder="Clique para selecionar"
+        (click)="abrirModalBairros()"
+        class="select-button"
         required
+        [ngClass]="{ 'invalid-input': !rotaAtual.destino && formRota.submitted }"
       />
+      <div *ngIf="!rotaAtual.destino && formRota.submitted" class="error-message">
+        <small>Selecione o destino da rota.</small>
+      </div>
     </div>
 
+    <!-- Botão de cálculo -->
     <div class="form-group">
-      <label for="tipoResiduo">Tipo de Resíduo:</label>
-        <select 
-          id="tipoResiduo" 
-          name="tipoResiduo"
-          [(ngModel)]="rotaAtual.tipoResiduo">
-          <option value="" disabled [selected]="rotaAtual.tipoResiduo === ''">Selecione o tipo de resíduo</option>
-          <option value="Plástico">Plástico</option>
-          <option value="Papel">Papel</option>
-          <option value="Metal">Metal</option>
-          <option value="Orgânico">Orgânico</option>
-        </select>
-  </div>
-
-    <div class="button-group">
-      <button type="submit" class="btn salvar">
-        💾 {{ idEditando ? 'Atualizar' : 'Salvar' }}
-      </button>
       <button
         type="button"
-        *ngIf="idEditando"
-        class="btn cancelar"
-        (click)="resetForm()"
+        class="btn calcular"
+        [disabled]="!rotaAtual.caminhao || !rotaAtual.tipoResiduo || !rotaAtual.destino"
       >
-        ❌ Cancelar Edição
+        🚛 Calcular Rota
       </button>
+    </div>
+
+    <!-- Visualização da rota -->
+    <div *ngIf="rotaAtual.bairrosPercorridos.length > 0" class="resumo-rota">
+      <h4>Resumo da Rota:</h4>
+      <p><strong>Caminho:</strong> {{ rotaAtual.bairrosPercorridos.join(' → ') }}</p>
+      <p><strong>Distância Total:</strong> {{ rotaAtual.distanciaTotal }} km</p>
+      <p><strong>Tipo de Resíduo:</strong> {{ rotaAtual.tipoResiduo }}</p>
+    </div>
+
+    <div *ngIf="mensagem?.tipo" [ngClass]="['popup', mensagem.tipo === 'erro' ? 'error' : 'success']">
+    <span *ngIf="mensagem.tipo === 'salvo'">✅</span>
+    <span *ngIf="mensagem.tipo === 'editado'">✏️</span>
+    <span *ngIf="mensagem.tipo === 'excluido'">🗑️</span>
+    <span *ngIf="mensagem.tipo === 'erro'">❌</span>
+    {{ mensagem.texto }}
+    </div>
+
+    <!-- Botões -->
+    <div class="button-group">
+      <button
+        type="submit"
+        class="btn salvar"
+        [disabled]="formRota.invalid || rotaAtual.bairrosPercorridos.length === 0"
+      >
+        💾 {{ idEditando ? 'Atualizar' : 'Salvar' }}
+      </button>
+      <button type="button" class="btn cancelar" *ngIf="idEditando" (click)="resetForm()">❌ Cancelar Edição</button>
     </div>
   </form>
 </div>
 
-<hr />
-
 <header>
-  <h3>Rotas Cadastradas:</h3>
+  <h3>Rota Cadastrados:</h3>
 </header>
 
 <table class="tabela-dados">
   <thead>
     <tr>
-      <th>Caminhão</th>
-      <th>Origem</th>
+      <th>Caminhao</th>
       <th>Destino</th>
-      <th>Tipo Residuo</th>
+      <th>Tipo Residuos</th>
+      <th>bairrosPercorridos</th>
+      <th>distanciaTotal</th>
       <th>Ações</th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let rota of rotas">
-      <td>{{ rota.caminhao.placa + ' (' + rota.caminhao.residuos + ')' }}</td>
-      <td>{{ rota.destino.nome + '('+ rota.destino.tiposResiduosAceitos+ ')'  }}</td>
-      <td>{{ rota.destino.nome + '('+ rota.destino.tiposResiduosAceitos+ ')'  }}</td>
-      <td>{{ rota.tipoResiduo }}</td>
+      <td>{{ rota.caminhao?.placa}}</td>
+      <td>{{ rota.destino?.nome}}</td>
+      <td>{{ rota.tipoResiduo}}</td>
+      <td>{{ rota.bairrosPercorridos}}</td>
+      <td>{{ rota.distanciaTotal}}</td>
       <td>
         <button class="btn editar" (click)="editar(rota)">✏️ Editar</button>
         <button class="btn excluir" (click)="excluir(rota.id!)">🗑️ Excluir</button>
       </td>
     </tr>
     <tr *ngIf="rotas.length === 0">
-      <td colspan="5" style="text-align: center;">Nenhum rota cadastrado.</td>
+      <td colspan="9" style="text-align: center;">Nenhum Ponto de Coleta cadastrado.</td>
     </tr>
   </tbody>
 </table>

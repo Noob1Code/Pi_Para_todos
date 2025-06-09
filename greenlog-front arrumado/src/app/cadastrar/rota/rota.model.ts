@@ -1,10 +1,11 @@
+import { Bairro } from "../bairro/bairro.model";
 import { Caminhao } from "../caminhao/caminhao.modal";
-import { PontoColeta } from "../ponto-coleta/ponto-coleta.model";
 
-export interface Rota{
-    id?: number;
-    caminhao: Caminhao;
-    origem: PontoColeta;
-    destino: PontoColeta;
-    tipoResiduo: string;
+export interface Rota {
+  id?: number;
+  caminhao: Caminhao|null;
+  destino: Bairro|null;
+  tipoResiduo: string;
+  bairrosPercorridos: string[];  // Nomes dos bairros ordenados
+  distanciaTotal: number;        // Distância em km
 }
