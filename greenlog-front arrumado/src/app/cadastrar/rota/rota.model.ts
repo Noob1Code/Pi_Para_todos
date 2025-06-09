@@ -6,6 +6,19 @@ export interface Rota {
   caminhao: Caminhao|null;
   destino: Bairro|null;
   tipoResiduo: string;
-  bairrosPercorridos: string[];  // Nomes dos bairros ordenados
-  distanciaTotal: number;        // Distância em km
+  bairrosPercorridos: string[];
+  arestasPercorridas?: Aresta[]; 
+  distanciaTotal: number;      
+}
+
+export interface CaminhoDTO {
+  bairros: Bairro[];
+  arestas: Aresta[];
+  distanciaTotal: number;
+}
+
+export interface Aresta {
+  origemId: number;
+  destinoId: number;
+  distancia: number;
 }

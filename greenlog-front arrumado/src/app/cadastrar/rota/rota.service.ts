@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { Rota } from "./rota.model";
+import { CaminhoDTO, Rota } from "./rota.model";
 import { Injectable } from "@angular/core";
 
 @Injectable({
@@ -27,4 +27,13 @@ export class RotaService {
   excluir(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  getMenorCaminho(origemId: number, destinoId: number): Observable<CaminhoDTO> {
+  return this.http.get<CaminhoDTO>(`http://localhost:8080/api/caminhos/menor-caminho`, {
+    params: {
+      origemId,
+      destinoId
+    }
+  });
+}
 }

@@ -79,18 +79,27 @@
     <!-- Botão de cálculo -->
     <div class="form-group">
       <button
-        type="button"
-        class="btn calcular"
-        [disabled]="!rotaAtual.caminhao || !rotaAtual.tipoResiduo || !rotaAtual.destino"
-      >
-        🚛 Calcular Rota
-      </button>
+  type="button"
+  class="btn calcular"
+  [disabled]="!rotaAtual.caminhao || !rotaAtual.tipoResiduo || !rotaAtual.destino"
+  (click)="calcularRota()"
+>
+  🚛 Calcular Rota
+</button>
     </div>
 
     <!-- Visualização da rota -->
     <div *ngIf="rotaAtual.bairrosPercorridos.length > 0" class="resumo-rota">
       <h4>Resumo da Rota:</h4>
       <p><strong>Caminho:</strong> {{ rotaAtual.bairrosPercorridos.join(' → ') }}</p>
+      <div *ngIf="rotaAtual.arestasPercorridas!.length > 0">
+  <h4>Ruas Percorridas:</h4>
+  <ul>
+    <li *ngFor="let aresta of rotaAtual.arestasPercorridas">
+      De {{ aresta.origemId }} para {{ aresta.destinoId }} — {{ aresta.distancia }} km
+    </li>
+  </ul>
+</div>
       <p><strong>Distância Total:</strong> {{ rotaAtual.distanciaTotal }} km</p>
       <p><strong>Tipo de Resíduo:</strong> {{ rotaAtual.tipoResiduo }}</p>
     </div>
