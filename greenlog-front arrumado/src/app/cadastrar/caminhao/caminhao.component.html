@@ -1,9 +1,4 @@
 <div class="form-container">
-  <!-- Popups -->
-  <div *ngIf="mensagemSalvo" class="popup success">✅ Caminhão cadastrado com sucesso!</div>
-  <div *ngIf="mensagemEditado" class="popup success">✏️ Caminhão atualizado com sucesso!</div>
-  <div *ngIf="mensagemExcluido" class="popup success">🗑️ Caminhão excluído com sucesso!</div>
-  <div *ngIf="mensagemErro" class="popup error">❌ {{ mensagemErro }}</div>
 
   <header>
     <h2>{{ idEditando ? 'Editar' : 'Cadastro de' }} Caminhão</h2>
@@ -17,9 +12,17 @@
         name="placa" 
         type="text" 
         [(ngModel)]="caminhaoAtual.placa" 
-        placeholder="Ex: ABC-1234"
+        placeholder="Ex: ABC1234"
+        minlength="7"
+        maxlength="7"
         required
+        #placaInput="ngModel"
+        [ngClass]="{ 'invalid-input': placaInput.invalid && (placaInput.dirty || placaInput.touched) }"
       />
+      <div *ngIf="placaInput.invalid && (placaInput.dirty || placaInput.touched)" class="error-message">
+        <small *ngIf="placaInput.errors?.['required']">Placa é obrigatória.</small>
+        <small *ngIf="placaInput.errors?.['minlength']">É obrigatório ter 7 caracteres.</small>
+      </div>
     </div>
 
     <div class="form-group">
@@ -31,7 +34,12 @@
         [(ngModel)]="caminhaoAtual.motorista" 
         placeholder="Ex: João da Silva"
         required
+        #motoristaInput="ngModel"
+        [ngClass]="{ 'invalid-input': motoristaInput.invalid && (motoristaInput.dirty || motoristaInput.touched) }"
       />
+      <div *ngIf="motoristaInput.invalid && (motoristaInput.dirty || motoristaInput.touched)" class="error-message">
+        <small *ngIf="motoristaInput.errors?.['required']">Nome do motorista é obrigatório.</small>
+      </div>
     </div>
 
     <div class="form-group">
@@ -43,12 +51,16 @@
         [(ngModel)]="caminhaoAtual.capacidade" 
         placeholder="Ex: 5000"
         required
+        #capacidadeInput="ngModel"
+        [ngClass]="{ 'invalid-input': capacidadeInput.invalid && (capacidadeInput.dirty || capacidadeInput.touched) }"
       />
+      <div *ngIf="capacidadeInput.invalid && (capacidadeInput.dirty || capacidadeInput.touched)" class="error-message">
+        <small *ngIf="capacidadeInput.errors?.['required']">Capacidade é obrigatória.</small>
+      </div>
     </div>
 
     <div class="form-group">
       <label class="group-label">Tipos de Resíduos Aceitos:</label>
-      <small class="form-hint">(Selecione ao menos um)</small>
 
       <div class="checkbox-group">
         <div *ngFor="let tipo of opcoesTiposResiduos" class="checkbox-item">
@@ -63,20 +75,35 @@
           <label [for]="'tipo-' + tipo" class="checkbox-label">{{ tipo }}</label>
         </div>
       </div>
+      <div *ngIf="nenhumResiduoSelecionado()" class="error-message">
+        <small>Selecione pelo menos um tipo de resíduo.</small>
+      </div>
     </div>
 
+    <!-- Popups -->
+  <div *ngIf="mensagem?.tipo" [ngClass]="['popup', mensagem.tipo === 'erro' ? 'error' : 'success']">
+    <span *ngIf="mensagem.tipo === 'salvo'">✅</span>
+    <span *ngIf="mensagem.tipo === 'editado'">✏️</span>
+    <span *ngIf="mensagem.tipo === 'excluido'">🗑️</span>
+    <span *ngIf="mensagem.tipo === 'erro'">❌</span>
+    {{ mensagem.texto }}
+  </div>
+
     <div class="button-group">
-      <button type="submit" class="btn salvar">
+      <button type="submit" class="btn salvar" [disabled]="formCaminhao.invalid || nenhumResiduoSelecionado()">
         💾 {{ idEditando ? 'Atualizar' : 'Salvar' }}
       </button>
+
       <button
-        type="button"
-        *ngIf="idEditando"
-        class="btn cancelar"
-        (click)="resetForm()"
-      >
-        ❌ Cancelar Edição
-      </button>
+      type="button"
+      *ngIf="idEditando"
+      class="btn cancelar cancelar-animado"
+      class="btn cancelar"
+      [class.show]="idEditando"
+      (click)="resetForm()"
+    >
+      ❌ Cancelar Edição
+    </button>
     </div>
   </form>
 </div>

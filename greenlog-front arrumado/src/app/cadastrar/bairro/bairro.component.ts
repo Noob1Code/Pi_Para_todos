@@ -15,25 +15,26 @@ export class BairroComponent implements OnInit{
   bairros: Bairro[] = [];
   bairroAtual: Bairro = { nome: '' };
   idEditando: number | null = null;
-
-  mensagemSalvo = false;
-  mensagemEditado = false;
-  mensagemExcluido = false;
-  mensagemErro = '';
-
+  mensagem: { tipo: 'salvo' | 'editado' | 'excluido' | 'erro' | null; texto: string } = { tipo: null, texto: '' };
+  
   constructor(private bairroService: BairroService) {}
 
-  mostrarMensagem(tipo: 'salvo' | 'editado' | 'excluido') {
-    if (tipo === 'salvo') this.mensagemSalvo = true;
-    if (tipo === 'editado') this.mensagemEditado = true;
-    if (tipo === 'excluido') this.mensagemExcluido = true;
+  mostrarMensagem(tipo: 'salvo' | 'editado' | 'excluido' | 'erro', textoPersonalizado?: string): void {
+  this.mensagem = {
+    tipo,
+    texto:
+      tipo === 'salvo' ? ' Bairro cadastrado com sucesso!' :
+      tipo === 'editado' ? ' Bairro atualizado com sucesso!' :
+      tipo === 'excluido' ? ' Bairro excluído com sucesso!' :
+      textoPersonalizado || '❌ Ocorreu um erro ao processar a solicitação.'
+  };
 
-    setTimeout(() => {
-      this.mensagemSalvo = false;
-      this.mensagemEditado = false;
-      this.mensagemExcluido = false;
-    }, 3000);
-  }
+  if (tipo !== 'erro') {
+  setTimeout(() => {
+    this.mensagem = { tipo: null, texto: '' };
+  }, 6000);
+}
+}
 
   ngOnInit(): void {
     this.buscarTodos();
@@ -42,12 +43,12 @@ export class BairroComponent implements OnInit{
   buscarTodos(): void {
     this.bairroService.listar().subscribe({
       next: (res) => (this.bairros = res),
-      error: () => (this.mensagemErro = 'Erro ao buscar bairros.'),
+      error: () => (this.mostrarMensagem('erro','Erro ao buscar bairros.')),
     });
   }
 
   salvar(form: NgForm): void {
-  this.limparMensagens();
+  
 
   if (this.idEditando) {
     this.bairroService.atualizar(this.idEditando, this.bairroAtual).subscribe({
@@ -56,7 +57,7 @@ export class BairroComponent implements OnInit{
         this.resetForm(form);
         this.buscarTodos();
       },
-      error: () => (this.mensagemErro = 'Erro ao atualizar bairro.'),
+      error: () => (this.mostrarMensagem('erro','Erro ao atualizar bairro.')),
     });
   } else {
     this.bairroService.salvar(this.bairroAtual).subscribe({
@@ -65,7 +66,7 @@ export class BairroComponent implements OnInit{
         this.resetForm(form);
         this.buscarTodos();
       },
-      error: () => (this.mensagemErro = 'Erro ao cadastrar bairro.'),
+      error: () => (this.mostrarMensagem('erro','Erro ao cadastrar bairro.')),
     });
   }
 }
@@ -78,7 +79,7 @@ export class BairroComponent implements OnInit{
           this.mostrarMensagem('excluido');
           this.buscarTodos();
         },
-        error: () => (this.mensagemErro = 'Erro ao excluir bairro.'),
+        error: () => (this.mostrarMensagem('erro','Erro ao excluir bairro.')),
       });
     }
   }
@@ -86,21 +87,16 @@ export class BairroComponent implements OnInit{
   editar(bairro: Bairro): void {
     this.idEditando = bairro.id ?? null;
     this.bairroAtual = { ...bairro };
-    this.limparMensagens();
+    
   }
 
   resetForm(form?: NgForm): void {
   this.bairroAtual = { nome: '' };
   this.idEditando = null;
-  this.limparMensagens();
+  
 
   if (form) {
     form.resetForm(); // <-- Isso limpa os estados touched, dirty, etc.
   }
 }
-
-  limparMensagens(): void {
-    this.mensagemErro = '';
-  }
-
 }

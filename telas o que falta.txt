@@ -1,0 +1,13 @@
+login: ok
+
+ponto de coleta: falta validar se tem duplicidade no nome
+
+caminhão:falta validar se tem duplicidade no placa
+
+rota:
+origem, ?lista de destino?, Tipo da rota, validação se o ponto é do mesmo tipo que a rota
+
+itinerários:
+data, caminhão, rota, validação se o caminhão é do mesmo tipo que a rota e se ele ta livre no dia 
+
+consulta/dashboard: 3 gráficos, e a visualização do grafo, e no topbar poder fazer as consultar de pontos de coleta, caminhões, rotas, cronograma mensal de um caminhao

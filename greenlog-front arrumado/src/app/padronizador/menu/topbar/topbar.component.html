@@ -9,10 +9,9 @@
       ☰
     </button>
 
-    <span class="app-title">teste</span>
-
     <!-- Menu de perfil acessível -->
     <div class="profile-menu">
+      <p class="user-name">Bem-vindo, {{ nome }}!</p>
       <button
         class="profile-button"
         aria-label="Abrir menu do perfil"
@@ -29,7 +28,7 @@
         [class.show]="profileMenuOpen"
         aria-label="Menu do perfil"
       >
-        <a href="#">Configurações</a>
+        <button (click)="configuracaoUser()">Configurações</button>
         <button (click)="logout()">Sair</button>
       </nav>
     </div>

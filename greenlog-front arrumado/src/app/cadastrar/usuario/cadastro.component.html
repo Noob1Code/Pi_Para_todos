@@ -1,5 +1,8 @@
+<app-topbar *ngIf="usuarioLogado"></app-topbar>
+<app-sidebar *ngIf="usuarioLogado"></app-sidebar>
+
 <div class="cadastro-container">
-  <form (ngSubmit)="onSubmit()" #cadastroForm="ngForm" class="cadastro-form">
+  <form (ngSubmit)="salvar(cadastroForm)" #cadastroForm="ngForm" class="cadastro-form">
     <h2>Cadastro de Usuário 🧑‍💻</h2>
 
     <div class="form-group">
@@ -76,14 +79,14 @@
         name="idade"
         [(ngModel)]="usuario.idade"
         required
-        min="1"
+        min="18"
         #idadeInput="ngModel"
         placeholder="Sua idade"
         [ngClass]="{ 'invalid-input': idadeInput.invalid && (idadeInput.dirty || idadeInput.touched) }"
       />
       <div *ngIf="idadeInput.invalid && (idadeInput.dirty || idadeInput.touched)" class="error-message">
         <small *ngIf="idadeInput.errors?.['required']">Idade é obrigatória.</small>
-        <small *ngIf="idadeInput.errors?.['min']">Idade deve ser um valor positivo.</small>
+        <small *ngIf="idadeInput.errors?.['min']">Deve ter mais de 18 anos para se cadastrar!</small>
       </div>
     </div>
 
@@ -114,7 +117,7 @@
         #generoInput="ngModel"
         [ngClass]="{ 'invalid-input': generoInput.invalid && (generoInput.dirty || generoInput.touched) }"
       >
-        <option value="" disabled selected>Selecione seu gênero...</option>
+        <option value="" disabled>Selecione seu gênero...</option>
         <option *ngFor="let opcao of opcoesGenero" [value]="opcao">{{ opcao }}</option>
       </select>
       <div *ngIf="generoInput.invalid && (generoInput.dirty || generoInput.touched)" class="error-message">
@@ -146,6 +149,7 @@
     <div *ngIf="mensagemErro" class="error-message api-error">
       {{ mensagemErro }}
     </div>
+
     <div *ngIf="mensagemSucesso" class="success-message api-success">
       {{ mensagemSucesso }}
     </div>
@@ -153,5 +157,8 @@
     <button type="submit" [disabled]="cadastroForm.invalid" class="cadastro-button">
       Cadastrar
     </button>
+    
+    <button type="button" class="btn editar" (click)="voltar()">↩️ Voltar</button>
+
   </form>
 </div>

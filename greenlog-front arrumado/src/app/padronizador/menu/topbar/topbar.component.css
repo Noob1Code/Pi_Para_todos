@@ -16,29 +16,34 @@
   justify-content: space-between;
   width: 100%;
 }
-
-.menu-button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: #fff;
-  cursor: pointer;
-}
-
 .menu-button:focus {
   outline: 2px solid #3498db;
   outline-offset: 2px;
 }
 
-.app-title {
-  font-size: 1.25rem;
-  font-weight: bold;
+.menu-button {
+  background: none;
+  border: none;
+  color: #ecf0f1;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.menu-button:hover {
+  color: #1abc9c;
 }
 
 .profile-menu {
-  position: relative;
   display: flex;
   align-items: center;
+  position: relative;
+  gap: 10px; /* Espaço entre nome e avatar */
+}
+
+.user-name {
+  margin: 0;
+  font-size: 16px;
+  color: #ecf0f1;
 }
 
 .profile-button {
@@ -52,40 +57,40 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
+  border: 2px solid #ecf0f1;
 }
 
 .dropdown-menu {
-  position: absolute;
-  top: 110%;
-  right: 0;
-  background: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  min-width: 150px;
   display: none;
+  position: absolute;
+  right: 0;
+  top: 48px;
+  background-color: #34495e;
+  padding: 10px 0;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 150px;
   flex-direction: column;
-  z-index: 1000;
-}
-
-.dropdown-menu a,
-.dropdown-menu button {
-  text-align: left;
-  background: none;
-  border: none;
-  padding: 0.75rem 1rem;
-  width: 100%;
-  font-size: 0.95rem;
-  color: #333;
-  cursor: pointer;
-}
-
-.dropdown-menu a:hover,
-.dropdown-menu button:hover {
-  background-color: #f2f2f2;
 }
 
 .dropdown-menu.show {
   display: flex;
 }
-    
+
+.dropdown-menu a,
+.dropdown-menu button {
+  color: #ecf0f1;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 10px 15px;
+  width: 100%;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.dropdown-menu a:hover,
+.dropdown-menu button:hover {
+  background-color: #1abc9c;
+  color: white;
+}

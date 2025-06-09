@@ -6,29 +6,30 @@
 </app-modal-bairros>
 
 <div class="form-container">
-  <!-- Popups -->
-  <div *ngIf="mensagemSalvo" class="popup success">✅ Ponto De Coleta cadastrado com sucesso!</div>
-  <div *ngIf="mensagemEditado" class="popup success">✏️ Ponto De Coleta atualizado com sucesso!</div>
-  <div *ngIf="mensagemExcluido" class="popup success">🗑️ Ponto De Coleta excluído com sucesso!</div>
-  <div *ngIf="mensagemErro" class="popup error">❌ {{ mensagemErro }}</div>
 
   <header>
     <h2>{{ idEditando ? 'Editar' : 'Cadastro de' }} Ponto De Coleta</h2>
   </header>
 
-  <form (ngSubmit)="salvar()" #formRua="ngForm">
+  <form (ngSubmit)="salvar()" #formPontoColeta="ngForm">
+    
     <div class="form-group">
       <label for="bairro">Bairro:</label>
       <input 
         id="bairro"
         name="bairro" 
         type="text"
-        [value]="pontoColetaAtual.bairro.nome"
+        [(ngModel)]="pontoColetaAtual.bairro.nome"
         placeholder="Clique aqui para selecionar o bairro"
         readonly
+        #bairroInput="ngModel"
         (click)="abrirModalBairros()"
-        class="bairro-input"
+        required
+        [ngClass]="{ 'invalid-input': bairroInput.invalid && (bairroInput.dirty || bairroInput.touched) }"
       />
+      <div *ngIf="bairroInput.invalid && (bairroInput.dirty || bairroInput.touched)" class="error-message">
+        <small *ngIf="bairroInput.errors?.['required']">Bairro do ponto é obrigatório.</small>
+      </div>
     </div>
 
     <div class="form-group">
@@ -39,7 +40,13 @@
         [(ngModel)]="pontoColetaAtual.nome" 
         type="text" 
         placeholder="Ex: Centro Comunitário"
+        required
+        #nomeInput="ngModel"
+        [ngClass]="{ 'invalid-input': nomeInput.invalid && (nomeInput.dirty || nomeInput.touched) }"
       />
+      <div *ngIf="nomeInput.invalid && (nomeInput.dirty || nomeInput.touched)" class="error-message">
+        <small *ngIf="nomeInput.errors?.['required']">Nome do ponto é obrigatório.</small>
+      </div>
     </div>
 
     <div class="form-group">
@@ -50,7 +57,13 @@
         [(ngModel)]="pontoColetaAtual.responsavel" 
         type="text" 
         placeholder="Nome completo do responsável"
+        required
+        #responsavelInput="ngModel"
+        [ngClass]="{ 'invalid-input': responsavelInput.invalid && (responsavelInput.dirty || responsavelInput.touched) }"
       />
+      <div *ngIf="responsavelInput.invalid && (responsavelInput.dirty || responsavelInput.touched)" class="error-message">
+        <small *ngIf="responsavelInput.errors?.['required']">Responsável é obrigatório.</small>
+      </div>
     </div>
 
     <div class="form-group">
@@ -61,18 +74,33 @@
         [(ngModel)]="pontoColetaAtual.telefoneResponsavel" 
         type="text" 
         placeholder="Ex: (62) 99999-9999"
+        required
+        #telefoneInput="ngModel"
+        [ngClass]="{ 'invalid-input': telefoneInput.invalid && (telefoneInput.dirty || telefoneInput.touched) }"
       />
+      <div *ngIf="telefoneInput.invalid && (telefoneInput.dirty || telefoneInput.touched)" class="error-message">
+        <small *ngIf="telefoneInput.errors?.['required']">Telefone é obrigatório.</small>
+      </div>
     </div>
 
     <div class="form-group">
-      <label for="emailResponsavel">Email do Responsável:</label>
-      <input 
-        id="emailResponsavel" 
+      <label for="emailResponsavel">E-mail do Responsável</label>
+      <input
+        type="email"
+        id="emailResponsavel"
         name="emailResponsavel"
         [(ngModel)]="pontoColetaAtual.emailResponsavel"
-        type="text" 
-        placeholder="Ex: email@dominio.com"
+        #emailInput="ngModel"
+        placeholder="Ex: joaquim@gmail.com"
+        required
+        email
+        [ngClass]="{ 'invalid-input': emailInput.invalid && (emailInput.dirty || emailInput.touched) }"
       />
+
+      <div *ngIf="emailInput.invalid && (emailInput.dirty || emailInput.touched)" class="error-message">
+        <small *ngIf="emailInput.errors?.['required']">Email é obrigatório.</small>
+        <small *ngIf="emailInput.errors?.['email']">Formato de email inválido.</small>
+      </div>
     </div>
 
     <div class="form-group">
@@ -83,7 +111,13 @@
         [(ngModel)]="pontoColetaAtual.endereco" 
         type="text" 
         placeholder="Ex: Rua X, Qd. Y, Lt. Z, Setor W"
+        required
+        #enderecoInput="ngModel"
+        [ngClass]="{ 'invalid-input': enderecoInput.invalid && (enderecoInput.dirty || enderecoInput.touched) }"
       />
+      <div *ngIf="enderecoInput.invalid && (enderecoInput.dirty || enderecoInput.touched)" class="error-message">
+        <small *ngIf="enderecoInput.errors?.['required']">Endereço é obrigatório.</small>
+      </div>
     </div>
 
     <div class="form-group">
@@ -94,12 +128,17 @@
         [(ngModel)]="pontoColetaAtual.horarioFuncionamento" 
         type="text" 
         placeholder="Ex: Seg-Sex 08:00-18:00"
+        required
+        #horarioInput="ngModel"
+        [ngClass]="{ 'invalid-input': horarioInput.invalid && (horarioInput.dirty || horarioInput.touched) }"
       />
+      <div *ngIf="horarioInput.invalid && (horarioInput.dirty || horarioInput.touched)" class="error-message">
+        <small *ngIf="horarioInput.errors?.['required']">Horário de funcionamento é obrigatório.</small>
+      </div>
     </div>
 
     <div class="form-group">
       <label class="group-label">Tipos de Resíduos Aceitos:</label>
-      <small class="form-hint">(Selecione ao menos um)</small>
 
       <div class="checkbox-group">
         <div *ngFor="let tipo of opcoesTiposResiduos" class="checkbox-item">
@@ -114,10 +153,22 @@
           <label [for]="'tipo-' + tipo" class="checkbox-label">{{ tipo }}</label>
         </div>
       </div>
+      <div *ngIf="nenhumResiduoSelecionado()" class="error-message">
+        <small>Selecione pelo menos um tipo de resíduo.</small>
+      </div>
     </div>
 
+    <!-- Popups -->
+  <div *ngIf="mensagem?.tipo" [ngClass]="['popup', mensagem.tipo === 'erro' ? 'error' : 'success']">
+    <span *ngIf="mensagem.tipo === 'salvo'">✅</span>
+    <span *ngIf="mensagem.tipo === 'editado'">✏️</span>
+    <span *ngIf="mensagem.tipo === 'excluido'">🗑️</span>
+    <span *ngIf="mensagem.tipo === 'erro'">❌</span>
+    {{ mensagem.texto }}
+  </div>
+
     <div class="button-group">
-      <button type="submit" class="btn salvar">
+      <button type="submit" class="btn salvar" [disabled]="formPontoColeta.invalid || nenhumResiduoSelecionado()">
         💾 {{ idEditando ? 'Atualizar' : 'Salvar' }}
       </button>
       <button
@@ -129,6 +180,7 @@
         ❌ Cancelar Edição
       </button>
     </div>
+
   </form>
 </div>
 

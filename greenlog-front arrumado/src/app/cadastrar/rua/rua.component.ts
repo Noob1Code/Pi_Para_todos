@@ -16,46 +16,45 @@ import { Bairro } from '../bairro/bairro.model';
 export class RuaComponent implements OnInit{
 
   ruas: Rua[] = [];
-  ruaAtual: Rua = {nome: '', origem: { id: 0, nome: '' }, destino: { id: 0, nome: '' }, distancia: 0}
+  ruaAtual: Rua = {nome: '', origem: { id: 0, nome: '' }, destino: { id: 0, nome: '' }, distancia: null}
   idEditando: number | null = null;
 
   modalOrigemVisivel = false;
   modalDestinoVisivel = false;
 
-  mensagemSalvo = false;
-  mensagemEditado = false;
-  mensagemExcluido = false;
-  mensagemErro = '';
+  mensagem: { tipo: 'salvo' | 'editado' | 'excluido' | 'erro' | null; texto: string } = { tipo: null, texto: '' };
 
   constructor(private ruaService : RuaService){}
+
+  mostrarMensagem(tipo: 'salvo' | 'editado' | 'excluido' | 'erro', textoPersonalizado?: string): void {
+  this.mensagem = {
+    tipo,
+    texto:
+      tipo === 'salvo' ? ' Bairro cadastrado com sucesso!' :
+      tipo === 'editado' ? ' Bairro atualizado com sucesso!' :
+      tipo === 'excluido' ? ' Bairro excluído com sucesso!' :
+      textoPersonalizado || '❌ Ocorreu um erro ao processar a solicitação.'
+  };
+
+  if (tipo !== 'erro') {
+  setTimeout(() => {
+    this.mensagem = { tipo: null, texto: '' };
+  }, 6000);
+}
+}
 
   ngOnInit(): void {
     this.buscarTodos();
   }
 
-  mostrarMensagem(tipo: 'salvo' | 'editado' | 'excluido') {
-    if (tipo === 'salvo') this.mensagemSalvo = true;
-    if (tipo === 'editado') this.mensagemEditado = true;
-    if (tipo === 'excluido') this.mensagemExcluido = true;
-
-    setTimeout(() => {
-      this.mensagemSalvo = false;
-      this.mensagemEditado = false;
-      this.mensagemExcluido = false;
-    }, 3000);
-  }
-
   buscarTodos(): void {
     this.ruaService.listar().subscribe({
       next: (res) => (this.ruas = res),
-      error: () => (this.mensagemErro = 'Erro ao buscar ruas.'),
+      error: () => (this.mostrarMensagem('erro','Erro ao buscar ruas.')),
     });
   }
 
   salvar(): void {
-    this.limparMensagens();
-
-    if (!this.validarCampos(this.ruaAtual)) return;
   
     if (this.idEditando) {
       this.ruaService.atualizar(this.idEditando, this.ruaAtual).subscribe({
@@ -64,7 +63,7 @@ export class RuaComponent implements OnInit{
           this.resetForm();
           this.buscarTodos();
         },
-        error: () => (this.mensagemErro = 'Erro ao atualizar rua.'),
+        error: () => (this.mostrarMensagem('erro','Erro ao atualizar rua.')),
       });
     } else {
       this.ruaService.salvar(this.ruaAtual).subscribe({
@@ -73,7 +72,7 @@ export class RuaComponent implements OnInit{
           this.resetForm();
           this.buscarTodos();
         },
-        error: () => (this.mensagemErro = 'Erro ao cadastrar rua.'),
+        error: () => (this.mostrarMensagem('erro','Erro ao cadastrar rua.')),
       });
     }
   }
@@ -86,7 +85,7 @@ export class RuaComponent implements OnInit{
           this.mostrarMensagem('excluido');
           this.buscarTodos();
         },
-        error: () => (this.mensagemErro = 'Erro ao excluir rua.'),
+        error: () => (this.mostrarMensagem('erro','Erro ao excluir rua.')),
       });
     }
   }
@@ -94,47 +93,15 @@ export class RuaComponent implements OnInit{
   editar(rua: Rua): void {
     this.idEditando = rua.id ?? null;
     this.ruaAtual = { ...rua };
-    this.limparMensagens();
+
   }
   
   resetForm(): void {
-    this.ruaAtual = {nome: '', origem: { id: 0, nome: '' }, destino: { id: 0, nome: '' }, distancia: 0}
+    this.ruaAtual = {nome: '', origem: { id: 0, nome: '' }, destino: { id: 0, nome: '' }, distancia: null}
     this.idEditando = null;
-    this.limparMensagens();
+
   }
   
-  limparMensagens(): void {
-    this.mensagemErro = '';
-  }
-
-  validarCampos(ruaAtual: Rua): boolean {
-    if (!ruaAtual.nome || ruaAtual.nome.trim() === '') {
-      this.mensagemErro = 'O nome da Rua é obrigatória.';
-      return false;
-    }
-
-    if (!ruaAtual.origem || ruaAtual.origem === null) {
-      this.mensagemErro = 'A origem é obrigatório.';
-      return false;
-    }
-
-    if (!ruaAtual.destino || ruaAtual.destino === null) {
-      this.mensagemErro = 'O destino é obrigatório.';
-      return false;
-    }
-
-    if (
-      ruaAtual.distancia === null || 
-      ruaAtual.distancia === undefined || 
-      ruaAtual.distancia.toString().trim() === ''
-    ) {
-      this.mensagemErro = 'A distancia é obrigatória.';
-      return false;
-    }
-
-    return true;
-  }
-
   abrirModalOrigem(): void {
     this.modalOrigemVisivel = true;
     this.fecharModalDestino();

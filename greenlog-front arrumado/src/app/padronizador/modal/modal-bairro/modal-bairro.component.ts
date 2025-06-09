@@ -15,6 +15,7 @@ export class ModalBairrosComponent implements OnInit {
   @Input() visivel: boolean = false;
   @Output() fechado = new EventEmitter<void>();
   @Output() bairroSelecionado = new EventEmitter<Bairro>();
+  @Input() excluirBairroId?: number;
 
   bairros: Bairro[] = [];
   termoPesquisa: string = '';
@@ -44,8 +45,6 @@ export class ModalBairrosComponent implements OnInit {
         this.carregando = false;
       },
       error: (err) => {
-        console.error('Erro ao carregar bairros', err);
-        alert('Não foi possível carregar a lista de bairros.');
         this.carregando = false;
       }
     });

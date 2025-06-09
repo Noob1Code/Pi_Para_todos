@@ -2,27 +2,25 @@
 <app-modal-bairros
   [visivel]="modalOrigemVisivel"
   (fechado)="fecharModalOrigem()"
-  (bairroSelecionado)="onOrigemSelecionado($event)">
+  (bairroSelecionado)="onOrigemSelecionado($event)"
+  [excluirBairroId]="ruaAtual.destino.id">
 </app-modal-bairros>
 
 <app-modal-bairros 
   [visivel]="modalDestinoVisivel"
   (fechado)="fecharModalDestino()"
-  (bairroSelecionado)="onDestinoSelecionado($event)">
+  (bairroSelecionado)="onDestinoSelecionado($event)"
+  [excluirBairroId]="ruaAtual.origem.id">
 </app-modal-bairros>
 
 <div class="form-container">
-  <!-- Popups -->
-  <div *ngIf="mensagemSalvo" class="popup success">✅ Rua cadastrado com sucesso!</div>
-  <div *ngIf="mensagemEditado" class="popup success">✏️ Rua atualizado com sucesso!</div>
-  <div *ngIf="mensagemExcluido" class="popup success">🗑️ Rua excluído com sucesso!</div>
-  <div *ngIf="mensagemErro" class="popup error">❌ {{ mensagemErro }}</div>
-
+  
   <header>
     <h2>{{ idEditando ? 'Editar' : 'Cadastro de' }} Rua</h2>
   </header>
 
   <form (ngSubmit)="salvar()" #formRua="ngForm">
+
     <div class="form-group">
       <label for="nome">Nome da Rua:</label>
       <input 
@@ -32,7 +30,12 @@
         [(ngModel)]="ruaAtual.nome" 
         placeholder="Ex: Rua São Juaquim"
         required
+        #nomeInput="ngModel"
+        [ngClass]="{ 'invalid-input': nomeInput.invalid && (nomeInput.dirty || nomeInput.touched) }"
       />
+      <div *ngIf="nomeInput.invalid && (nomeInput.dirty || nomeInput.touched)" class="error-message">
+        <small *ngIf="nomeInput.errors?.['required']">Nome da rua é obrigatório.</small>
+      </div>
     </div>
 
     <div class="form-group">
@@ -43,11 +46,16 @@
         type="text" 
         [(ngModel)]="ruaAtual.origem.nome" 
         placeholder="Click aqui para selicionar a Origem"
-        readonly
+        #origemInput="ngModel"
         (click)="abrirModalOrigem()"
-        class="modal-input"
+        required
+        [ngClass]="{ 'invalid-input': origemInput.invalid && (origemInput.dirty || origemInput.touched) }"
       />
+      <div *ngIf="origemInput.invalid && (origemInput.dirty || origemInput.touched)" class="error-message">
+        <small *ngIf="origemInput.errors?.['required']">A Origem da rua é obrigatório.</small>
+      </div>
     </div>
+
 
     <div class="form-group">
       <label for="destino">Destino:</label>
@@ -55,12 +63,16 @@
         id="destino" 
         name="destino" 
         type="text" 
-        [(ngModel)]="ruaAtual.destino.nome " 
+        [(ngModel)]="ruaAtual.destino.nome" 
         placeholder="Click aqui para selicionar o Destino"
-        readonly
+        #destinoInput="ngModel"
         (click)="abrirModalDestino()"
-        class="modal-input"
+        required
+        [ngClass]="{ 'invalid-input': destinoInput.invalid && (destinoInput.dirty || destinoInput.touched) }"
       />
+      <div *ngIf="destinoInput.invalid && (destinoInput.dirty || destinoInput.touched)" class="error-message">
+        <small *ngIf="destinoInput.errors?.['required']">O Destino da rua é obrigatório.</small>
+      </div>
     </div>
 
     <div class="form-group">
@@ -70,13 +82,26 @@
         name="distancia" 
         type="text" 
         [(ngModel)]="ruaAtual.distancia" 
-        placeholder="Ex: 100"
+        placeholder="Ex: 5000"
         required
+        #distanciaInput="ngModel"
+        [ngClass]="{ 'invalid-input': distanciaInput.invalid && (distanciaInput.dirty || distanciaInput.touched) }"
       />
+      <div *ngIf="distanciaInput.invalid && (distanciaInput.dirty || distanciaInput.touched)" class="error-message">
+        <small *ngIf="distanciaInput.errors?.['required']">A Distancia é obrigatória.</small>
+      </div>
     </div>
 
+    <div *ngIf="mensagem?.tipo" [ngClass]="['popup', mensagem.tipo === 'erro' ? 'error' : 'success']">
+    <span *ngIf="mensagem.tipo === 'salvo'">✅</span>
+    <span *ngIf="mensagem.tipo === 'editado'">✏️</span>
+    <span *ngIf="mensagem.tipo === 'excluido'">🗑️</span>
+    <span *ngIf="mensagem.tipo === 'erro'">❌</span>
+    {{ mensagem.texto }}
+  </div>
+
     <div class="button-group">
-      <button type="submit" class="btn salvar">
+      <button type="submit" class="btn salvar" [disabled]="formRua.invalid">
         💾 {{ idEditando ? 'Atualizar' : 'Salvar' }}
       </button>
       <button

@@ -14,30 +14,33 @@ import { CaminhaoService } from './caminhao.service';
 export class CaminhaoComponent implements OnInit{
 
   caminhoes: Caminhao[] = [];
-  caminhaoAtual: Caminhao = { placa: '', motorista: '', capacidade: 0, residuos: []};
+  caminhaoAtual: Caminhao = { placa: '', motorista: '', capacidade: null, residuos: []};
   idEditando: number | null = null;
-
+  
   tiposResiduosSelecionados: { [key: string]: boolean } = {};
   opcoesTiposResiduos: string[] = ['Plástico', 'Papel', 'Metal', 'Orgânico'];
+  erroResiduos = false;
   
-  mensagemSalvo = false;
-  mensagemEditado = false;
-  mensagemExcluido = false;
-  mensagemErro = '';
+  mensagem: { tipo: 'salvo' | 'editado' | 'excluido' | 'erro' | null; texto: string } = { tipo: null, texto: '' };
 
   constructor(private caminhaoService: CaminhaoService) {}
 
-  mostrarMensagem(tipo: 'salvo' | 'editado' | 'excluido') {
-    if (tipo === 'salvo') this.mensagemSalvo = true;
-    if (tipo === 'editado') this.mensagemEditado = true;
-    if (tipo === 'excluido') this.mensagemExcluido = true;
+  mostrarMensagem(tipo: 'salvo' | 'editado' | 'excluido' | 'erro', textoPersonalizado?: string): void {
+  this.mensagem = {
+    tipo,
+    texto:
+      tipo === 'salvo' ? ' Bairro cadastrado com sucesso!' :
+      tipo === 'editado' ? ' Bairro atualizado com sucesso!' :
+      tipo === 'excluido' ? ' Bairro excluído com sucesso!' :
+      textoPersonalizado || '❌ Ocorreu um erro ao processar a solicitação.'
+  };
 
-    setTimeout(() => {
-      this.mensagemSalvo = false;
-      this.mensagemEditado = false;
-      this.mensagemExcluido = false;
-    }, 3000);
-  }
+  if (tipo !== 'erro') {
+  setTimeout(() => {
+    this.mensagem = { tipo: null, texto: '' };
+  }, 6000);
+}
+}
 
   ngOnInit(): void {
     this.inicializarCheckboxes();
@@ -61,14 +64,20 @@ export class CaminhaoComponent implements OnInit{
           : (caminhao.residuos ? [caminhao.residuos] : [])
       }));
     },
-    error: () => (this.mensagemErro = 'Erro ao buscar caminhões.'),
+    error: () => (this.mostrarMensagem('erro','Erro ao buscar caminhões.')),
   });
 }
 
   salvar(): void {
-    this.limparMensagens();
+    
+    const algumSelecionado = Object.values(this.tiposResiduosSelecionados).some(v => v === true);
 
-    if (!this.validarCampos(this.caminhaoAtual)) return;
+    if (!algumSelecionado) {
+    this.erroResiduos = true;
+    return;
+  }
+
+  this.erroResiduos = false;
 
     if (this.idEditando) {
       this.caminhaoService.atualizar(this.idEditando, this.caminhaoAtual).subscribe({
@@ -77,7 +86,7 @@ export class CaminhaoComponent implements OnInit{
           this.resetForm();
           this.buscarTodos();
         },
-        error: () => (this.mensagemErro = 'Erro ao atualizar caminhao.'),
+        error: () => (this.mostrarMensagem('erro','Erro ao atualizar caminhao.')),
       });
     } else {
       this.caminhaoService.salvar(this.caminhaoAtual).subscribe({
@@ -86,7 +95,7 @@ export class CaminhaoComponent implements OnInit{
           this.resetForm();
           this.buscarTodos();
         },
-        error: () => (this.mensagemErro = 'Erro ao cadastrar caminhao.'),
+        error: () => (this.mostrarMensagem('erro','Erro ao cadastrar caminhao.')),
       });
     }
   }
@@ -99,7 +108,7 @@ export class CaminhaoComponent implements OnInit{
           this.mostrarMensagem('excluido');
           this.buscarTodos();
         },
-        error: () => (this.mensagemErro = 'Erro ao excluir caminhao.'),
+        error: () => (this.mostrarMensagem('erro','Erro ao excluir caminhao.')),
       });
     }
   }
@@ -107,59 +116,37 @@ export class CaminhaoComponent implements OnInit{
   editar(caminhao: Caminhao): void {
     this.idEditando = caminhao.id ?? null;
     this.caminhaoAtual = { ...caminhao };
-    this.limparMensagens();
+  
+  this.tiposResiduosSelecionados = {};
+
+  this.opcoesTiposResiduos.forEach(tipo => {
+    this.tiposResiduosSelecionados[tipo] = caminhao.residuos.includes(tipo);
+  });
+
+  this.caminhaoAtual.residuos = this.opcoesTiposResiduos
+    .filter(t => this.tiposResiduosSelecionados[t]);
   }
 
   resetForm(): void {
     this.caminhaoAtual = {
       placa: '',
       motorista: '',
-      capacidade: 0,
+      capacidade: null,
       residuos: []
     };
     this.idEditando = null;
     this.inicializarCheckboxes();
-    this.limparMensagens();
+    
   }
-
-  limparMensagens(): void {
-    this.mensagemErro = '';
-  }
-
-  validarCampos(caminhaoAtual: Caminhao): boolean {
-    if (!caminhaoAtual.placa || caminhaoAtual.placa.trim() === '') {
-      this.mensagemErro = 'A placa do caminhão é obrigatória.';
-      return false;
-    }
-
-    if (!caminhaoAtual.motorista || caminhaoAtual.motorista.trim() === '') {
-      this.mensagemErro = 'O nome do motorista é obrigatório.';
-      return false;
-    }
-
-    if (
-      caminhaoAtual.capacidade === null || 
-      caminhaoAtual.capacidade === undefined || 
-      caminhaoAtual.capacidade.toString().trim() === ''
-    ) {
-      this.mensagemErro = 'A capacidade do caminhão é obrigatória.';
-      return false;
-    }
-
-    const algumSelecionado = Object.values(this.tiposResiduosSelecionados).some(valor => valor);
-
-    if (!algumSelecionado) {
-      this.mensagemErro = 'Selecione ao menos um tipo de resíduo.';
-      return false;
-    }
-
-    return true;
-  } 
 
   inicializarCheckboxes(): void {
     this.opcoesTiposResiduos.forEach(tipo => {
       this.tiposResiduosSelecionados[tipo] = false;
     });
   }
+
+  nenhumResiduoSelecionado(): boolean {
+  return !Object.values(this.tiposResiduosSelecionados).some(v => v === true);
+}
 
 }
