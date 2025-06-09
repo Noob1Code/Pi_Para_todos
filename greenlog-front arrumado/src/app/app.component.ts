@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Router } from '@angular/router';
-
+import localePt from '@angular/common/locales/pt';
 import { SidebarComponent } from './padronizador/menu/sidebar/sidebar.component';
 import { TopbarComponent } from './padronizador/menu/topbar/topbar.component';
-import { CommonModule } from '@angular/common';
+import { CommonModule, registerLocaleData } from '@angular/common';
 
+registerLocaleData(localePt);
 
 @Component({
   selector: 'app-root',

@@ -1,10 +1,24 @@
+import { Bairro } from "../bairro/bairro.model";
 import { Caminhao } from "../caminhao/caminhao.modal";
-import { PontoColeta } from "../ponto-coleta/ponto-coleta.model";
 
-export interface Rota{
-    id?: number;
-    caminhao: Caminhao;
-    origem: PontoColeta;
-    destino: PontoColeta;
-    tipoResiduo: string;
+export interface Rota {
+  id?: number;
+  caminhao: Caminhao|null;
+  destino: Bairro|null;
+  tipoResiduo: string;
+  bairrosPercorridos: string[];
+  arestasPercorridas?: Aresta[]; 
+  distanciaTotal: number;      
+}
+
+export interface CaminhoDTO {
+  bairros: Bairro[];
+  arestas: Aresta[];
+  distanciaTotal: number;
+}
+
+export interface Aresta {
+  origemId: number;
+  destinoId: number;
+  distancia: number;
 }

@@ -1,0 +1,81 @@
+<h1>GreenLog - Planejamento de Itinerários</h1>
+
+<!-- NAVEGAÇÃO DE MÊS -->
+<div class="mes-navegacao">
+  <button class="mes-botao" (click)="mudarMes(-1)">⬅️</button>
+  <span class="mes-atual">{{ mesSelecionado + 1 }}/{{ anoSelecionado }}</span>
+  <button class="mes-botao" (click)="mudarMes(1)">➡️</button>
+</div>
+
+<!-- CALENDÁRIO -->
+<div class="calendar">
+  <div class="header" *ngFor="let dia of ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']">
+    {{ dia }}
+  </div>
+
+  <div
+    *ngFor="let day of daysInMonth"
+    class="day"
+    [ngClass]="{ 'tem-itinerario': getItinerariosDoDia(day).length > 0 }"
+    [title]="formatarTooltip(day)"
+    (click)="openForm(day)"
+  >
+    <strong>{{ day.getDate() }}</strong>
+    <ng-container *ngIf="getItinerariosDoDia(day).length > 0">
+      <span class="badge">📅 {{ getItinerariosDoDia(day).length }}</span>
+    </ng-container>
+  </div>
+</div>
+
+<!-- FORMULÁRIO -->
+<div class="modal-overlay" *ngIf="selectedDate" (click)="cancel()"></div>
+<div class="form-container modal" *ngIf="selectedDate">
+  <h3>Itinerário para {{ selectedDate | date:'fullDate' }}</h3>
+
+  <form (ngSubmit)="saveItinerary()" #itForm="ngForm">
+    <label>
+      🔁 Rota:
+      <select [(ngModel)]="formData.rota" name="rota" required>
+        <option *ngFor="let rota of rotasDisponiveis" [value]="rota.nome">{{ rota.nome }}</option>
+      </select>
+    </label>
+
+    <button type="submit" [disabled]="!itForm.valid">Salvar</button>
+    <button type="button" (click)="cancel()">Cancelar</button>
+  </form>
+
+  <!-- Lista dos itinerários do dia -->
+  <div *ngIf="getItinerariosDoDia(selectedDate!).length > 0" class="itinerarios-lista">
+    <h4>📋 Itinerários para o dia:</h4>
+    <ul>
+      <li *ngFor="let it of getItinerariosDoDia(selectedDate!)">
+        🚛 <strong>{{ it.caminhao.placa }}</strong> - {{ it.rota.nome }} ({{ it.rota.residuos.join(', ') }})
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- TABELA DE TODOS OS ITINERÁRIOS -->
+<div class="tabela-itinerarios" *ngIf="itinerariosSalvos.length > 0">
+  <h3>📋 Todos os Itinerários Cadastrados</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Caminhão</th>
+        <th>Rota</th>
+        <th>Resíduos</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let it of itinerariosSalvos; let i = index">
+        <td>{{ it.data | date:'shortDate' }}</td>
+        <td>{{ it.caminhao.placa }}</td>
+        <td>{{ it.rota.nome }}</td>
+        <td>{{ it.rota.residuos.join(', ') }}</td>
+        <td><button (click)="removerItinerario(i)">❌ Remover</button></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
