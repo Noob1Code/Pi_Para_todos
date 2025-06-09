@@ -9,6 +9,8 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 /**
  *
  * @author Kayque de Freitas <kayquefreitas08@gmail.com>
@@ -35,8 +37,11 @@ public class Caminhao {
     @Column
     private Integer capacidade;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "caminhao_residuos", joinColumns = @JoinColumn(name = "caminhao_id"))
-    @Column(name = "residuo", nullable = false)
-    private List<String> residuos;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "caminhao_residuos",
+        joinColumns = @JoinColumn(name = "caminhao_id"),
+        inverseJoinColumns = @JoinColumn(name = "residuo_id")
+    )
+    private List<Residuo> residuos;
 }

@@ -11,6 +11,7 @@ import greenlong.dto.RotaResponseDTO;
 import greenlong.dto.RotaRequestDTO;
 import greenlong.model.Caminhao;
 import greenlong.model.PontoColeta;
+import greenlong.model.Residuo;
 import greenlong.model.Rota;
 import greenlong.repository.CaminhaoRepository;
 import greenlong.repository.PontoColetaRepository;
@@ -80,25 +81,32 @@ public class RotaService {
     }
 
     private RotaResponseDTO toResponseDTO(Rota rota) {
-        CaminhaoDTO caminhaoDTO = new CaminhaoDTO(rota.getCaminhao().getId(), rota.getCaminhao().getPlaca(), rota.getCaminhao().getMotorista(), rota.getCaminhao().getCapacidade(), rota.getCaminhao().getResiduos());
+        List<String> nomesResiduos = rota.getCaminhao().getResiduos().stream()
+                .map(Residuo::getNome)
+                .collect(Collectors.toList());
+        
+        CaminhaoDTO caminhaoDTO = new CaminhaoDTO(rota.getCaminhao().getId(), rota.getCaminhao().getPlaca(), rota.getCaminhao().getMotorista(), rota.getCaminhao().getCapacidade(), nomesResiduos);
         PontoColetaResponseDTO origemDTO = toPontoColetaResponseDTO(rota.getPontoColetaOrigem());
         PontoColetaResponseDTO destinoDTO = toPontoColetaResponseDTO(rota.getPontoColetaDestino());
 
         return new RotaResponseDTO(rota.getId(), rota.getData(), caminhaoDTO, origemDTO, destinoDTO);
     }
-
+    
     private PontoColetaResponseDTO toPontoColetaResponseDTO(PontoColeta pontoColeta) {
         PontoColetaResponseDTO.BairroDTO bairroDTO = new PontoColetaResponseDTO.BairroDTO(pontoColeta.getBairro().getId(), pontoColeta.getBairro().getNome());
-        return new PontoColetaResponseDTO(pontoColeta.getId(), bairroDTO, pontoColeta.getNome(), pontoColeta.getResponsavel(), pontoColeta.getTelefoneResponsavel(), pontoColeta.getEmailResponsavel(), pontoColeta.getEndereco(), pontoColeta.getHorarioFuncionamento(), pontoColeta.getTiposResiduosAceitos());
+        
+        List<String> nomesResiduos = pontoColeta.getTiposResiduosAceitos().stream()
+                .map(Residuo::getNome)
+                .collect(Collectors.toList());
+
+        return new PontoColetaResponseDTO(pontoColeta.getId(), bairroDTO, pontoColeta.getNome(), pontoColeta.getResponsavel(), pontoColeta.getTelefoneResponsavel(), pontoColeta.getEmailResponsavel(), pontoColeta.getEndereco(), pontoColeta.getHorarioFuncionamento(), nomesResiduos);
     }
     
-        @Transactional
+    @Transactional
     public RotaResponseDTO atualizarRota(Long id, RotaRequestDTO dto) {
-        // 1. Encontra a rota que será atualizada
         Rota rotaExistente = rotaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Rota com ID " + id + " não encontrada."));
 
-        // 2. Busca as novas entidades pelos IDs fornecidos no DTO
         Caminhao caminhao = caminhaoRepository.findById(dto.getCaminhaoId())
                 .orElseThrow(() -> new IllegalArgumentException("Caminhão com ID " + dto.getCaminhaoId() + " não encontrado."));
 
@@ -108,16 +116,12 @@ public class RotaService {
         PontoColeta destino = pontoColetaRepository.findById(dto.getDestinoId())
                 .orElseThrow(() -> new IllegalArgumentException("Ponto de coleta de destino com ID " + dto.getDestinoId() + " não encontrado."));
 
-        // 3. Atualiza os dados da rota existente
         rotaExistente.setCaminhao(caminhao);
         rotaExistente.setPontoColetaOrigem(origem);
         rotaExistente.setPontoColetaDestino(destino);
         rotaExistente.setData(dto.getData());
 
-        // 4. Salva a rota atualizada no banco de dados
         Rota rotaSalva = rotaRepository.save(rotaExistente);
-
-        // 5. Converte a entidade salva para um DTO de resposta
         return toResponseDTO(rotaSalva);
     }
 }

@@ -31,7 +31,7 @@ public class PontoColetaCadastroDTO {
     }
 
     @NotNull(message = "O objeto Bairro é obrigatório")
-    @Valid 
+    @Valid
     private BairroIdDTO bairro;
 
     @NotBlank(message = "Nome do ponto de coleta é obrigatório")

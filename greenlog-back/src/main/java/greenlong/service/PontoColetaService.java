@@ -9,8 +9,10 @@ import greenlong.dto.PontoColetaCadastroDTO;
 import greenlong.dto.PontoColetaResponseDTO;
 import greenlong.model.Bairro;
 import greenlong.model.PontoColeta;
+import greenlong.model.Residuo;
 import greenlong.repository.BairrosRepository;
 import greenlong.repository.PontoColetaRepository;
+import greenlong.repository.ResiduoRepository;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +33,8 @@ public class PontoColetaService {
 
     private final PontoColetaRepository pontoColetaRepository;
     private final BairrosRepository bairrosRepository;
+    private final ResiduoRepository residuoRepository;
+    private final AuditoriaService auditoriaService;
 
     @Transactional
     public PontoColetaResponseDTO criarPontoColeta(PontoColetaCadastroDTO dto) {
@@ -40,8 +44,16 @@ public class PontoColetaService {
         Bairro bairro = bairrosRepository.findById(dto.getBairro().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Bairro não encontrado com o ID: " + dto.getBairro().getId()));
         
-        PontoColeta novoPontoColeta = toEntity(new PontoColeta(), dto, bairro);
+        List<Residuo> residuos = residuoRepository.findByNomeIn(dto.getTiposResiduosAceitos());
+        if(residuos.size() != dto.getTiposResiduosAceitos().size()){
+             throw new IllegalArgumentException("Um ou mais tipos de resíduos informados são inválidos.");
+        }
+        
+        PontoColeta novoPontoColeta = toEntity(new PontoColeta(), dto, bairro, residuos);
         PontoColeta salvo = pontoColetaRepository.save(novoPontoColeta);
+
+        auditoriaService.logPontoColetaActivity(salvo.getId(), null, toResponseDTO(salvo), "INSERT");
+        
         return toResponseDTO(salvo);
     }
 
@@ -60,6 +72,8 @@ public class PontoColetaService {
     @Transactional
     public Optional<PontoColetaResponseDTO> atualizarPontoColeta(Long id, PontoColetaCadastroDTO dto) {
         return pontoColetaRepository.findById(id).map(existente -> {
+            PontoColetaResponseDTO estadoAntes = toResponseDTO(existente);
+
             pontoColetaRepository.findByNome(dto.getNome()).ifPresent(porNome -> {
                 if (!porNome.getId().equals(id)) {
                     throw new IllegalArgumentException("Já existe outro ponto de coleta com o nome: " + dto.getNome());
@@ -68,16 +82,33 @@ public class PontoColetaService {
             Bairro bairro = bairrosRepository.findById(dto.getBairro().getId())
                     .orElseThrow(() -> new IllegalArgumentException("Bairro não encontrado com o ID: " + dto.getBairro().getId()));
             
-            PontoColeta atualizado = toEntity(existente, dto, bairro);
+            List<Residuo> residuos = residuoRepository.findByNomeIn(dto.getTiposResiduosAceitos());
+            if(residuos.size() != dto.getTiposResiduosAceitos().size()){
+                throw new IllegalArgumentException("Um ou mais tipos de resíduos informados são inválidos.");
+            }
+
+            PontoColeta atualizado = toEntity(existente, dto, bairro, residuos);
             pontoColetaRepository.save(atualizado);
+
+            auditoriaService.logPontoColetaActivity(atualizado.getId(), estadoAntes, toResponseDTO(atualizado), "UPDATE");
+
             return toResponseDTO(atualizado);
         });
     }
 
     @Transactional
     public boolean deletarPontoColeta(Long id) {
-        if (pontoColetaRepository.existsById(id)) {
+        Optional<PontoColeta> pontoColetaOpt = pontoColetaRepository.findById(id);
+
+        if (pontoColetaOpt.isPresent()) {
+            PontoColeta pontoParaDeletar = pontoColetaOpt.get();
+
+            PontoColetaResponseDTO estadoAntes = toResponseDTO(pontoParaDeletar);
+
             pontoColetaRepository.deleteById(id);
+
+            auditoriaService.logPontoColetaActivity(id, estadoAntes, null, "DELETE");
+
             return true;
         }
         return false;
@@ -91,10 +122,25 @@ public class PontoColetaService {
                 pontoColeta.getBairro().getNome()
             );
         }
-        return new PontoColetaResponseDTO(pontoColeta.getId(), bairroDTO, pontoColeta.getNome(), pontoColeta.getResponsavel(), pontoColeta.getTelefoneResponsavel(), pontoColeta.getEmailResponsavel(), pontoColeta.getEndereco(), pontoColeta.getHorarioFuncionamento(), pontoColeta.getTiposResiduosAceitos());
+
+        List<String> nomesResiduos = pontoColeta.getTiposResiduosAceitos().stream()
+                .map(Residuo::getNome)
+                .collect(Collectors.toList());
+
+        return new PontoColetaResponseDTO(
+            pontoColeta.getId(), 
+            bairroDTO, 
+            pontoColeta.getNome(), 
+            pontoColeta.getResponsavel(), 
+            pontoColeta.getTelefoneResponsavel(), 
+            pontoColeta.getEmailResponsavel(), 
+            pontoColeta.getEndereco(), 
+            pontoColeta.getHorarioFuncionamento(), 
+            nomesResiduos
+        );
     }
 
-    private PontoColeta toEntity(PontoColeta pontoColeta, PontoColetaCadastroDTO dto, Bairro bairro) {
+    private PontoColeta toEntity(PontoColeta pontoColeta, PontoColetaCadastroDTO dto, Bairro bairro, List<Residuo> residuos) {
         pontoColeta.setBairro(bairro);
         pontoColeta.setNome(dto.getNome());
         pontoColeta.setResponsavel(dto.getResponsavel());
@@ -102,7 +148,7 @@ public class PontoColetaService {
         pontoColeta.setEmailResponsavel(dto.getEmailResponsavel());
         pontoColeta.setEndereco(dto.getEndereco());
         pontoColeta.setHorarioFuncionamento(dto.getHorarioFuncionamento());
-        pontoColeta.setTiposResiduosAceitos(dto.getTiposResiduosAceitos());
+        pontoColeta.setTiposResiduosAceitos(residuos);
         return pontoColeta;
     }
 }

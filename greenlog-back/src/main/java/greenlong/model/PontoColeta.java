@@ -10,6 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 
 /**
  *
@@ -50,8 +52,11 @@ public class PontoColeta {
     @Column(length = 100)
     private String horarioFuncionamento;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "ponto_coleta_tipos_residuos", joinColumns = @JoinColumn(name = "ponto_coleta_id"))
-    @Column(name = "tipo_residuo")
-    private List<String> tiposResiduosAceitos;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "ponto_coleta_residuos",
+        joinColumns = @JoinColumn(name = "ponto_coleta_id"),
+        inverseJoinColumns = @JoinColumn(name = "residuo_id")
+    )
+    private List<Residuo> tiposResiduosAceitos;
 }
