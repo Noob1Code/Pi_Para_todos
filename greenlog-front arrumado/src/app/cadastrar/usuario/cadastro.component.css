@@ -102,3 +102,21 @@ select:focus {
 .cadastro-button:hover:enabled {
   background-color: #218838;
 }
+
+/* Botão de voltar */
+.btn.editar {
+  margin-top: 10px;
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn.editar:hover {
+  background-color: #0056b3;
+}

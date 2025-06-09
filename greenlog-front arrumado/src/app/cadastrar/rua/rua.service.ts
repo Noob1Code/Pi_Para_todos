@@ -35,7 +35,7 @@ export class RuaService {
       nome: rua.nome,
       origem: { id: rua.origem.id },
       destino: { id: rua.destino.id },
-      distancia: rua.distancia,
+      distancia: rua.distancia!,
     };
   }
 }

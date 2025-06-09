@@ -37,10 +37,14 @@
       <p *ngIf="carregando">Carregando bairros...</p>
 
       <ul class="modal-list">
-        <li *ngFor="let bairro of bairrosFiltrados" (click)="selecionar(bairro)">
-          {{ bairro.nome }}
-        </li>
-        <li *ngIf="bairros.length === 0" class="nenhum-resultado">
+        <li 
+  *ngFor="let bairro of bairrosFiltrados" 
+  [class.disabled]="bairro.id === excluirBairroId"
+  (click)="bairro.id !== excluirBairroId && selecionar(bairro)"
+>
+  {{ bairro.nome }}
+</li>
+        <li *ngIf="bairrosFiltrados.length === 0" class="nenhum-resultado">
           Nenhum bairro encontrado.
         </li>
       </ul>

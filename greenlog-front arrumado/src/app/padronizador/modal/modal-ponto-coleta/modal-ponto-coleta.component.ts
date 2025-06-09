@@ -46,8 +46,6 @@ export class ModalPontoColetaComponent implements OnInit {
         this.carregando = false;
       },
       error: (err) => {
-        console.error('Erro ao carregar pontosColeta', err);
-        alert('Não foi possível carregar a lista de pontosColeta.');
         this.carregando = false;
       }
     });

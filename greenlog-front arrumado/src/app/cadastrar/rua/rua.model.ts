@@ -6,7 +6,7 @@ export interface Rua {
   nome: string;
   origem: Bairro;
   destino: Bairro;
-  distancia: number;
+  distancia: number|null;
 }
 
 export interface RuaUPDATE{

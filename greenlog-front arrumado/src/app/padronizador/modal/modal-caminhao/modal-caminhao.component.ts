@@ -46,8 +46,6 @@ export class ModalCaminhaoComponent implements OnInit {
         this.carregando = false;
       },
       error: (err) => {
-        console.error('Erro ao carregar caminhoes', err);
-        alert('Não foi possível carregar a lista de caminhoes.');
         this.carregando = false;
       }
     });
