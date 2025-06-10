@@ -143,18 +143,21 @@ export class RotaComponent implements OnInit{
   }
 
   calcularRota(): void {
-  const origemId = 1; // fixo: bairro Centro
   const destinoId = this.rotaAtual.destino?.id;
 
-  if (!destinoId) return;
-
-  this.rotaService.getMenorCaminho(origemId, destinoId).subscribe({
+  if (!destinoId) {
+    this.mostrarMensagem('erro', 'Selecione um destino antes de calcular a rota.');
+    return;
+  }
+  
+  this.rotaService.calcularRota(destinoId).subscribe({
     next: (res) => {
+      console.log(res)
       this.rotaAtual.bairrosPercorridos = res.bairros.map(b => b.nome);
       this.rotaAtual.arestasPercorridas = res.arestas;
       this.rotaAtual.distanciaTotal = res.distanciaTotal;
     },
     error: () => this.mostrarMensagem('erro', 'Erro ao calcular rota.'),
   });
-} 
+}
 }

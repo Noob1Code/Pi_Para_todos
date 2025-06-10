@@ -2,21 +2,27 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-
 package greenlong.service;
 
+import greenlong.dto.CalculoRotaResponseDTO;
+import greenlong.dto.CaminhoDTO;
 import greenlong.dto.CaminhaoDTO;
+import greenlong.dto.ConexaoDTO;
 import greenlong.dto.PontoColetaResponseDTO;
 import greenlong.dto.RotaResponseDTO;
 import greenlong.dto.RotaRequestDTO;
+import greenlong.model.Bairro;
 import greenlong.model.Caminhao;
+import greenlong.model.Conexao;
 import greenlong.model.PontoColeta;
 import greenlong.model.Residuo;
 import greenlong.model.Rota;
+import greenlong.repository.BairrosRepository;
 import greenlong.repository.CaminhaoRepository;
+import greenlong.repository.ConexaoRepository;
 import greenlong.repository.PontoColetaRepository;
 import greenlong.repository.RotaRepository;
-import org.springframework.transaction.annotation.Transactional;;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,38 +35,51 @@ import org.springframework.stereotype.Service;
  * @data 06/06/2025
  * @brief Class RotaService
  */
-
 @Service
 @RequiredArgsConstructor
 public class RotaService {
 
     private final RotaRepository rotaRepository;
     private final CaminhaoRepository caminhaoRepository;
-    private final PontoColetaRepository pontoColetaRepository;
+    private final BairrosRepository bairroRepository;
+    private final ConexaoRepository conexaoRepository;
+    private final DijkstraService dijkstraService;
 
     @Transactional
     public RotaResponseDTO criarRota(RotaRequestDTO dto) {
         Caminhao caminhao = caminhaoRepository.findById(dto.getCaminhaoId())
-                .orElseThrow(() -> new IllegalArgumentException("Caminhão não encontrado com ID: " + dto.getCaminhaoId()));
+                .orElseThrow(() -> new IllegalArgumentException("Caminhão com ID " + dto.getCaminhaoId() + " não encontrado."));
 
-        PontoColeta origem = pontoColetaRepository.findById(dto.getOrigemId())
-                .orElseThrow(() -> new IllegalArgumentException("Ponto de Coleta de origem não encontrado com ID: " + dto.getOrigemId()));
+        Bairro destino = bairroRepository.findById(dto.getDestinoId())
+                .orElseThrow(() -> new IllegalArgumentException("Destino com ID " + dto.getDestinoId() + " não encontrado."));
 
-        PontoColeta destino = pontoColetaRepository.findById(dto.getDestinoId())
-                .orElseThrow(() -> new IllegalArgumentException("Ponto de Coleta de destino não encontrado com ID: " + dto.getDestinoId()));
+        Bairro origem = bairroRepository.findByNomeIgnoreCase("Centro")
+                .orElseThrow(() -> new IllegalArgumentException("Bairro de origem 'Centro' não encontrado."));
 
-        Rota novaRota = new Rota();
-        novaRota.setCaminhao(caminhao);
-        novaRota.setPontoColetaOrigem(origem);
-        novaRota.setPontoColetaDestino(destino);
-        novaRota.setData(dto.getData());
+        CaminhoDTO caminho = dijkstraService.calcularMenorCaminho(origem.getId(), destino.getId());
 
-        Rota rotaSalva = rotaRepository.save(novaRota);
-        return toResponseDTO(rotaSalva);
+        List<String> bairrosPercorridos = caminho.getBairros().stream()
+                .map(Bairro::getNome).collect(Collectors.toList());
+
+        List<Long> conexaoIds = caminho.getArestas().stream()
+                .map(Conexao::getId).collect(Collectors.toList());
+
+        List<Conexao> conexoes = conexaoRepository.findAllById(conexaoIds);
+
+        Rota rota = new Rota();
+        rota.setCaminhao(caminhao);
+        rota.setDestino(destino);
+        rota.setTipoResiduo(dto.getTipoResiduo());
+        rota.setBairrosPercorridos(bairrosPercorridos);
+        rota.setArestasPercorridas(conexoes);
+        rota.setDistanciaTotal(caminho.getDistanciaTotal());
+
+        rotaRepository.save(rota);
+        return toResponseDTO(rota);
     }
 
     @Transactional(readOnly = true)
-    public List<RotaResponseDTO> listarTodas() {
+    public List<RotaResponseDTO> listarTodos() {
         return rotaRepository.findAll().stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
@@ -80,28 +99,6 @@ public class RotaService {
         return false;
     }
 
-    private RotaResponseDTO toResponseDTO(Rota rota) {
-        List<String> nomesResiduos = rota.getCaminhao().getResiduos().stream()
-                .map(Residuo::getNome)
-                .collect(Collectors.toList());
-        
-        CaminhaoDTO caminhaoDTO = new CaminhaoDTO(rota.getCaminhao().getId(), rota.getCaminhao().getPlaca(), rota.getCaminhao().getMotorista(), rota.getCaminhao().getCapacidade(), nomesResiduos);
-        PontoColetaResponseDTO origemDTO = toPontoColetaResponseDTO(rota.getPontoColetaOrigem());
-        PontoColetaResponseDTO destinoDTO = toPontoColetaResponseDTO(rota.getPontoColetaDestino());
-
-        return new RotaResponseDTO(rota.getId(), rota.getData(), caminhaoDTO, origemDTO, destinoDTO);
-    }
-    
-    private PontoColetaResponseDTO toPontoColetaResponseDTO(PontoColeta pontoColeta) {
-        PontoColetaResponseDTO.BairroDTO bairroDTO = new PontoColetaResponseDTO.BairroDTO(pontoColeta.getBairro().getId(), pontoColeta.getBairro().getNome());
-        
-        List<String> nomesResiduos = pontoColeta.getTiposResiduosAceitos().stream()
-                .map(Residuo::getNome)
-                .collect(Collectors.toList());
-
-        return new PontoColetaResponseDTO(pontoColeta.getId(), bairroDTO, pontoColeta.getNome(), pontoColeta.getResponsavel(), pontoColeta.getTelefoneResponsavel(), pontoColeta.getEmailResponsavel(), pontoColeta.getEndereco(), pontoColeta.getHorarioFuncionamento(), nomesResiduos);
-    }
-    
     @Transactional
     public RotaResponseDTO atualizarRota(Long id, RotaRequestDTO dto) {
         Rota rotaExistente = rotaRepository.findById(id)
@@ -110,18 +107,83 @@ public class RotaService {
         Caminhao caminhao = caminhaoRepository.findById(dto.getCaminhaoId())
                 .orElseThrow(() -> new IllegalArgumentException("Caminhão com ID " + dto.getCaminhaoId() + " não encontrado."));
 
-        PontoColeta origem = pontoColetaRepository.findById(dto.getOrigemId())
-                .orElseThrow(() -> new IllegalArgumentException("Ponto de coleta de origem com ID " + dto.getOrigemId() + " não encontrado."));
+        Bairro destino = bairroRepository.findById(dto.getDestinoId())
+                .orElseThrow(() -> new IllegalArgumentException("Destino com ID " + dto.getDestinoId() + " não encontrado."));
 
-        PontoColeta destino = pontoColetaRepository.findById(dto.getDestinoId())
-                .orElseThrow(() -> new IllegalArgumentException("Ponto de coleta de destino com ID " + dto.getDestinoId() + " não encontrado."));
+        List<Conexao> conexoes = conexaoRepository.findAllById(dto.getConexaoIds());
 
         rotaExistente.setCaminhao(caminhao);
-        rotaExistente.setPontoColetaOrigem(origem);
-        rotaExistente.setPontoColetaDestino(destino);
-        rotaExistente.setData(dto.getData());
+        rotaExistente.setDestino(destino);
+        rotaExistente.setTipoResiduo(dto.getTipoResiduo());
+        rotaExistente.setBairrosPercorridos(dto.getBairrosPercorridos());
+        rotaExistente.setArestasPercorridas(conexoes);
+        rotaExistente.setDistanciaTotal(dto.getDistanciaTotal());
 
         Rota rotaSalva = rotaRepository.save(rotaExistente);
         return toResponseDTO(rotaSalva);
     }
+
+    public RotaResponseDTO toResponseDTO(Rota rota) {
+        List<ConexaoDTO> arestasDTO = rota.getArestasPercorridas().stream().map(con -> {
+            ConexaoDTO.BairroDTO origemDTO = new ConexaoDTO.BairroDTO(
+                    con.getOrigem().getId(),
+                    con.getOrigem().getNome()
+            );
+            ConexaoDTO.BairroDTO destinoDTO = new ConexaoDTO.BairroDTO(
+                    con.getDestino().getId(),
+                    con.getDestino().getNome()
+            );
+            return new ConexaoDTO(
+                    con.getId(),
+                    con.getRua(),
+                    origemDTO,
+                    destinoDTO,
+                    con.getQuilometros()
+            );
+        }).collect(Collectors.toList());
+
+        return new RotaResponseDTO(
+                rota.getId(),
+                rota.getCaminhao().getPlaca(),
+                rota.getDestino().getNome(),
+                rota.getTipoResiduo(),
+                rota.getBairrosPercorridos(),
+                arestasDTO,
+                rota.getDistanciaTotal()
+        );
+    }
+
+    public CalculoRotaResponseDTO calcularRota(Long caminhaoId, Long destinoId, String tipoResiduo) {
+    Caminhao caminhao = caminhaoRepository.findById(caminhaoId)
+        .orElseThrow(() -> new IllegalArgumentException("Caminhão não encontrado"));
+
+    Bairro destino = bairroRepository.findById(destinoId)
+        .orElseThrow(() -> new IllegalArgumentException("Destino não encontrado"));
+
+    Bairro origem = bairroRepository.findByNomeIgnoreCase("Centro")
+        .orElseThrow(() -> new IllegalArgumentException("Bairro 'Centro' não encontrado"));
+
+    CaminhoDTO caminho = dijkstraService.calcularMenorCaminho(origem.getId(), destino.getId());
+
+    List<String> bairros = caminho.getBairros().stream().map(Bairro::getNome).toList();
+    List<Long> conexaoIds = caminho.getArestas().stream().map(Conexao::getId).toList();
+    List<Conexao> conexoes = conexaoRepository.findAllById(conexaoIds);
+
+    List<ConexaoDTO> arestasDTO = conexoes.stream().map(con -> new ConexaoDTO(
+        con.getId(),
+        con.getRua(),
+        new ConexaoDTO.BairroDTO(con.getOrigem().getId(), con.getOrigem().getNome()),
+        new ConexaoDTO.BairroDTO(con.getDestino().getId(), con.getDestino().getNome()),
+        con.getQuilometros()
+    )).toList();
+
+    return new CalculoRotaResponseDTO(
+        caminhao.getPlaca(),
+        destino.getNome(),
+        tipoResiduo,
+        bairros,
+        arestasDTO,
+        caminho.getDistanciaTotal()
+    );
+}
 }

@@ -8,7 +8,8 @@ import { Injectable } from "@angular/core";
 })
 export class RotaService {
     
-  private apiUrl = 'http://localhost:8080/api/rotas';
+  private readonly apiUrl = 'http://localhost:8080/api/rotas';
+  private readonly caminhoUrl = 'http://localhost:8080/api/caminhos';
 
   constructor(private http: HttpClient) {}
 
@@ -28,12 +29,9 @@ export class RotaService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  getMenorCaminho(origemId: number, destinoId: number): Observable<CaminhoDTO> {
-  return this.http.get<CaminhoDTO>(`http://localhost:8080/api/caminhos/menor-caminho`, {
-    params: {
-      origemId,
-      destinoId
-    }
-  });
-}
+  calcularRota(destinoId: number): Observable<CaminhoDTO> {
+    return this.http.get<CaminhoDTO>(`${this.caminhoUrl}/menor-caminho`, {
+      params: { destinoId }
+    });
+  }
 }

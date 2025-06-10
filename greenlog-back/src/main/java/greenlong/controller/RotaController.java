@@ -2,9 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-
 package greenlong.controller;
 
+import greenlong.dto.CalculoRotaResponseDTO;
 import greenlong.dto.RotaResponseDTO;
 import greenlong.dto.RotaRequestDTO;
 import greenlong.service.RotaService;
@@ -26,6 +26,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
@@ -34,7 +35,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @data 06/06/2025
  * @brief Class RotaController
  */
-
 @RestController
 @RequestMapping("/api/rotas")
 @RequiredArgsConstructor
@@ -55,7 +55,7 @@ public class RotaController {
 
     @GetMapping
     public ResponseEntity<List<RotaResponseDTO>> listarTodasRotas() {
-        return ResponseEntity.ok(rotaService.listarTodas());
+        return ResponseEntity.ok(rotaService.listarTodos());
     }
 
     @GetMapping("/{id}")
@@ -72,7 +72,7 @@ public class RotaController {
         }
         return ResponseEntity.notFound().build();
     }
-    
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -84,7 +84,7 @@ public class RotaController {
         });
         return errors;
     }
-    
+
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizarRota(@PathVariable Long id, @Valid @RequestBody RotaRequestDTO dto) {
         try {
@@ -92,6 +92,19 @@ public class RotaController {
             return ResponseEntity.ok(rotaAtualizada);
         } catch (IllegalArgumentException e) {
             // Retorna 404 Not Found se a rota ou algum dos IDs relacionados não existir
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/calcular")
+    public ResponseEntity<?> calcularRota(
+            @RequestParam Long caminhaoId,
+            @RequestParam Long destinoId,
+            @RequestParam String tipoResiduo) {
+        try {
+            CalculoRotaResponseDTO resposta = rotaService.calcularRota(caminhaoId, destinoId, tipoResiduo);
+            return ResponseEntity.ok(resposta);
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", e.getMessage()));
         }
     }
