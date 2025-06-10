@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { GraphComponent } from "../graph/graph.component";
 
 @Component({
   selector: 'app-dashboard',
-  imports: [],
+  imports: [GraphComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
