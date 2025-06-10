@@ -89,6 +89,7 @@ export class CaminhaoComponent implements OnInit{
         error: () => (this.mostrarMensagem('erro','Erro ao atualizar caminhao.')),
       });
     } else {
+      console.log('Enviando caminhão:', this.caminhaoAtual);
       this.caminhaoService.salvar(this.caminhaoAtual).subscribe({
         next: () => {
           this.mostrarMensagem('salvo');

@@ -6,6 +6,7 @@
 package greenlong.dto;
 
 import java.util.Date;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,9 +23,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RotaResponseDTO {
     private Long id;
-    private Date data;
-    private CaminhaoDTO caminhao;
-    private PontoColetaResponseDTO origem;
-    private PontoColetaResponseDTO destino;
-
+    private String caminhaoNome;
+    private String destinoNome;
+    private String tipoResiduo;
+    private List<String> bairrosPercorridos;
+    private List<ConexaoDTO> arestasPercorridas;
+    private double distanciaTotal;
 }

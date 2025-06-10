@@ -18,7 +18,8 @@ export interface CaminhoDTO {
 }
 
 export interface Aresta {
+  rua: string;
   origemId: number;
   destinoId: number;
-  distancia: number;
+  quilometros: number;
 }

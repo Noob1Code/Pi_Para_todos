@@ -1,4 +1,3 @@
-import { Interface } from "readline";
 import { Bairro } from "../bairro/bairro.model";
 
 export interface Rua {

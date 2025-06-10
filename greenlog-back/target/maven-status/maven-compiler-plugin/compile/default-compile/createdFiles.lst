@@ -16,6 +16,7 @@ greenlong\controller\ConexaoController.class
 greenlong\model\Caminhao.class
 greenlong\service\CaminhaoService.class
 greenlong\config\SecurityConfig.class
+greenlong\service\DijkstraService.class
 greenlong\dto\PontoColetaCadastroDTO$BairroIdDTO.class
 greenlong\repository\ConexaoRepository.class
 greenlong\dto\CaminhaoRequestDTO.class
@@ -25,6 +26,7 @@ greenlong\model\Usuario.class
 greenlong\service\BairroService.class
 greenlong\repository\UsuarioRepository.class
 greenlong\controller\RotaController.class
+greenlong\dto\CalculoRotaResponseDTO.class
 greenlong\repository\BairrosRepository.class
 greenlong\dto\RotaResponseDTO.class
 greenlong\repository\RotaRepository.class
@@ -41,8 +43,10 @@ greenlong\dto\PontoColetaResponseDTO$BairroDTO.class
 greenlong\service\ConexaoService.class
 greenlong\dto\PontoColetaResponseDTO.class
 greenlong\repository\ResiduoRepository.class
+greenlong\controller\DijkstraController.class
 greenlong\model\Bairro.class
 greenlong\dto\LoginRequestDTO.class
+greenlong\dto\CaminhoDTO.class
 greenlong\repository\PontoColetaRepository.class
 greenlong\controller\PontoColetaController.class
 greenlong\repository\CaminhaoRepository.class

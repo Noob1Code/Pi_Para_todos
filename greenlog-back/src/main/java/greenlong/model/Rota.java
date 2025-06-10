@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.Date;
+import java.util.List;
 /**
  *
  * @author Kayque de Freitas <kayquefreitas08@gmail.com>
@@ -23,22 +24,29 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Rota {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "caminhao_id")
+    @ManyToOne
     private Caminhao caminhao;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pontos_coleta_origem_id")
-    private PontoColeta pontoColetaOrigem;
+    @ManyToOne
+    private Bairro destino;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pontos_coleta_destino_id")
-    private PontoColeta pontoColetaDestino;
+    private String tipoResiduo;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date data;
+    private double distanciaTotal;
+
+    @ElementCollection
+    private List<String> bairrosPercorridos;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "rota_conexao",
+        joinColumns = @JoinColumn(name = "rota_id"),
+        inverseJoinColumns = @JoinColumn(name = "conexao_id")
+    )
+    private List<Conexao> arestasPercorridas;
 }

@@ -96,7 +96,7 @@
   <h4>Ruas Percorridas:</h4>
   <ul>
     <li *ngFor="let aresta of rotaAtual.arestasPercorridas">
-      De {{ aresta.origemId }} para {{ aresta.destinoId }} — {{ aresta.distancia }} km
+      <strong>{{ aresta.rua }}</strong> — {{ aresta.quilometros }} km
     </li>
   </ul>
 </div>
