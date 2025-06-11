@@ -26,7 +26,7 @@ INSERT INTO public.pontos_coleta
   (id, email_responsavel,            endereco,                      horario_funcionamento,    nome,                             responsavel,        telefone_responsavel, bairro_id)
 VALUES
   (1, 'j.silva@reciclofast.com.br',  'Rua das Flores, 123, Jardim América',      '08:00-17:00', 'Ponto de Coleta Jardim América',      'João Silva',       '(62) 9999-0001',        1),
-  (2, 'm.souza@reciclofast.com.br',  'Av. Central, 45, Centro',                  '09:00-18:00', 'Ponto de Coleta Centro',             'Maria Souza',      '(62) 9999-0002',        2),
+  (2, 'm.souza@reciclofast.com.br',  'Av. Central, 45, Centro',                  '09:00-18:00', 'Ponto de Coleta Centro',             'Maria Souza',      '(62) 9999-0002',        1),
   (3, 'c.alves@reciclofast.com.br',  'Rua Leste, 78, Setor Leste',               '07:30-16:30', 'Ponto de Coleta Setor Leste',        'Carlos Alves',     '(62) 9999-0003',        3),
   (4, 'f.oliveira@reciclofast.com.br','Praça da Vila, 10, Vila Nova',             '08:00-17:00', 'Ponto de Coleta Vila Nova',          'Fernanda Oliveira','(62) 9999-0004',        4),
   (5, 'l.ferreira@reciclofast.com.br','Rua da Serra, 200, Alto da Serra',         '08:30-17:30', 'Ponto de Coleta Alto da Serra',      'Lucas Ferreira',   '(62) 9999-0005',        5),
