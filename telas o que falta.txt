@@ -11,3 +11,14 @@ itinerários:
 data, caminhão, rota, validação se o caminhão é do mesmo tipo que a rota e se ele ta livre no dia 
 
 consulta/dashboard: 3 gráficos, e a visualização do grafo, e no topbar poder fazer as consultar de pontos de coleta, caminhões, rotas, cronograma mensal de um caminhao
+
+-- fazer o backend da da tela de itinerário
+-- fazer as validações (todas)
+-- fazer o login com o security spring do login para mandar o token para o front
+-- fazer as consultas para o dashbord
+-- fazer as consultas para  a tela de itinerário
+-- fazer as consultas para rota 
+-- fazer todas as documentações corretamente
+
+Obs:
+- se der tempo fazer a tela de cadastro de novos resíduos
