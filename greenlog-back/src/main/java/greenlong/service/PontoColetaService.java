@@ -9,16 +9,19 @@ import greenlong.dto.PontoColetaCadastroDTO;
 import greenlong.dto.PontoColetaResponseDTO;
 import greenlong.model.Bairro;
 import greenlong.model.PontoColeta;
-import greenlong.model.Residuo;
 import greenlong.repository.BairrosRepository;
 import greenlong.repository.PontoColetaRepository;
 import greenlong.repository.ResiduoRepository;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import greenlong.model.Caminhao;
+import greenlong.model.Residuo;
+import greenlong.repository.CaminhaoRepository;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -35,6 +38,8 @@ public class PontoColetaService {
     private final BairrosRepository bairrosRepository;
     private final ResiduoRepository residuoRepository;
     private final AuditoriaService auditoriaService;
+    private final CaminhaoRepository caminhaoRepository;
+    
 
     @Transactional
     public PontoColetaResponseDTO criarPontoColeta(PontoColetaCadastroDTO dto) {
@@ -61,6 +66,29 @@ public class PontoColetaService {
     public List<PontoColetaResponseDTO> listarTodosPontosColeta() {
         return pontoColetaRepository.findAll().stream()
                 .map(this::toResponseDTO)
+                .collect(Collectors.toList());
+    }
+    
+    @Transactional(readOnly = true)
+    public List<PontoColetaResponseDTO> listarPontosCompativeisPorCaminhao(Long caminhaoId) {
+        // 2. Busca o caminhão pelo ID. O .orElseThrow() lida com o caso de ID não encontrado.
+        Caminhao caminhao = caminhaoRepository.findById(caminhaoId)
+                .orElseThrow(() -> new IllegalArgumentException("Caminhão com ID " + caminhaoId + " não encontrado."));
+
+        // 3. Extrai a lista de nomes dos resíduos que o caminhão suporta
+        List<String> nomesResiduosDoCaminhao = caminhao.getResiduos().stream()
+                .map(Residuo::getNome)
+                .collect(Collectors.toList());
+
+        // 4. Se o caminhão não coleta nada, retorna uma lista vazia
+        if (nomesResiduosDoCaminhao.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 5. Usa o novo método do PontoColetaRepository para buscar e retornar os pontos compatíveis
+        return pontoColetaRepository.findDistinctByTiposResiduosAceitos_NomeIn(nomesResiduosDoCaminhao)
+                .stream()
+                .map(this::toResponseDTO) // Reutiliza seu método de conversão
                 .collect(Collectors.toList());
     }
 

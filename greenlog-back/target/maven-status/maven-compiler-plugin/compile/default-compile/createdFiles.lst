@@ -32,7 +32,6 @@ greenlong\dto\CalculoRotaResponseDTO.class
 greenlong\repository\BairrosRepository.class
 greenlong\dto\RotaResponseDTO.class
 greenlong\repository\RotaRepository.class
-greenlong\config\UsuarioADM.class
 greenlong\dto\ConexaoDTO$BairroDTO.class
 greenlong\service\PontoColetaService.class
 greenlong\dto\BairroDTO.class

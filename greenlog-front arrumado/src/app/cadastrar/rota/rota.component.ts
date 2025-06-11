@@ -3,30 +3,32 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Rota } from './rota.model';
 import { RotaService } from './rota.service';
-import { ModalBairrosComponent } from "../../padronizador/modal/modal-bairro/modal-bairro.component";
+
+import { ModalPontoColetaComponent } from "../../padronizador/modal/modal-ponto-coleta/modal-ponto-coleta.component"; 
 import { ModalCaminhaoComponent } from "../../padronizador/modal/modal-caminhao/modal-caminhao.component";
 import { Caminhao } from '../caminhao/caminhao.modal';
-import { Bairro } from '../bairro/bairro.model';
+import { PontoColeta } from '../ponto-coleta/ponto-coleta.model';
 
 @Component({
   selector: 'app-rota',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalBairrosComponent, ModalCaminhaoComponent],
+  imports: [CommonModule, FormsModule, ModalPontoColetaComponent, ModalCaminhaoComponent],
   templateUrl: './rota.component.html',
   styleUrl: './rota.component.css'
 })
-export class RotaComponent implements OnInit{
+export class RotaComponent implements OnInit {
   modalCaminhoesVisivel = false;
-  modalBairrosVisivel = false;
+  modalPontosColetaVisivel = false;
   rotas: Rota[] = [];
   rotaAtual: Rota = {
     caminhao: null,
     destino: null,
     tipoResiduo: '',
     bairrosPercorridos: [],
-    distanciaTotal:0
-  }
+    distanciaTotal: 0
+  };
   idEditando: number | null = null;
+  pontosColetaCompativeis: PontoColeta[] | null = null;
 
   mensagem: { tipo: 'salvo' | 'editado' | 'excluido' | 'erro' | null; texto: string } = {
     tipo: null,
@@ -43,9 +45,9 @@ export class RotaComponent implements OnInit{
     this.mensagem = {
       tipo,
       texto:
-        tipo === 'salvo' ? 'Rota cadastrado com sucesso!' :
-        tipo === 'editado' ? 'Rota atualizado com sucesso!' :
-        tipo === 'excluido' ? 'Rota excluído com sucesso!' :
+        tipo === 'salvo' ? 'Rota cadastrada com sucesso!' :
+        tipo === 'editado' ? 'Rota atualizada com sucesso!' :
+        tipo === 'excluido' ? 'Rota excluída com sucesso!' :
         textoPersonalizado || '❌ Ocorreu um erro ao processar a solicitação.'
     };
   
@@ -64,100 +66,125 @@ export class RotaComponent implements OnInit{
   }
 
   resetForm(form?: NgForm): void {
+    form?.resetForm();
     this.rotaAtual = {
       caminhao: null,
       destino: null,
       tipoResiduo: '',
       bairrosPercorridos: [],
-      distanciaTotal:0
+      distanciaTotal: 0
     };
     this.idEditando = null;
+    this.pontosColetaCompativeis = null;
   }
+
   editar(rota: Rota): void {
     this.idEditando = rota.id ?? null;
     this.rotaAtual = { ...rota };
+    if (rota.caminhao?.id) {
+      this.carregarPontosCompativeis(rota.caminhao.id);
+    }
   }
 
-  abrirModalBairros(){
-    this.modalBairrosVisivel = true;
+  // --- Lógica dos Modais ---
+
+  abrirModalCaminhoes() {
+    this.modalCaminhoesVisivel = true;
+  }
+
+  fecharModalCaminhoes() {
+    this.modalCaminhoesVisivel = false;
+  }
+
+  onCaminhaoSelecionado(caminhao: Caminhao) {
+    this.rotaAtual.caminhao = caminhao;
+    this.rotaAtual.destino = null; // Limpa o destino para forçar nova seleção
+    this.rotaAtual.tipoResiduo = ''; // Limpa o tipo de resíduo
     this.fecharModalCaminhoes();
-  }
-
-  fecharModalBairros(){
-    this.modalBairrosVisivel = false;
+    this.carregarPontosCompativeis(caminhao.id!);
   }
   
-  onBairroSelecionado(event: Bairro): void {
-    this.rotaAtual.destino = event;
-    this.modalBairrosVisivel = false;
+  abrirModalPontosColeta() {
+    if (!this.rotaAtual.caminhao) {
+      this.mostrarMensagem('erro', 'Por favor, selecione um caminhão primeiro.');
+      return;
+    }
+    this.modalPontosColetaVisivel = true;
   }
 
-  abrirModalCaminhoes(){
-    this.modalCaminhoesVisivel = true;
-    this.fecharModalBairros();
+  fecharModalPontosColeta() {
+    this.modalPontosColetaVisivel = false;
   }
-
-  fecharModalCaminhoes(){
-    this.modalCaminhoesVisivel = false;
+  
+  onPontoColetaSelecionado(ponto: PontoColeta): void {
+    this.rotaAtual.destino = ponto;
+    this.fecharModalPontosColeta();
   }
-
-  onCaminhaoSelecionado(caminhao : Caminhao){
-    this.rotaAtual.caminhao = caminhao;
-    this.modalCaminhoesVisivel = false;
+  
+  private carregarPontosCompativeis(caminhaoId: number) {
+    this.pontosColetaCompativeis = null; // Mostra o "carregando" no modal
+    this.rotaService.getPontosDeColetaCompativeis(caminhaoId).subscribe({
+        next: (pontos) => {
+            this.pontosColetaCompativeis = pontos;
+        },
+        error: () => {
+            this.mostrarMensagem('erro', 'Erro ao buscar pontos de coleta compatíveis.');
+            this.pontosColetaCompativeis = []; // Evita que fique em loading eterno
+        }
+    });
   }
 
   salvar(form: NgForm): void {
-
-  if (this.idEditando) {
-    this.rotaService.atualizar(this.idEditando, this.rotaAtual).subscribe({
-      next: () => {
-        this.mostrarMensagem('editado');
-        this.resetForm(form);
-        this.buscarTodos();
-      },
-      error: () => (this.mostrarMensagem('erro','Erro ao atualizar bairro.')),
-    });
-  } else {
-    this.rotaService.salvar(this.rotaAtual).subscribe({
-      next: () => {
-        this.mostrarMensagem('salvo');
-        this.resetForm(form);
-        this.buscarTodos();
-      },
-      error: () => (this.mostrarMensagem('erro','Erro ao cadastrar bairro.')),
-    });
-  }
+    if (this.idEditando) {
+      this.rotaService.atualizar(this.idEditando, this.rotaAtual).subscribe({
+        next: () => {
+          this.mostrarMensagem('editado');
+          this.resetForm(form);
+          this.buscarTodos();
+        },
+        error: () => (this.mostrarMensagem('erro', 'Erro ao atualizar rota.')),
+      });
+    } else {
+      this.rotaService.salvar(this.rotaAtual).subscribe({
+        next: () => {
+          this.mostrarMensagem('salvo');
+          this.resetForm(form);
+          this.buscarTodos();
+        },
+        error: () => (this.mostrarMensagem('erro', 'Erro ao cadastrar rota.')),
+      });
+    }
   }
 
   excluir(id: number): void {
-    const confirmar = confirm('Tem certeza que deseja excluir este ponto de coleta?');
+    const confirmar = confirm('Tem certeza que deseja excluir esta rota?');
     if (confirmar) {
       this.rotaService.excluir(id).subscribe({
         next: () => {
           this.mostrarMensagem('excluido');
           this.buscarTodos();
         },
-        error: () => this.mostrarMensagem('erro', 'Erro ao excluir ponto de coleta.'),
+        error: () => this.mostrarMensagem('erro', 'Erro ao excluir rota.'),
       });
     }
   }
 
   calcularRota(): void {
-  const destinoId = this.rotaAtual.destino?.id;
+    // O backend espera o ID do Bairro para calcular a rota
+    const destinoBairroId = this.rotaAtual.destino?.bairro.id;
 
-  if (!destinoId) {
-    this.mostrarMensagem('erro', 'Selecione um destino antes de calcular a rota.');
-    return;
+    if (!destinoBairroId) {
+      this.mostrarMensagem('erro', 'Selecione um destino antes de calcular a rota.');
+      return;
+    }
+    
+    this.rotaService.calcularRota(destinoBairroId).subscribe({
+      next: (res) => {
+        this.rotaAtual.bairrosPercorridos = res.bairros.map(b => b.nome);
+        this.rotaAtual.arestasPercorridas = res.arestas;
+        this.rotaAtual.distanciaTotal = res.distanciaTotal;
+      },
+      error: () => this.mostrarMensagem('erro', 'Erro ao calcular rota.'),
+    });
   }
-  
-  this.rotaService.calcularRota(destinoId).subscribe({
-    next: (res) => {
-      console.log(res)
-      this.rotaAtual.bairrosPercorridos = res.bairros.map(b => b.nome);
-      this.rotaAtual.arestasPercorridas = res.arestas;
-      this.rotaAtual.distanciaTotal = res.distanciaTotal;
-    },
-    error: () => this.mostrarMensagem('erro', 'Erro ao calcular rota.'),
-  });
-}
 }
