@@ -28,20 +28,20 @@
     <section class="modal-body">
       <input 
         type="text" 
-        placeholder="Pesquisar por nome ou tipo..." 
+        placeholder="Pesquisar por nome ou bairro..." 
         [(ngModel)]="termoPesquisa" 
         (input)="filtrar()" 
         class="form-control"
       />
   
-      <p *ngIf="carregando">Carregando Pontos de Coleta...</p>
+      <p *ngIf="carregando">Carregando Pontos de Coleta compatíveis...</p>
 
       <ul class="modal-list">
         <li *ngFor="let pontoColeta of pontosColetaFiltrados" (click)="selecionar(pontoColeta)">
-          {{ pontoColeta.nome + "("+pontoColeta.tiposResiduosAceitos+")" }}
+          {{ pontoColeta.nome }} ({{ pontoColeta.bairro.nome }})
         </li>
-        <li *ngIf="pontosColeta.length === 0" class="nenhum-resultado">
-          Nenhum ponto de coleta encontrado.
+        <li *ngIf="pontosColetaFiltrados.length === 0 && !carregando" class="nenhum-resultado">
+          Nenhum ponto de coleta compatível encontrado.
         </li>
       </ul>
     </section>

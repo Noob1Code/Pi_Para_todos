@@ -1,8 +1,10 @@
-<app-modal-bairros 
-  [visivel]="modalBairrosVisivel"
-  (fechado)="fecharModalBairros()"
-  (bairroSelecionado)="onBairroSelecionado($event)">
-</app-modal-bairros>
+<!-- MODIFICADO: Usando o seletor e os eventos corretos do modal de Ponto de Coleta -->
+<app-modal-ponto-coleta 
+  [visivel]="modalPontosColetaVisivel"
+  [pontosColetaCompativeis]="pontosColetaCompativeis"
+  (fechado)="fecharModalPontosColeta()"
+  (pontoColetaSelecionado)="onPontoColetaSelecionado($event)">
+</app-modal-ponto-coleta>
 
 <app-modal-caminhao
   [visivel]="modalCaminhoesVisivel"
@@ -48,7 +50,7 @@
         #residuoInput="ngModel"
         [ngClass]="{ 'invalid-input': residuoInput.invalid && (residuoInput.dirty || residuoInput.touched || formRota.submitted) }"
       >
-        <option [ngValue]="null" disabled selected>Selecione</option>
+        <option value="" disabled>Selecione um tipo de resíduo</option>
         <option *ngFor="let tipo of rotaAtual.caminhao.residuos" [value]="tipo">{{ tipo }}</option>
       </select>
       <div *ngIf="residuoInput.invalid && (residuoInput.dirty || residuoInput.touched || formRota.submitted)" class="error-message">
@@ -56,7 +58,7 @@
       </div>
     </div>
 
-    <!-- Botão de seleção de bairro -->
+    <!-- Botão de seleção de destino (ponto de coleta) -->
     <div class="form-group">
       <label for="destino">Destino (Ponto de Coleta):</label>
       <input
@@ -65,10 +67,11 @@
         name="destino"
         readonly
         [value]="rotaAtual.destino?.nome || ''"
-        placeholder="Clique para selecionar"
-        (click)="abrirModalBairros()"
+        placeholder="Selecione um caminhão primeiro"
+        (click)="abrirModalPontosColeta()"
         class="select-button"
         required
+        [disabled]="!rotaAtual.caminhao"
         [ngClass]="{ 'invalid-input': !rotaAtual.destino && formRota.submitted }"
       />
       <div *ngIf="!rotaAtual.destino && formRota.submitted" class="error-message">
@@ -79,37 +82,37 @@
     <!-- Botão de cálculo -->
     <div class="form-group">
       <button
-  type="button"
-  class="btn calcular"
-  [disabled]="!rotaAtual.caminhao || !rotaAtual.tipoResiduo || !rotaAtual.destino"
-  (click)="calcularRota()"
->
-  🚛 Calcular Rota
-</button>
+          type="button"
+          class="btn calcular"
+          [disabled]="!rotaAtual.destino"
+          (click)="calcularRota()"
+        >
+        🚛 Calcular Rota
+      </button>
     </div>
 
     <!-- Visualização da rota -->
     <div *ngIf="rotaAtual.bairrosPercorridos.length > 0" class="resumo-rota">
       <h4>Resumo da Rota:</h4>
       <p><strong>Caminho:</strong> {{ rotaAtual.bairrosPercorridos.join(' → ') }}</p>
-      <div *ngIf="rotaAtual.arestasPercorridas!.length > 0">
-  <h4>Ruas Percorridas:</h4>
-  <ul>
-    <li *ngFor="let aresta of rotaAtual.arestasPercorridas">
-      <strong>{{ aresta.nome }}</strong> — {{ aresta.distancia }} km
-    </li>
-  </ul>
-</div>
-      <p><strong>Distância Total:</strong> {{ rotaAtual.distanciaTotal }} km</p>
+      <div *ngIf="rotaAtual.arestasPercorridas && rotaAtual.arestasPercorridas.length > 0">
+        <h4>Ruas Percorridas:</h4>
+        <ul>
+          <li *ngFor="let aresta of rotaAtual.arestasPercorridas">
+            <strong>{{ aresta.nome }}</strong> — {{ aresta.distancia }} km
+          </li>
+        </ul>
+      </div>
+      <p><strong>Distância Total:</strong> {{ rotaAtual.distanciaTotal.toFixed(2) }} km</p>
       <p><strong>Tipo de Resíduo:</strong> {{ rotaAtual.tipoResiduo }}</p>
     </div>
 
     <div *ngIf="mensagem?.tipo" [ngClass]="['popup', mensagem.tipo === 'erro' ? 'error' : 'success']">
-    <span *ngIf="mensagem.tipo === 'salvo'">✅</span>
-    <span *ngIf="mensagem.tipo === 'editado'">✏️</span>
-    <span *ngIf="mensagem.tipo === 'excluido'">🗑️</span>
-    <span *ngIf="mensagem.tipo === 'erro'">❌</span>
-    {{ mensagem.texto }}
+      <span *ngIf="mensagem.tipo === 'salvo'">✅</span>
+      <span *ngIf="mensagem.tipo === 'editado'">✏️</span>
+      <span *ngIf="mensagem.tipo === 'excluido'">🗑️</span>
+      <span *ngIf="mensagem.tipo === 'erro'">❌</span>
+      {{ mensagem.texto }}
     </div>
 
     <!-- Botões -->
@@ -126,35 +129,37 @@
   </form>
 </div>
 
+<!-- Tabela de Rotas Cadastradas -->
+<hr>
 <header>
-  <h3>Rota Cadastrados:</h3>
+  <h3>Rotas Cadastradas:</h3>
 </header>
-
 <table class="tabela-dados">
   <thead>
     <tr>
-      <th>Caminhao</th>
+      <th>Caminhão</th>
       <th>Destino</th>
-      <th>Tipo Residuos</th>
-      <th>bairrosPercorridos</th>
-      <th>distanciaTotal</th>
+      <th>Tipo Resíduo</th>
+      <th>Bairros Percorridos</th>
+      <th>Distância Total (km)</th>
       <th>Ações</th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let rota of rotas">
-      <td>{{ rota.caminhao?.placa}}</td>
-      <td>{{ rota.destino?.nome}}</td>
-      <td>{{ rota.tipoResiduo}}</td>
-      <td>{{ rota.bairrosPercorridos}}</td>
-      <td>{{ rota.distanciaTotal}}</td>
+      <td>{{ rota.caminhao?.placa }}</td>
+      <!-- MODIFICADO: Exibe o nome do bairro do destino de forma mais segura -->
+      <td>{{ rota.destino?.nome }} <span *ngIf="rota.destino?.bairro?.nome">({{ rota.destino?.bairro?.nome }})</span></td>
+      <td>{{ rota.tipoResiduo }}</td>
+      <td>{{ rota.bairrosPercorridos.join(', ') }}</td>
+      <td>{{ rota.distanciaTotal.toFixed(2) }}</td>
       <td>
         <button class="btn editar" (click)="editar(rota)">✏️ Editar</button>
         <button class="btn excluir" (click)="excluir(rota.id!)">🗑️ Excluir</button>
       </td>
     </tr>
     <tr *ngIf="rotas.length === 0">
-      <td colspan="9" style="text-align: center;">Nenhum Ponto de Coleta cadastrado.</td>
+      <td colspan="6" style="text-align: center;">Nenhuma rota cadastrada.</td>
     </tr>
   </tbody>
 </table>

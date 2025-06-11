@@ -41,6 +41,10 @@ public class BairroService {
 
     @Transactional
     public BairroDTO criarBairro(BairroRequestDTO dto) {
+        bairrosRepository.findByNomeIgnoreCase(dto.getNome()).ifPresent(b -> {
+            throw new DataIntegrityViolationException("Um bairro com o nome '" + dto.getNome() + "' já existe.");
+        });
+
         Bairro bairro = new Bairro();
         bairro.setNome(dto.getNome());
         Bairro novoBairro = bairrosRepository.save(bairro);
@@ -49,6 +53,11 @@ public class BairroService {
     
 @Transactional
     public Optional<BairroDTO> atualizarBairro(Long id, BairroRequestDTO dto) {
+        Optional<Bairro> existentePorNome = bairrosRepository.findByNomeIgnoreCase(dto.getNome());
+        if (existentePorNome.isPresent() && !existentePorNome.get().getId().equals(id)) {
+            throw new DataIntegrityViolationException("Outro bairro com o nome '" + dto.getNome() + "' já existe.");
+        }
+
         return bairrosRepository.findById(id).map(bairroExistente -> {
             bairroExistente.setNome(dto.getNome());
             Bairro bairroAtualizado = bairrosRepository.save(bairroExistente);

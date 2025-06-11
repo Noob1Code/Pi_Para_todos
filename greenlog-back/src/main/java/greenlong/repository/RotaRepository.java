@@ -18,4 +18,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RotaRepository extends JpaRepository<Rota, Long> {
+    // Método para verificar se alguma rota usa um caminhão específico
+    boolean existsByCaminhaoId(Long caminhaoId);
+
+    // Método para verificar se alguma rota usa uma conexão (aresta) específica
+    boolean existsByArestasPercorridas_Id(Long conexaoId);
 }

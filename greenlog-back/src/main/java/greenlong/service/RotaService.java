@@ -44,30 +44,36 @@ public class RotaService {
      * @param dto DTO simples contendo os IDs de caminhão, destino e o tipo de resíduo.
      * @return O DTO da rota que foi salva no banco de dados.
      */
-    @Transactional
+   @Transactional
     public RotaResponseDTO criarRota(RotaRequestDTO dto) {
-        // Busca as entidades principais com base nos IDs recebidos
         Caminhao caminhao = caminhaoRepository.findById(dto.getCaminhaoId().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Caminhão não encontrado."));
-        Bairro destino = bairroRepository.findById(dto.getDestinoId().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Bairro de destino não encontrado."));
-        Bairro origem = bairroRepository.findByNomeIgnoreCase("Centro")
-                .orElseThrow(() -> new IllegalArgumentException("Bairro de origem 'Centro' não encontrado."));
+                .orElseThrow(() -> new IllegalArgumentException("Caminhão não encontrado.")); //
 
-        // Recalcula o caminho para garantir a integridade dos dados
-        CaminhoDTO caminho = dijkstraService.calcularMenorCaminho(origem.getId(), destino.getId());
-        if (caminho.getDistanciaTotal() == -1) {
+        // -> VALIDAÇÃO DE REGRA DE NEGÓCIO
+        boolean caminhaoPodeColetar = caminhao.getResiduos().stream()
+                .anyMatch(residuo -> residuo.getNome().equalsIgnoreCase(dto.getTipoResiduo())); //
+
+        if (!caminhaoPodeColetar) {
+            throw new IllegalStateException("O caminhão com placa " + caminhao.getPlaca() + " não está configurado para coletar o resíduo do tipo '" + dto.getTipoResiduo() + "'.");
+        }
+
+        Bairro destino = bairroRepository.findById(dto.getDestinoId().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Bairro de destino não encontrado.")); //
+        Bairro origem = bairroRepository.findByNomeIgnoreCase("Centro")
+                .orElseThrow(() -> new IllegalArgumentException("Bairro de origem 'Centro' não encontrado.")); //
+
+        CaminhoDTO caminho = dijkstraService.calcularMenorCaminho(origem.getId(), destino.getId()); //
+        if (caminho.getDistanciaTotal() == -1) { //
             throw new IllegalStateException("Destino inalcançável. A rota não pode ser criada.");
         }
 
-        // Monta a entidade Rota com os dados recalculados
         Rota rota = new Rota();
-        rota.setCaminhao(caminhao);
-        rota.setDestino(destino);
-        rota.setTipoResiduo(dto.getTipoResiduo());
-        rota.setBairrosPercorridos(caminho.getBairros().stream().map(Bairro::getNome).collect(Collectors.toList()));
-        rota.setArestasPercorridas(caminho.getArestas());
-        rota.setDistanciaTotal(caminho.getDistanciaTotal());
+        rota.setCaminhao(caminhao); //
+        rota.setDestino(destino); //
+        rota.setTipoResiduo(dto.getTipoResiduo()); //
+        rota.setBairrosPercorridos(caminho.getBairros().stream().map(Bairro::getNome).collect(Collectors.toList())); //
+        rota.setArestasPercorridas(caminho.getArestas()); //
+        rota.setDistanciaTotal(caminho.getDistanciaTotal()); //
 
         Rota rotaSalva = rotaRepository.save(rota);
         return toResponseDTO(rotaSalva);
@@ -81,37 +87,41 @@ public class RotaService {
      * @return O DTO da rota atualizada.
      */
     @Transactional
-    public RotaResponseDTO atualizarRota(Long id, RotaUpdateRequestDTO dto) { // ✅ MUDANÇA AQUI
+    public RotaResponseDTO atualizarRota(Long id, RotaUpdateRequestDTO dto) {
         Rota rotaExistente = rotaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Rota com ID " + id + " não encontrada."));
+                .orElseThrow(() -> new IllegalArgumentException("Rota com ID " + id + " não encontrada.")); //
 
-        // Busca as entidades com base nos IDs recebidos de dentro dos objetos do DTO
         Caminhao caminhao = caminhaoRepository.findById(dto.getCaminhao().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Caminhão com ID " + dto.getCaminhao().getId() + " não encontrado."));
+                .orElseThrow(() -> new IllegalArgumentException("Caminhão com ID " + dto.getCaminhao().getId() + " não encontrado.")); //
 
         Bairro novoDestino = bairroRepository.findById(dto.getDestino().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Bairro de destino com ID " + dto.getDestino().getId() + " não encontrado."));
+                .orElseThrow(() -> new IllegalArgumentException("Bairro de destino com ID " + dto.getDestino().getId() + " não encontrado.")); //
 
-        // Lógica de integridade: Se o destino mudou, recalcula o caminho.
-        if (!rotaExistente.getDestino().getId().equals(novoDestino.getId())) {
+        // -> VALIDAÇÃO DE REGRA DE NEGÓCIO (TAMBÉM NA ATUALIZAÇÃO)
+        boolean caminhaoPodeColetar = caminhao.getResiduos().stream() //
+                .anyMatch(residuo -> residuo.getNome().equalsIgnoreCase(dto.getTipoResiduo())); //
+
+        if (!caminhaoPodeColetar) {
+            throw new IllegalStateException("O novo caminhão com placa " + caminhao.getPlaca() + " não está configurado para coletar o resíduo do tipo '" + dto.getTipoResiduo() + "'.");
+        }
+
+        if (!rotaExistente.getDestino().getId().equals(novoDestino.getId())) { //
             Bairro origem = bairroRepository.findByNomeIgnoreCase("Centro")
-                    .orElseThrow(() -> new IllegalArgumentException("Bairro de origem 'Centro' não encontrado."));
+                    .orElseThrow(() -> new IllegalArgumentException("Bairro de origem 'Centro' não encontrado.")); //
 
-            CaminhoDTO novoCaminho = dijkstraService.calcularMenorCaminho(origem.getId(), novoDestino.getId());
-            if (novoCaminho.getDistanciaTotal() == -1) {
+            CaminhoDTO novoCaminho = dijkstraService.calcularMenorCaminho(origem.getId(), novoDestino.getId()); //
+            if (novoCaminho.getDistanciaTotal() == -1) { //
                 throw new IllegalStateException("O novo destino é inalcançável. Não foi possível atualizar a rota.");
             }
 
-            // Atualiza os dados do caminho na rota existente
-            rotaExistente.setBairrosPercorridos(novoCaminho.getBairros().stream().map(Bairro::getNome).collect(Collectors.toList()));
-            rotaExistente.setArestasPercorridas(novoCaminho.getArestas());
-            rotaExistente.setDistanciaTotal(novoCaminho.getDistanciaTotal());
+            rotaExistente.setBairrosPercorridos(novoCaminho.getBairros().stream().map(Bairro::getNome).collect(Collectors.toList())); //
+            rotaExistente.setArestasPercorridas(novoCaminho.getArestas()); //
+            rotaExistente.setDistanciaTotal(novoCaminho.getDistanciaTotal()); //
         }
 
-        // Atualiza os outros dados que podem ser alterados
-        rotaExistente.setCaminhao(caminhao);
-        rotaExistente.setDestino(novoDestino);
-        rotaExistente.setTipoResiduo(dto.getTipoResiduo());
+        rotaExistente.setCaminhao(caminhao); //
+        rotaExistente.setDestino(novoDestino); //
+        rotaExistente.setTipoResiduo(dto.getTipoResiduo()); //
 
         Rota rotaSalva = rotaRepository.save(rotaExistente);
         return toResponseDTO(rotaSalva);

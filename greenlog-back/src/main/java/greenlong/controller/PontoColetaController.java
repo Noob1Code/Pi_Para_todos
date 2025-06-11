@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -50,6 +51,18 @@ public class PontoColetaController {
     @GetMapping
     public ResponseEntity<List<PontoColetaResponseDTO>> listarTodosPontosColeta() {
         return ResponseEntity.ok(pontoColetaService.listarTodosPontosColeta());
+    }
+    
+    @GetMapping("/compativeis")
+    public ResponseEntity<List<PontoColetaResponseDTO>> listarPontosCompativeis(
+            @RequestParam Long caminhaoId
+    ) {
+        List<PontoColetaResponseDTO> pontosCompativeis = pontoColetaService.listarPontosCompativeisPorCaminhao(caminhaoId);
+        if (pontosCompativeis.isEmpty()) {
+            // Retorna 204 No Content se não houver pontos compatíveis
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(pontosCompativeis);
     }
 
     @GetMapping("/{id}")

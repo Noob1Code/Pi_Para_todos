@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -49,5 +50,6 @@ public class ConexaoDTO {
     private BairroDTO destino; 
     
     @JsonProperty("distancia")
+    @Positive(message = "A distância deve ser um valor positivo.")
     private Integer quilometros;
 }
