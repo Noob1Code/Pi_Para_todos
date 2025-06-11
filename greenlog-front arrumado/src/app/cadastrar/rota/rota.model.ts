@@ -1,5 +1,6 @@
 import { Bairro } from "../bairro/bairro.model";
 import { Caminhao } from "../caminhao/caminhao.modal";
+import { Rua } from "../rua/rua.model";
 
 export interface Rota {
   id?: number;
@@ -7,19 +8,18 @@ export interface Rota {
   destino: Bairro|null;
   tipoResiduo: string;
   bairrosPercorridos: string[];
-  arestasPercorridas?: Aresta[]; 
+  arestasPercorridas?: Rua[]; 
   distanciaTotal: number;      
 }
 
 export interface CaminhoDTO {
   bairros: Bairro[];
-  arestas: Aresta[];
+  arestas: Rua[];
   distanciaTotal: number;
 }
 
-export interface Aresta {
-  rua: string;
-  origemId: number;
-  destinoId: number;
-  quilometros: number;
+export interface RotaUPDATE{
+  caminhaoId: { id: number | undefined };
+  destinoId: { id: number | undefined };
+  tipoResiduo: string
 }

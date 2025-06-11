@@ -4,6 +4,7 @@
  */
 package greenlong.dto;
 
+import greenlong.model.Bairro;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,10 +16,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class CalculoRotaResponseDTO {
-    private String caminhaoPlaca;
-    private String destinoNome;
-    private String tipoResiduo;
-    private List<String> bairrosPercorridos;
-    private List<ConexaoDTO> arestasPercorridas;
+    private List<Bairro> bairros;
+    private List<ConexaoDTO> arestas;
     private double distanciaTotal;
 }
