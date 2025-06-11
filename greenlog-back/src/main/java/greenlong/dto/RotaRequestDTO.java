@@ -5,9 +5,8 @@
 
 package greenlong.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.List;
 import lombok.Data;
 
 /**
@@ -19,10 +18,19 @@ import lombok.Data;
 
 @Data
 public class RotaRequestDTO {
-    private Long caminhaoId;
-    private Long destinoId;
+    @Data
+    public static class ObjetoId {
+        @NotNull(message = "O ID é obrigatório dentro do objeto.")
+        private Long id;
+    }
+
+    @NotNull(message = "O objeto do caminhão é obrigatório")
+    private ObjetoId caminhaoId;
+
+    @NotNull(message = "O objeto do bairro de destino é obrigatório")
+    private ObjetoId destinoId;
+
+
+    @NotBlank(message = "O tipo de resíduo é obrigatório")
     private String tipoResiduo;
-    private List<String> bairrosPercorridos;
-    private List<Long> conexaoIds;
-    private double distanciaTotal;
 }

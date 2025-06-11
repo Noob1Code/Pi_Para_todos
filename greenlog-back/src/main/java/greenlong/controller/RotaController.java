@@ -5,29 +5,21 @@
 package greenlong.controller;
 
 import greenlong.dto.CalculoRotaResponseDTO;
-import greenlong.dto.RotaResponseDTO;
 import greenlong.dto.RotaRequestDTO;
+import greenlong.dto.RotaResponseDTO;
+import greenlong.dto.RotaUpdateRequestDTO;
 import greenlong.service.RotaService;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import java.util.HashMap;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -48,7 +40,22 @@ public class RotaController {
             RotaResponseDTO novaRota = rotaService.criarRota(dto);
             return new ResponseEntity<>(novaRota, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            // Retorna 404 se um dos IDs (caminhao, ponto) não for encontrado
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("erro", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/calcular")
+    public ResponseEntity<?> calcularRotaParaVisualizacao(@RequestParam Long destinoId) {
+        try {
+            CalculoRotaResponseDTO resposta = rotaService.calcularRota(destinoId);
+            if (resposta.getDistanciaTotal() == -1) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("erro", "Não foi possível encontrar um caminho até o destino."));
+            }
+            return ResponseEntity.ok(resposta);
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", e.getMessage()));
         }
     }
@@ -65,6 +72,19 @@ public class RotaController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizarRota(@PathVariable Long id, @Valid @RequestBody RotaUpdateRequestDTO dto) {
+        try {
+            // Passa o novo DTO para o serviço
+            RotaResponseDTO rotaAtualizada = rotaService.atualizarRota(id, dto);
+            return ResponseEntity.ok(rotaAtualizada);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("erro", e.getMessage()));
+        }
+    }
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarRota(@PathVariable Long id) {
         if (rotaService.deletarRota(id)) {
@@ -73,6 +93,9 @@ public class RotaController {
         return ResponseEntity.notFound().build();
     }
 
+    /**
+     * Captura erros de validação dos DTOs e retorna uma resposta 400 Bad Request.
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -83,29 +106,5 @@ public class RotaController {
             errors.put(fieldName, errorMessage);
         });
         return errors;
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<?> atualizarRota(@PathVariable Long id, @Valid @RequestBody RotaRequestDTO dto) {
-        try {
-            RotaResponseDTO rotaAtualizada = rotaService.atualizarRota(id, dto);
-            return ResponseEntity.ok(rotaAtualizada);
-        } catch (IllegalArgumentException e) {
-            // Retorna 404 Not Found se a rota ou algum dos IDs relacionados não existir
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", e.getMessage()));
-        }
-    }
-
-    @GetMapping("/calcular")
-    public ResponseEntity<?> calcularRota(
-            @RequestParam Long caminhaoId,
-            @RequestParam Long destinoId,
-            @RequestParam String tipoResiduo) {
-        try {
-            CalculoRotaResponseDTO resposta = rotaService.calcularRota(caminhaoId, destinoId, tipoResiduo);
-            return ResponseEntity.ok(resposta);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", e.getMessage()));
-        }
     }
 }

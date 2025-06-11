@@ -1,0 +1,248 @@
+iNSERT INTO residuos (nome) VALUES ('Papel'), ('Plástico'), ('Metal'), ('Orgânico') ON CONFLICT (nome) DO NOTHING;
+
+INSERT INTO public.bairro (id, nome) VALUES
+  (1,  'Jardim América'),
+  (2,  'Centro'),
+  (3,  'Setor Leste'),
+  (4,  'Vila Nova'),
+  (5,  'Alto da Serra'),
+  (6,  'Setor Oeste'),
+  (7,  'Distrito Industrial'),
+  (8,  'Residencial Esperança'),
+  (9,  'Recanto Verde'),
+  (10, 'Ecoparque Sul'),
+  (11, 'Nova Alvorada'),
+  (12, 'Setor das Palmeiras'),
+  (13, 'Colina Azul'),
+  (14, 'Bela Vista'),
+  (15, 'Morada do Sol'),
+  (16, 'Setor Central II'),
+  (17, 'Lago Azul'),
+  (18, 'Residencial Florença'),
+  (19, 'Setor Industrial Norte'),
+  (20, 'Vale do Cerrado');
+
+INSERT INTO public.pontos_coleta
+  (id, email_responsavel,            endereco,                      horario_funcionamento,    nome,                             responsavel,        telefone_responsavel, bairro_id)
+VALUES
+  (1, 'j.silva@reciclofast.com.br',  'Rua das Flores, 123, Jardim América',      '08:00-17:00', 'Ponto de Coleta Jardim América',      'João Silva',       '(62) 9999-0001',        1),
+  (2, 'm.souza@reciclofast.com.br',  'Av. Central, 45, Centro',                  '09:00-18:00', 'Ponto de Coleta Centro',             'Maria Souza',      '(62) 9999-0002',        2),
+  (3, 'c.alves@reciclofast.com.br',  'Rua Leste, 78, Setor Leste',               '07:30-16:30', 'Ponto de Coleta Setor Leste',        'Carlos Alves',     '(62) 9999-0003',        3),
+  (4, 'f.oliveira@reciclofast.com.br','Praça da Vila, 10, Vila Nova',             '08:00-17:00', 'Ponto de Coleta Vila Nova',          'Fernanda Oliveira','(62) 9999-0004',        4),
+  (5, 'l.ferreira@reciclofast.com.br','Rua da Serra, 200, Alto da Serra',         '08:30-17:30', 'Ponto de Coleta Alto da Serra',      'Lucas Ferreira',   '(62) 9999-0005',        5),
+  (6, 'a.martins@reciclofast.com.br', 'Av. Oeste, 150, Setor Oeste',              '09:00-18:00', 'Ponto de Coleta Setor Oeste',        'Ana Martins',      '(62) 9999-0006',        6),
+  (7, 'p.santos@reciclofast.com.br',  'Rua Industrial, 300, Distrito Industrial', '07:00-16:00', 'Ponto de Coleta Distrito Industrial','Pedro Santos',     '(62) 9999-0007',        7),
+  (8, 'r.lima@reciclofast.com.br',    'Travessa Esperança, 50, Residencial Esperança','08:00-17:00','Ponto de Coleta Resid. Esperança',  'Rita Lima',        '(62) 9999-0008',        8),
+  (9, 'g.carvalho@reciclofast.com.br','Rua Verde, 89, Recanto Verde',            '08:00-17:00', 'Ponto de Coleta Recanto Verde',      'Gustavo Carvalho', '(62) 9999-0009',        9),
+  (10,'t.rodrigues@reciclofast.com.br','Av. Ecoparque, 12, Ecoparque Sul',         '09:00-18:00', 'Ponto de Coleta Ecoparque Sul',      'Tânia Rodrigues',  '(62) 9999-0010',        10),
+  (11,'e.andrade@reciclofast.com.br', 'Rua Alvorada, 34, Nova Alvorada',          '07:30-16:30', 'Ponto de Coleta Nova Alvorada',      'Eduardo Andrade',  '(62) 9999-0011',        11),
+  (12,'s.pereira@reciclofast.com.br', 'Alameda das Palmeiras, 77, Setor das Palmeiras','08:00-17:00','Ponto de Coleta Setor das Palmeiras','Sandra Pereira',   '(62) 9999-0012',        12),
+  (13,'v.rocha@reciclofast.com.br',   'Rua Colina, 56, Colina Azul',             '08:00-17:00', 'Ponto de Coleta Colina Azul',        'Vinícius Rocha',   '(62) 9999-0013',        13),
+  (14,'b.costa@reciclofast.com.br',   'Praça Bela Vista, 9, Bela Vista',         '09:00-18:00', 'Ponto de Coleta Bela Vista',         'Beatriz Costa',    '(62) 9999-0014',        14),
+  (15,'m.silveira@reciclofast.com.br','Rua do Sol, 101, Morada do Sol',          '07:00-16:00', 'Ponto de Coleta Morada do Sol',      'Marcelo Silveira','(62) 9999-0015',        15),
+  (16,'l.barros@reciclofast.com.br',  'Av. Central II, 202, Setor Central II',    '08:30-17:30', 'Ponto de Coleta Setor Central II',   'Larissa Barros',   '(62) 9999-0016',        16);
+
+
+INSERT INTO public.ponto_coleta_residuos (ponto_coleta_id, residuo_id) VALUES
+  -- Ponto de Coleta Jardim América (aceita Papel, Plástico e Metal)
+  (1, 1),
+  (1, 2),
+  (1, 3),
+
+  -- Ponto de Coleta Centro (aceita todos os tipos)
+  (2, 1),
+  (2, 2),
+  (2, 3),
+  (2, 4),
+
+  -- Ponto de Coleta Setor Leste (aceita Papel e Plástico)
+  (3, 1),
+  (3, 2),
+
+  -- Ponto de Coleta Vila Nova (aceita Orgânico e Metal)
+  (4, 4),
+  (4, 3),
+
+  -- Ponto de Coleta Alto da Serra (aceita Papel e Plástico)
+  (5, 1),
+  (5, 2),
+
+  -- Ponto de Coleta Setor Oeste (aceita todos os tipos)
+  (6, 1),
+  (6, 2),
+  (6, 3),
+  (6, 4),
+
+  -- Ponto de Coleta Distrito Industrial (especializado em Metal)
+  (7, 3),
+
+  -- Ponto de Coleta Resid. Esperança (aceita Papel e Orgânico)
+  (8, 1),
+  (8, 4),
+
+  -- Ponto de Coleta Recanto Verde (aceita Plástico, Papel e Orgânico)
+  (9, 2),
+  (9, 1),
+  (9, 4),
+
+  -- Ponto de Coleta Ecoparque Sul (aceita todos os tipos)
+  (10, 1),
+  (10, 2),
+  (10, 3),
+  (10, 4),
+
+  -- Ponto de Coleta Nova Alvorada (aceita apenas Orgânico)
+  (11, 4),
+
+  -- Ponto de Coleta Setor das Palmeiras (aceita Papel e Metal)
+  (12, 1),
+  (12, 3),
+
+  -- Ponto de Coleta Colina Azul (aceita Plástico e Metal)
+  (13, 2),
+  (13, 3),
+
+  -- Ponto de Coleta Bela Vista (aceita Papel, Plástico e Orgânico)
+  (14, 1),
+  (14, 2),
+  (14, 4),
+
+  -- Ponto de Coleta Morada do Sol (aceita todos os tipos)
+  (15, 1),
+  (15, 2),
+  (15, 3),
+  (15, 4),
+
+  -- Ponto de Coleta Setor Central II (aceita Papel e Plástico)
+  (16, 1),
+  (16, 2);
+  
+  INSERT INTO public.caminhao (id, capacidade, motorista, placa) VALUES
+(1, 12000, 'José Carlos Pereira', 'RTM4E29'),
+(2, 8000, 'Antônio de Souza', 'BCS9A81'),
+(3, 15000, 'Francisco Ribeiro', 'KJU5432'),
+(4, 10000, 'Marcos Almeida', 'OXN1G55'),
+(5, 18000, 'Luiz Fernando Costa', 'GHI8765'),
+(6, 12500, 'Paulo César Martins', 'PZL3B78'),
+(7, 9500, 'Ricardo Oliveira', 'MNO4321'),
+(8, 20000, 'Sérgio Santos', 'RWD7F42'),
+(9, 7000, 'Adriano Lima', 'XYZ9870'),
+(10, 11000, 'Fábio Rocha', 'QAT6C11');
+
+
+  INSERT INTO public.caminhao_residuos (caminhao_id, residuo_id) VALUES
+  -- Caminhão 1: Especializado em recicláveis secos
+  (1, 1), -- Papel
+  (1, 2), -- Plástico
+  (1, 3), -- Metal
+
+  -- Caminhão 2: Rota de coleta seletiva (Papel e Plástico)
+  (2, 1), -- Papel
+  (2, 2), -- Plástico
+
+  -- Caminhão 3: Rota geral, coleta tudo
+  (3, 1), -- Papel
+  (3, 2), -- Plástico
+  (3, 3), -- Metal
+  (3, 4), -- Orgânico
+
+  -- Caminhão 4: Focado apenas em resíduos orgânicos
+  (4, 4), -- Orgânico
+
+  -- Caminhão 5: Especializado em metais de áreas industriais
+  (5, 3), -- Metal
+
+  -- Caminhão 6: Coleta mista (Plástico e Orgânico)
+  (6, 2), -- Plástico
+  (6, 4), -- Orgânico
+
+  -- Caminhão 7: Rota geral, coleta tudo
+  (7, 1),
+  (7, 2),
+  (7, 3),
+  (7, 4),
+
+  -- Caminhão 8: Especializado em papel e metal
+  (8, 1), -- Papel
+  (8, 3), -- Metal
+
+  -- Caminhão 9: Coleta mista de recicláveis
+  (9, 1), -- Papel
+  (9, 2), -- Plástico
+  
+  -- Caminhão 10: Rota versátil para 3 tipos de resíduos
+  (10, 2), -- Plástico
+  (10, 3), -- Metal
+  (10, 4); -- Orgânico
+  
+  INSERT INTO public.conexao (id, quilometros, rua, destino_bairro_id, origem_bairro_id) VALUES
+(1, 6.430, 'Avenida das Nações', 16, 19),
+(2, 19.834, 'Avenida Brasil', 19, 15),
+(3, 1.250, 'Rua da Divisa', 7, 17),
+(4, 12.260, 'Avenida dos Bandeirantes', 5, 3),
+(5, 14.070, 'Rua das Palmeiras', 4, 12),
+(6, 9.280, 'Avenida Perimetral', 7, 13),
+(7, 19.290, 'Rodovia dos Romeiros', 6, 13),
+(8, 13.210, 'Avenida das Indústrias', 9, 5),
+(9, 3.411, 'Rua da Esperança', 3, 16),
+(10, 12.812, 'Avenida dos Pioneiros', 10, 8),
+(11, 4.413, 'Rua do Contorno', 1, 20),
+(12, 18.114, 'Avenida Castelo Branco', 3, 14),
+(13, 1.915, 'Rua da Serra', 18, 2),
+(14, 15.716, 'Avenida Central', 11, 6),
+(15, 14.517, 'Rua das Flores', 7, 1),
+(16, 19.218, 'Avenida JK', 4, 3),
+(17, 18.919, 'Rua do Lago', 19, 14),
+(18, 18.520, 'Avenida Goiás', 18, 15),
+(19, 14.721, 'Rua das Acácias', 2, 20),
+(20, 12.722, 'Avenida do Povo', 15, 20),
+(21, 7.923, 'Rua Verde', 15, 17),
+(22, 6.424, 'Rua do Comércio', 12, 4),
+(23, 8.625, 'Avenida das Missões', 15, 5),
+(24, 13.426, 'Rua da Paz', 2, 6),
+(25, 9.427, 'Avenida da Liberdade', 15, 14),
+(26, 18.728, 'Rua das Gaivotas', 3, 9),
+(27, 1.729, 'Avenida dos Girassóis', 7, 18),
+(28, 17.530, 'Rua da Harmonia', 7, 13),
+(29, 9.031, 'Avenida dos Buritis', 9, 18),
+(30, 18.332, 'Rua das Margaridas', 11, 15),
+(31, 3.033, 'Rua 15', 4, 3),
+(32, 13.934, 'Avenida T-9', 2, 7),
+(33, 7.735, 'Rua da Colina', 4, 20),
+(34, 14.336, 'Avenida 85', 16, 5),
+(35, 12.837, 'Rua do Sol', 4, 13),
+(36, 13.438, 'Avenida T-63', 6, 1),
+(37, 14.339, 'Avenida dos Parques', 3, 14),
+(38, 16.740, 'Rua do Cerrado', 6, 2),
+(39, 16.641, 'Avenida das Árvores', 8, 1),
+(40, 4.642, 'Rua da Mata', 10, 1),
+(41, 7.043, 'Avenida das Fontes', 1, 4),
+(42, 14.444, 'Rua dos Ipês', 7, 11),
+(43, 6.245, 'Avenida dos Lagos', 5, 13),
+(44, 2.746, 'Rua das Pedras', 20, 9),
+(45, 8.347, 'Avenida das Américas', 15, 13),
+(46, 16.348, 'Rua dos Flamboyants', 13, 17),
+(47, 7.949, 'Avenida Ecoparque', 14, 10),
+(48, 7.950, 'Rua da União', 1, 8),
+(49, 19.351, 'Avenida da Integração', 2, 9),
+(50, 18.452, 'Rua das Violetas', 17, 16),
+(51, 9.053, 'Avenida das Nações Unidas', 14, 6),
+(52, 5.154, 'Rua dos Cravos', 19, 2),
+(53, 1.355, 'Avenida Anhanguera', 5, 6),
+(54, 1.456, 'Avenida República do Líbano', 1, 2),
+(55, 3.757, 'Avenida Independência', 19, 20),
+(56, 6.558, 'Rua dos Lírios', 2, 20),
+(57, 13.159, 'Avenida Circular', 8, 4),
+(58, 3.860, 'Rua da Alvorada', 19, 4),
+(59, 12.861, 'Rua do Ouro', 1, 16),
+(60, 7.800, 'Avenida das Rosas', 16, 13);
+
+
+
+
+-- colocar corretamente as sequequencias
+SELECT setval(pg_get_serial_sequence('caminhao', 'id'), (SELECT MAX(id) FROM caminhao));
+SELECT setval(pg_get_serial_sequence('residuos', 'id'), (SELECT MAX(id) FROM residuos));
+SELECT setval(pg_get_serial_sequence('bairro', 'id'), (SELECT MAX(id) FROM bairro));
+SELECT setval(pg_get_serial_sequence('pontos_coleta', 'id'), (SELECT MAX(id) FROM pontos_coleta));
+SELECT setval(pg_get_serial_sequence('conexao', 'id'), (SELECT MAX(id) FROM conexao));
