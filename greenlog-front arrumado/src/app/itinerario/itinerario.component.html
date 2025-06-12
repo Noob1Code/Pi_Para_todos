@@ -1,0 +1,124 @@
+<!-- Modal de Seleção de Rota -->
+<app-modal-rota 
+  [visivel]="modalRotasVisivel" 
+  (fechado)="fecharModalRotas()" 
+  (rotaSelecionado)="onRotaSelecionado($event)">
+</app-modal-rota>
+
+<!-- Modal de Seleção de Caminhão -->
+<app-modal-caminhao
+  [visivel]="modalCaminhaoVisivel"
+  (fechado)="fecharModalCaminhao()"
+  (caminhaoSelecionado)="onCaminhaoSelecionado($event)">
+</app-modal-caminhao>
+
+<main class="form-container">
+
+  <!-- Cabeçalho -->
+  <header>
+    <h2>GreenLog - Planejamento de Itinerários</h2>
+  </header>
+
+  <!-- Navegação de Mês -->
+  <nav class="form-group mes-navegacao" aria-label="Navegação entre meses">
+    <button class="btn" (click)="alterarMes(-1)" aria-label="Mês anterior">⬅️</button>
+    <span class="mes-atual" aria-live="polite">{{ mesSelecionado + 1 }}/{{ anoSelecionado }}</span>
+    <button class="btn" (click)="alterarMes(1)" aria-label="Próximo mês">➡️</button>
+  </nav>
+
+  <!-- Filtro por Caminhão -->
+  <div class="form-group filtro-caminhao">
+    <label for="caminhaoFiltro">Caminhão Selecionado:</label>
+    <input
+      type="text"
+      id="caminhaoFiltro"
+      placeholder="Clique para selecionar um caminhão"
+      readonly
+      [value]="caminhaoFiltrado?.placa || ''"
+      (click)="abrirModalCaminhao()"
+      aria-describedby="caminhaoDescricao"
+    />
+    <small id="caminhaoDescricao">Clique no campo para filtrar os agendamentos por caminhão.</small>
+  </div>
+
+  <!-- Calendário -->
+  <section class="calendar" aria-label="Calendário de agendamentos">
+    <!-- Cabeçalho dos dias da semana -->
+    <div class="header" *ngFor="let dia of diasDaSemana">{{ dia }}</div>
+
+    <!-- Dias vazios antes do início do mês -->
+    <div class="day vazio" *ngFor="let v of diasVazios" aria-hidden="true"></div>
+
+    <!-- Dias do mês -->
+    <button
+      type="button"
+      class="day"
+      *ngFor="let dia of diasDoMes"
+      [ngClass]="{
+        hoje: isHoje(dia),
+        selecionado: isSelecionado(dia),
+        agendado: temAgendamento(dia)
+      }"
+      (click)="abrirFormulario(dia)"
+    >
+      <strong>{{ dia.getDate() }}</strong>
+
+      <!-- Alfinete clicável -->
+      <span
+        *ngIf="temAgendamento(dia)"
+        class="pin-icon"
+        (click)="verAgendamentos(dia); $event.stopPropagation()"
+        title="Ver agendamentos do dia"
+        style="cursor: pointer;"
+      >📌</span>
+    </button>
+  </section>
+
+  <!-- Consulta de Agendamentos -->
+  <section *ngIf="diaConsultado" class="consulta" aria-live="polite">
+    <h3>Agendamentos para {{ diaConsultado | date: 'fullDate' }}:</h3>
+
+    <ng-container *ngIf="obterAgendamentosDoDia(diaConsultado).length > 0; else semAgendamento">
+      <ul>
+        <li *ngFor="let agendamento of obterAgendamentosDoDia(diaConsultado)">
+          Caminhão: {{ agendamento.rota.caminhao?.placa }} – Destino: {{ agendamento.rota.destino?.nome }}
+          <!-- Ações -->
+          <button class="btn editar" title="Editar" (click)="editar(agendamento)">✏️</button>
+          <button class="btn excluir" title="Excluir" (click)="excluir(agendamento)">🗑️</button>
+        </li>
+      </ul>
+    </ng-container>
+
+    <ng-template #semAgendamento>
+      <p>Nenhum itinerário planejado para este dia.</p>
+    </ng-template>
+  </section>
+
+  <!-- Modal de Agendamento -->
+  <section *ngIf="diaSelecionado" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="agendamentoTitulo">
+    <div class="modal-form">
+      <h3 id="agendamentoTitulo">Agendar Rota para {{ diaSelecionado | date: 'fullDate' }}</h3>
+
+      <div class="form-group">
+        <label for="rota">Rota Selecionada:</label>
+        <input
+          type="text"
+          id="rota"
+          name="rota"
+          placeholder="Clique para selecionar uma rota"
+          readonly
+          [value]="rotaSelecionada?.destino?.nome || ''"
+          (click)="abrirModalRotas()"
+          aria-describedby="rotaDescricao"
+        />
+        <small id="rotaDescricao">Clique no campo para abrir a seleção de rotas disponíveis.</small>
+      </div>
+
+      <div class="button-group">
+        <button class="btn salvar" (click)="agendar()" [disabled]="!rotaSelecionada">💾 Agendar</button>
+        <button class="btn cancelar" (click)="fecharAgendamento()">❌ Cancelar</button>
+      </div>
+    </div>
+  </section>
+
+</main>

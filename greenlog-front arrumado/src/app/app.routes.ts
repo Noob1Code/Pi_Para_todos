@@ -8,7 +8,7 @@ import { CadastroUsuarioComponent } from "./cadastrar/usuario/cadastro.component
 import { LoginComponent } from "./login/login.component";
 import { DashboardComponent } from "./menu/dashboard/dashboard.component";
 import { AuthGuard } from "./auth.guard";
-import { IntinerarioComponent } from "./intinerario/intinerario.component";
+import { ItinerarioComponent } from "./itinerario/itinerario.component";
 
 
 export const routes: Routes = [
@@ -20,7 +20,7 @@ export const routes: Routes = [
   { path: 'pontos-coleta', component: PontoColetaComponent, canActivate: [AuthGuard] },
   { path: 'caminhoes', component: CaminhaoComponent, canActivate: [AuthGuard] },
   { path: 'bairros', component: BairroComponent, canActivate: [AuthGuard] },
-  { path: 'intinerario', component: IntinerarioComponent, canActivate: [AuthGuard] },
+  { path: 'itinerario', component: ItinerarioComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }
 ];

@@ -11,7 +11,6 @@ export class RotaService {
     
   private readonly apiUrl = 'http://localhost:8080/api/rotas';
   private readonly caminhoUrl = 'http://localhost:8080/api/rotas/calcular';
-  private readonly pontoColetaApiUrl = 'http://localhost:8080/api/pontos';
 
   constructor(private http: HttpClient) {}
 

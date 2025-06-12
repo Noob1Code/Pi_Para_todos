@@ -23,7 +23,6 @@ export interface CaminhoDTO {
 
 export interface RotaUPDATE {
   caminhaoId: { id: number | undefined };
-  // O destinoId enviado para o backend será o ID do bairro dentro do Ponto de Coleta
   destinoId: { id: number | undefined };
   tipoResiduo: string;
 }
