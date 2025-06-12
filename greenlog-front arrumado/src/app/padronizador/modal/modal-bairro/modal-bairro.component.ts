@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Bairro } from '../../../cadastrar/bairro/bairro.model';
 import { BairroService } from '../../../cadastrar/bairro/bairro.service';
@@ -16,6 +16,8 @@ export class ModalBairrosComponent implements OnInit {
   @Output() fechado = new EventEmitter<void>();
   @Output() bairroSelecionado = new EventEmitter<Bairro>();
   @Input() excluirBairroId?: number;
+  @Input() filtro: string | undefined;
+  @ViewChild('inputPesquisa') inputPesquisa: ElementRef | undefined;
 
   bairros: Bairro[] = [];
   termoPesquisa: string = '';
@@ -57,4 +59,13 @@ export class ModalBairrosComponent implements OnInit {
   fechar(): void {
     this.fechado.emit();
   }
+  ngAfterViewInit() {
+  if (this.visivel) {
+    setTimeout(() => this.inputPesquisa!.nativeElement.focus(), 0);
+  }
+}
+
+isBairroDesabilitado(bairro : Bairro): boolean {
+  return bairro.id === this.excluirBairroId || bairro.nome === this.filtro;
+}
 }

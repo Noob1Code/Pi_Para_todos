@@ -2,7 +2,8 @@
 <app-modal-bairros 
   [visivel]="modalBairrosVisivel"
   (fechado)="fecharModalBairros()"
-  (bairroSelecionado)="onBairroSelecionado($event)">
+  (bairroSelecionado)="onBairroSelecionado($event)"
+  [filtro]="centro">
 </app-modal-bairros>
 
 <div class="form-container">

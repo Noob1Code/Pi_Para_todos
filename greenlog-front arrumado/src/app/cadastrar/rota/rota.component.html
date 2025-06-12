@@ -1,7 +1,8 @@
 <!-- MODIFICADO: Usando o seletor e os eventos corretos do modal de Ponto de Coleta -->
 <app-modal-ponto-coleta 
   [visivel]="modalPontosColetaVisivel"
-  [pontosColetaCompativeis]="pontosColetaCompativeis"
+  [caminhoaid]="caminhaoid!"
+  [residuo]="filtroResiduo"
   (fechado)="fecharModalPontosColeta()"
   (pontoColetaSelecionado)="onPontoColetaSelecionado($event)">
 </app-modal-ponto-coleta>

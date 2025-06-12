@@ -19,13 +19,6 @@ export class RotaService {
     return this.http.get<Rota[]>(this.apiUrl);
   }
 
-  // Novo método para buscar pontos de coleta compatíveis
-  getPontosDeColetaCompativeis(caminhaoId: number): Observable<PontoColeta[]> {
-    return this.http.get<PontoColeta[]>(`${this.pontoColetaApiUrl}/compativeis`, {
-      params: { caminhaoId: caminhaoId.toString() }
-    });
-  }
-
   salvar(rota: Rota): Observable<RotaUPDATE> {
     return this.http.post<RotaUPDATE>(this.apiUrl, this.padronizacao(rota));
   }
@@ -45,7 +38,7 @@ export class RotaService {
   }
 
   // Método corrigido para enviar o ID do bairro ao backend
-  padronizacao(rota: Rota): RotaUPDATE {
+  private padronizacao(rota: Rota): RotaUPDATE {
     if (!rota.caminhao || !rota.destino) {
       throw new Error("Caminhão e Destino são obrigatórios para salvar a rota.");
     }
