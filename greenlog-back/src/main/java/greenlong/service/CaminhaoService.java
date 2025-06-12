@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication; // IMPORT ADICIONADO
+import org.springframework.security.core.context.SecurityContextHolder; // IMPORT ADICIONADO
 import org.springframework.stereotype.Service;
 
 /**
@@ -47,7 +49,9 @@ public class CaminhaoService {
         Caminhao novoCaminhao = toEntity(new Caminhao(), dto, residuos);
         Caminhao caminhaoSalvo = caminhaoRepository.save(novoCaminhao);
 
-        auditoriaService.logCaminhaoActivity(caminhaoSalvo.getId(), null, toResponseDTO(caminhaoSalvo), "INSERT");
+        // Captura o usuário logado e passa para o serviço de auditoria
+        String usuarioLogado = getUsuarioLogado();
+        auditoriaService.logCaminhaoActivity(caminhaoSalvo.getId(), null, toResponseDTO(caminhaoSalvo), "INSERT", usuarioLogado);
         
         return toResponseDTO(caminhaoSalvo);
     }
@@ -83,7 +87,9 @@ public class CaminhaoService {
             Caminhao caminhaoAtualizado = toEntity(caminhaoExistente, dto, residuos);
             caminhaoRepository.save(caminhaoAtualizado);
             
-            auditoriaService.logCaminhaoActivity(caminhaoAtualizado.getId(), estadoAntes, toResponseDTO(caminhaoAtualizado), "UPDATE");
+            // CORRIGIDO: Captura o usuário e passa para o método de auditoria
+            String usuarioLogado = getUsuarioLogado();
+            auditoriaService.logCaminhaoActivity(caminhaoAtualizado.getId(), estadoAntes, toResponseDTO(caminhaoAtualizado), "UPDATE", usuarioLogado);
             
             return toResponseDTO(caminhaoAtualizado);
         });
@@ -99,7 +105,9 @@ public class CaminhaoService {
 
             caminhaoRepository.deleteById(id);
             
-            auditoriaService.logCaminhaoActivity(id, estadoAntes, null, "DELETE");
+            // CORRIGIDO: Captura o usuário e passa para o método de auditoria
+            String usuarioLogado = getUsuarioLogado();
+            auditoriaService.logCaminhaoActivity(id, estadoAntes, null, "DELETE", usuarioLogado);
 
             return true;
         }
@@ -126,5 +134,19 @@ public class CaminhaoService {
         caminhao.setCapacidade(dto.getCapacidade());
         caminhao.setResiduos(residuos);
         return caminhao;
+    }
+    
+    private String getUsuarioLogado() {
+        // 1. Pede ao "porta-crachá" (SecurityContextHolder) o crachá (Authentication) da requisição atual.
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // 2. Verifica se o crachá existe e se a pessoa não é um "visitante anônimo".
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            // Se não houver um usuário logado de verdade, retorna um valor padrão.
+            return "SISTEMA"; 
+        }
+
+        // 3. Se o crachá é válido, pega o nome escrito nele (o username).
+        return authentication.getName(); 
     }
 }

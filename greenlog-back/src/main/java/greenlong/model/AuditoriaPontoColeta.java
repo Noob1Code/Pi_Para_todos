@@ -51,11 +51,17 @@ public class AuditoriaPontoColeta {
     @Column(name = "ponto_coleta_id")
     private Long pontoColetaId;
 
-    public AuditoriaPontoColeta(Long pontoColetaId, String antes, String depois, String acao) {
+   // 1. CAMPO ADICIONADO PARA ARMAZENAR O USUÁRIO
+    @Column(name = "usuario", nullable = false)
+    private String usuario;
+
+    // 2. CONSTRUTOR ATUALIZADO PARA INCLUIR O USUÁRIO
+    public AuditoriaPontoColeta(Long pontoColetaId, String antes, String depois, String acao, String usuario) {
         this.pontoColetaId = pontoColetaId;
         this.data = LocalDateTime.now();
         this.comoEraAntes = antes;
         this.comoFicou = depois;
         this.acao = acao;
+        this.usuario = usuario;
     }
 }

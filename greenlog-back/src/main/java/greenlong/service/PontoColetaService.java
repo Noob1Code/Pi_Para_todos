@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication; // IMPORT ADICIONADO
+import org.springframework.security.core.context.SecurityContextHolder; // IMPORT ADICIONADO
 import org.springframework.stereotype.Service;
 import greenlong.model.Caminhao;
 import greenlong.model.Residuo;
@@ -57,7 +59,9 @@ public class PontoColetaService {
         PontoColeta novoPontoColeta = toEntity(new PontoColeta(), dto, bairro, residuos);
         PontoColeta salvo = pontoColetaRepository.save(novoPontoColeta);
 
-        auditoriaService.logPontoColetaActivity(salvo.getId(), null, toResponseDTO(salvo), "INSERT");
+        // CORRIGIDO: Captura o usuário e passa para o método de auditoria
+        String usuarioLogado = getUsuarioLogado();
+        auditoriaService.logPontoColetaActivity(salvo.getId(), null, toResponseDTO(salvo), "INSERT", usuarioLogado);
         
         return toResponseDTO(salvo);
     }
@@ -118,7 +122,9 @@ public class PontoColetaService {
             PontoColeta atualizado = toEntity(existente, dto, bairro, residuos);
             pontoColetaRepository.save(atualizado);
 
-            auditoriaService.logPontoColetaActivity(atualizado.getId(), estadoAntes, toResponseDTO(atualizado), "UPDATE");
+            // CORRIGIDO: Captura o usuário e passa para o método de auditoria
+            String usuarioLogado = getUsuarioLogado();
+            auditoriaService.logPontoColetaActivity(atualizado.getId(), estadoAntes, toResponseDTO(atualizado), "UPDATE", usuarioLogado);
 
             return toResponseDTO(atualizado);
         });
@@ -135,7 +141,9 @@ public class PontoColetaService {
 
             pontoColetaRepository.deleteById(id);
 
-            auditoriaService.logPontoColetaActivity(id, estadoAntes, null, "DELETE");
+            // CORRIGIDO: Captura o usuário e passa para o método de auditoria
+            String usuarioLogado = getUsuarioLogado();
+            auditoriaService.logPontoColetaActivity(id, estadoAntes, null, "DELETE", usuarioLogado);
 
             return true;
         }
@@ -178,5 +186,13 @@ public class PontoColetaService {
         pontoColeta.setHorarioFuncionamento(dto.getHorarioFuncionamento());
         pontoColeta.setTiposResiduosAceitos(residuos);
         return pontoColeta;
+    }
+
+    private String getUsuarioLogado() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            return "SISTEMA"; 
+        }
+        return authentication.getName(); 
     }
 }
