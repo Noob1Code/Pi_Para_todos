@@ -1,19 +1,67 @@
-import { Injectable } from "@angular/core";
-import { Login } from "./login/login.model";
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { Login } from './login/login.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private usuario: Login | null = null;
+  private usuarioLogadoSubject = new BehaviorSubject<Login | null>(null);
+  public usuarioLogado$ = this.usuarioLogadoSubject.asObservable();
 
-  setUsuario(usuario: Login) {
-    this.usuario = usuario;
+  private apiUrl = 'http://localhost:8080/api/usuarios'; 
+
+  constructor(private http: HttpClient, private router: Router) {
+    this.carregarUsuarioDoLocalStorage();
   }
 
-  getUsuario(): Login | null {
-    return this.usuario;
+  login(loginData: { username: string; senha: string }): Observable<Login> {
+    const { username, senha } = loginData;
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: 'Basic ' + btoa(`${username}:${senha}`),
+    });
+
+    return this.http
+      .post<Login>(`${this.apiUrl}/login`, { username, senha }, { headers })
+      .pipe(
+        tap((usuario: Login) => {
+          if (typeof window !== 'undefined' && window.localStorage) {
+            localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+            localStorage.setItem('authHeader', headers.get('Authorization')!);
+          }
+          this.usuarioLogadoSubject.next(usuario);
+        })
+      );
   }
 
-  getNome(): string | null {
-    return this.usuario?.nome ?? null;
+  logout() {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem('usuarioLogado');
+      localStorage.removeItem('authHeader');
+    }
+    this.usuarioLogadoSubject.next(null);
+    this.router.navigate(['/login']);
+  }
+
+  getUsuarioLogado(): Login | null {
+    return this.usuarioLogadoSubject.value;
+  }
+  
+  getAuthHeader(): string | null {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return localStorage.getItem('authHeader');
+    }
+    return null;
+  }
+
+  private carregarUsuarioDoLocalStorage() {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const usuarioJson = localStorage.getItem('usuarioLogado');
+      if (usuarioJson) {
+        this.usuarioLogadoSubject.next(JSON.parse(usuarioJson));
+      }
+    }
   }
 }
