@@ -29,7 +29,13 @@ export class PontoColetaService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  padronizacao(pontoColeta: PontoColeta): PontoColetaUPDATE {
+  getPontosDeColetaCompativeis(caminhaoId: number): Observable<PontoColeta[]> {
+    return this.http.get<PontoColeta[]>(`${this.apiUrl}/compativeis`, {
+      params: { caminhaoId: caminhaoId.toString() }
+    });
+  }
+
+  private padronizacao(pontoColeta: PontoColeta): PontoColetaUPDATE {
   return {
     bairro: { id: pontoColeta.bairro.id },
     nome: pontoColeta.nome,

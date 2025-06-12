@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from
 import { PontoColeta } from '../../../cadastrar/ponto-coleta/ponto-coleta.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { PontoColetaService } from '../../../cadastrar/ponto-coleta/ponto-coleta.service';
 
 @Component({
   selector: 'app-modal-ponto-coleta',
@@ -12,27 +13,22 @@ import { FormsModule } from '@angular/forms';
 })
 export class ModalPontoColetaComponent implements OnChanges {
   @Input() visivel: boolean = false;
-  @Input() pontosColetaCompativeis: PontoColeta[] | null = null;
+  @Input() caminhoaid: number | undefined;
+  @Input() residuo: string | undefined;
   @Output() fechado = new EventEmitter<void>();
   @Output() pontoColetaSelecionado = new EventEmitter<PontoColeta>();
 
   pontosColetaFiltrados: PontoColeta[] = [];
+  pontosColetaCompativeis: PontoColeta[] = []
   termoPesquisa: string = '';
   carregando = false;
   
-  constructor() {}
+  constructor(private pontoColetaService: PontoColetaService) {}
   
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['pontosColetaCompativeis']) {
-      const novosPontos = changes['pontosColetaCompativeis'].currentValue;
-      if (novosPontos) {
-        this.pontosColetaFiltrados = [...novosPontos].sort((a, b) => a.nome.localeCompare(b.nome));
-        this.carregando = false;
-      } else {
-        this.pontosColetaFiltrados = [];
-        this.carregando = true;
-      }
-    }
+  if ((changes['caminhoaid'] || changes['residuo']) && this.caminhoaid !== undefined) {
+    this.carregarPontosCompativeis(this.caminhoaid);
+  }
   }
 
   filtrar(): void {
@@ -57,4 +53,29 @@ export class ModalPontoColetaComponent implements OnChanges {
   fechar(): void {
     this.fechado.emit();
   }
+
+  carregarPontosCompativeis(caminhaoId: number) {
+  this.carregando = true;
+
+  this.pontoColetaService.getPontosDeColetaCompativeis(caminhaoId).subscribe({
+    next: (pontos) => {
+      const residuoAlvo = this.residuo?.toLowerCase() ?? '';
+
+      const filtrados = residuoAlvo
+        ? pontos.filter(p =>
+            p.tiposResiduosAceitos.some(tipo => tipo.toLowerCase() === residuoAlvo)
+          )
+        : pontos;
+
+      this.pontosColetaCompativeis = filtrados;
+      this.pontosColetaFiltrados = [...filtrados].sort((a, b) => a.nome.localeCompare(b.nome));
+      this.carregando = false;
+    },
+    error: () => {
+      this.pontosColetaCompativeis = [];
+      this.pontosColetaFiltrados = [];
+      this.carregando = false;
+    }
+  });
+}
 }

@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Rota } from './rota.model';
 import { RotaService } from './rota.service';
-
 import { ModalPontoColetaComponent } from "../../padronizador/modal/modal-ponto-coleta/modal-ponto-coleta.component"; 
 import { ModalCaminhaoComponent } from "../../padronizador/modal/modal-caminhao/modal-caminhao.component";
 import { Caminhao } from '../caminhao/caminhao.modal';
@@ -29,6 +28,8 @@ export class RotaComponent implements OnInit {
   };
   idEditando: number | null = null;
   pontosColetaCompativeis: PontoColeta[] | null = null;
+  caminhaoid: number | null = null;
+  filtroResiduo = '';
 
   mensagem: { tipo: 'salvo' | 'editado' | 'excluido' | 'erro' | null; texto: string } = {
     tipo: null,
@@ -82,18 +83,20 @@ export class RotaComponent implements OnInit {
     this.idEditando = rota.id ?? null;
     this.rotaAtual = { ...rota };
     if (rota.caminhao?.id) {
-      this.carregarPontosCompativeis(rota.caminhao.id);
+      this.caminhaoid  = rota.caminhao.id;
     }
   }
 
   // --- Lógica dos Modais ---
 
   abrirModalCaminhoes() {
-    this.modalCaminhoesVisivel = true;
+    this.modalCaminhoesVisivel = true;  
+    document.body.style.overflow = 'hidden';
   }
 
   fecharModalCaminhoes() {
     this.modalCaminhoesVisivel = false;
+    document.body.style.overflow = '';
   }
 
   onCaminhaoSelecionado(caminhao: Caminhao) {
@@ -101,14 +104,11 @@ export class RotaComponent implements OnInit {
     this.rotaAtual.destino = null; // Limpa o destino para forçar nova seleção
     this.rotaAtual.tipoResiduo = ''; // Limpa o tipo de resíduo
     this.fecharModalCaminhoes();
-    this.carregarPontosCompativeis(caminhao.id!);
+    this.caminhaoid = caminhao.id!;
   }
   
   abrirModalPontosColeta() {
-    if (!this.rotaAtual.caminhao) {
-      this.mostrarMensagem('erro', 'Por favor, selecione um caminhão primeiro.');
-      return;
-    }
+    this.filtroResiduo = this.rotaAtual.tipoResiduo
     this.modalPontosColetaVisivel = true;
   }
 
@@ -121,19 +121,6 @@ export class RotaComponent implements OnInit {
     this.fecharModalPontosColeta();
   }
   
-  private carregarPontosCompativeis(caminhaoId: number) {
-    this.pontosColetaCompativeis = null; // Mostra o "carregando" no modal
-    this.rotaService.getPontosDeColetaCompativeis(caminhaoId).subscribe({
-        next: (pontos) => {
-            this.pontosColetaCompativeis = pontos;
-        },
-        error: () => {
-            this.mostrarMensagem('erro', 'Erro ao buscar pontos de coleta compatíveis.');
-            this.pontosColetaCompativeis = []; // Evita que fique em loading eterno
-        }
-    });
-  }
-
   salvar(form: NgForm): void {
     if (this.idEditando) {
       this.rotaService.atualizar(this.idEditando, this.rotaAtual).subscribe({
