@@ -39,6 +39,7 @@ export class TopbarComponent implements OnInit{
   }
 
   logout() {
+  this.authService.logout();
   localStorage.removeItem('usuarioLogado');
   this.router.navigate(['/login']);
   }

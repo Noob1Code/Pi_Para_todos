@@ -5,7 +5,6 @@
 
 package greenlong.dto;
 
-import greenlong.model.Bairro;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,7 +23,7 @@ import java.util.List;
 public class RotaResponseDTO {
     private Long id;
     private CaminhaoDTO caminhao;
-    private Bairro destino;
+    private BairroDTO destino;
     private String tipoResiduo;
     private List<String> bairrosPercorridos;
     private List<ConexaoDTO> arestasPercorridas;
