@@ -1,5 +1,5 @@
 # Ignora pastas de build do Maven
-/target/
+/greenlog-back/target/
 
 # Ignora arquivos de log
 *.log
