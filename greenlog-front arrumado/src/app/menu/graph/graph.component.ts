@@ -87,6 +87,8 @@ export class GraphComponent implements AfterViewInit {
       'line-color': '#ecf0f1',
       'target-arrow-color': '#ecf0f1',
       'target-arrow-shape': 'triangle',
+      'source-arrow-color': '#ecf0f1',
+      'source-arrow-shape': 'triangle',
       'curve-style': 'bezier',
       'label': 'data(label)',
       'font-size': '10px',
@@ -108,11 +110,11 @@ export class GraphComponent implements AfterViewInit {
 ],
   layout: {
     name: 'cose-bilkent',
-    idealEdgeLength: 150,
-    nodeRepulsion: 4500,
+    idealEdgeLength: 200,
+    nodeRepulsion: 10000000000000,
     edgeElasticity: 0.45,
     nestingFactor: 0.1,
-    gravity: 0.25,
+    gravity: 0,
     numIter: 2500,
     animate: true
   } as any,
