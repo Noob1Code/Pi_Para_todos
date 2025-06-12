@@ -1,1 +1,25 @@
+# Ignora pastas de build do Maven
+/target/
+
+# Ignora arquivos de log
+*.log
+
+# Ignora arquivos de compilação
+*.class
+
+# Ignora configurações do IDE IntelliJ
+*.iml
+.idea/
+
+# Ignora configurações do Eclipse
+*.classpath
+*.project
+*.settings/
+
+# Ignora arquivos do VS Code
+.vscode/
+
+# Ignora arquivos do sistema
+.DS_Store
+Thumbs.db
 
