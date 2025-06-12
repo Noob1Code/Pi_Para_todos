@@ -108,11 +108,11 @@ export class GraphComponent implements AfterViewInit {
 ],
   layout: {
     name: 'cose-bilkent',
-    idealEdgeLength: 250,
-    nodeRepulsion: 10000000,
+    idealEdgeLength: 150,
+    nodeRepulsion: 4500,
     edgeElasticity: 0.45,
     nestingFactor: 0.1,
-    gravity: 0,
+    gravity: 0.25,
     numIter: 2500,
     animate: true
   } as any,
