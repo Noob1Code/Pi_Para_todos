@@ -4,9 +4,10 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
-import { LoginService } from './login.service';
+// O LoginService não é mais necessário aqui.
+// import { LoginService } from './login.service';
 import { Login } from './login.model';
-import { AuthService } from '../authService';
+import { AuthService } from '../authService'; // Apenas o AuthService é necessário
 
 @Component({
   selector: 'app-login',
@@ -20,40 +21,45 @@ import { AuthService } from '../authService';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
+  // Mantém os campos do formulário
   usuario: string = '';
   senha: string = '';
   mensagemErro: string = '';
-
+  
+  // Remove a injeção do LoginService, deixando apenas AuthService e Router
   constructor(
     private router: Router,
-    private loginService: LoginService,
-    private authService: AuthService
+    private authService: AuthService 
   ) {}
 
   onSubmit() {
     this.mensagemErro = '';
 
     if (this.usuario && this.senha) {
-      this.loginService.login(this.usuario, this.senha).subscribe({
+      
+      // Chama o método de login centralizado do AuthService
+      this.authService.login({ username: this.usuario, senha: this.senha }).subscribe({
         next: (response: Login) => {
-          this.authService.setUsuario(response);
-          localStorage.setItem('usuarioLogado', JSON.stringify(response));
-          this.router.navigate(['/menu']);
+          // A lógica de armazenar o utilizador e o token já está dentro do AuthService.
+          // A única responsabilidade aqui é navegar para a próxima página.
+          this.router.navigate(['/menu']); 
         },
         error: (err) => {
+          // A lógica de tratamento de erro permanece a mesma.
           console.error('Erro no login:', err);
           if (err.status === 401) {
-            this.mensagemErro = err.error?.erro || 'Usuário ou senha inválidos.';
+            this.mensagemErro = 'Utilizador ou senha inválidos.';
           } else if (err.error?.erro) {
             this.mensagemErro = err.error.erro;
           } else {
-            this.mensagemErro = 'Erro ao tentar fazer login. Verifique sua conexão ou tente novamente mais tarde.';
+            this.mensagemErro = 'Erro ao tentar fazer login. Verifique a sua conexão ou tente novamente mais tarde.';
           }
         }
       });
+
     } else {
-      this.mensagemErro = 'Por favor, preencha o usuário e a senha.';
-      console.error('Usuário ou senha não preenchidos.');
+      this.mensagemErro = 'Por favor, preencha o utilizador e a senha.';
+      console.error('Utilizador ou senha não preenchidos.');
     }
   }
 }

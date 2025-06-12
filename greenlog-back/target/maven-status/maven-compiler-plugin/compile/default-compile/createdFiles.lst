@@ -26,6 +26,7 @@ greenlong\model\AuditoriaPontoColeta.class
 greenlong\model\AuditoriaCaminhao.class
 greenlong\model\Usuario.class
 greenlong\service\BairroService.class
+greenlong\service\CustomUserDetailsService.class
 greenlong\repository\UsuarioRepository.class
 greenlong\controller\RotaController.class
 greenlong\dto\CalculoRotaResponseDTO.class

@@ -56,7 +56,8 @@ public class RotaService {
                 .anyMatch(residuo -> residuo.getNome().equalsIgnoreCase(dto.getTipoResiduo()));
 
         if (!caminhaoPodeColetar) {
-            throw new IllegalStateException("O caminhão com placa " + caminhao.getPlaca() + " não está configurado para coletar o resíduo do tipo '" + dto.getTipoResiduo() + "'.");
+            throw new IllegalStateException("O caminhão com placa " + caminhao.getPlaca() + " "
+                    + "não está configurado para coletar o resíduo do tipo '" + dto.getTipoResiduo() + "'.");
         }
 
         Bairro destino = bairroRepository.findById(dto.getDestinoId().getId())

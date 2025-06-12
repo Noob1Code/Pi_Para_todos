@@ -1,10 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
 package greenlong.model;
-
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,12 +9,16 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
- *
  * @author Kayque de Freitas <kayquefreitas08@gmail.com>
  * @data 06/06/2025
- * @brief Class Usuario
+ * @brief Entidade Usuario, agora implementando UserDetails para integração com Spring Security.
  */
 
 @Entity
@@ -28,7 +26,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Usuario {
+public class Usuario implements UserDetails { // 1. IMPLEMENTA A INTERFACE UserDetails
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -53,4 +51,42 @@ public class Usuario {
 
     @Column(nullable = false)
     private String senha;
+
+    // 2. MÉTODOS REQUERIDOS PELA INTERFACE UserDetails
+    
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Como não estamos a usar papéis (roles) como ADMIN, USER, etc., podemos retornar uma lista vazia.
+        return Collections.emptyList();
+    }
+
+    @Override
+    public String getPassword() {
+        return this.senha;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // A conta nunca expira
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // A conta nunca é bloqueada
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // As credenciais nunca expiram
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // A conta está sempre habilitada
+    }
 }
