@@ -4,16 +4,16 @@ import greenlong.dto.CalculoRotaResponseDTO;
 import greenlong.dto.ConexaoDTO;
 import greenlong.dto.RotaRequestDTO;
 import greenlong.dto.RotaResponseDTO;
-import greenlong.dto.CaminhaoDTO;
 import greenlong.dto.CaminhoDTO;
 import greenlong.dto.RotaUpdateRequestDTO;
+import greenlong.mapper.RotaMapper;
 import greenlong.model.Bairro;
 import greenlong.model.Caminhao;
 import greenlong.model.Conexao;
-import greenlong.model.Residuo;
 import greenlong.model.Rota;
 import greenlong.repository.BairrosRepository;
 import greenlong.repository.CaminhaoRepository;
+import greenlong.repository.ItinerarioRepository;
 import greenlong.repository.RotaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
+
 /**
  * @author Kayque de Freitas <kayquefreitas08@gmail.com>
  * @data 10/06/2025
@@ -37,6 +39,8 @@ public class RotaService {
     private final CaminhaoRepository caminhaoRepository;
     private final BairrosRepository bairroRepository;
     private final DijkstraService dijkstraService;
+    private final RotaMapper rotaMapper;
+    private final ItinerarioRepository itinerarioRepository; // 2. DEPENDÊNCIA ADICIONADA
 
     @Value("${greenlong.logistica.bairro-origem-padrao:Centro}")
     private String nomeBairroOrigem;
@@ -80,7 +84,7 @@ public class RotaService {
         rota.setDistanciaTotal(caminho.getDistanciaTotal());
 
         Rota rotaSalva = rotaRepository.save(rota);
-        return toResponseDTO(rotaSalva);
+        return rotaMapper.toResponseDTO(rotaSalva);
     }
 
     /**
@@ -127,7 +131,7 @@ public class RotaService {
         rotaExistente.setTipoResiduo(dto.getTipoResiduo());
 
         Rota rotaSalva = rotaRepository.save(rotaExistente);
-        return toResponseDTO(rotaSalva);
+        return rotaMapper.toResponseDTO(rotaSalva);
     }
 
     /**
@@ -151,50 +155,29 @@ public class RotaService {
 
     @Transactional(readOnly = true)
     public List<RotaResponseDTO> listarTodos() {
-        return rotaRepository.findAll().stream().map(this::toResponseDTO).collect(Collectors.toList());
+        return rotaRepository.findAll().stream()
+                .map(rotaMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public Optional<RotaResponseDTO> buscarPorId(Long id) {
-        return rotaRepository.findById(id).map(this::toResponseDTO);
+        return rotaRepository.findById(id).map(rotaMapper::toResponseDTO);
     }
 
     @Transactional
     public boolean deletarRota(Long id) {
-        if (rotaRepository.existsById(id)) {
-            rotaRepository.deleteById(id);
-            return true;
+        if (!rotaRepository.existsById(id)) {
+            return false;
         }
-        return false;
-    }
 
-    private RotaResponseDTO toResponseDTO(Rota rota) {
-    
-        List<String> nomesResiduos = rota.getCaminhao().getResiduos().stream()
-                .map(Residuo::getNome) 
-                .collect(Collectors.toList());
-
-        CaminhaoDTO caminhaoDTO = new CaminhaoDTO(
-            rota.getCaminhao().getId(),
-            rota.getCaminhao().getPlaca(),
-            rota.getCaminhao().getMotorista(),
-            rota.getCaminhao().getCapacidade(),
-            nomesResiduos 
-        );
-
-        List<ConexaoDTO> arestasDTO = rota.getArestasPercorridas().stream()
-                .map(this::toConexaoDTO)
-                .collect(Collectors.toList());
-
-        return new RotaResponseDTO(
-                rota.getId(),
-                caminhaoDTO,
-                rota.getDestino(),
-                rota.getTipoResiduo(),
-                rota.getBairrosPercorridos(),
-                arestasDTO,
-                rota.getDistanciaTotal()
-        );
+        if (itinerarioRepository.existsByRotaId(id)) {
+            throw new DataIntegrityViolationException("Esta rota não pode ser excluída, "
+                    + "pois está sendo utilizada em um ou mais itinerários agendados.");
+        }
+        
+        rotaRepository.deleteById(id);
+        return true;
     }
 
     private ConexaoDTO toConexaoDTO(Conexao con) {
