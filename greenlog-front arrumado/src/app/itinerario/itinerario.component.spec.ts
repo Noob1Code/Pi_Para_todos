@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { IntinerarioComponent } from './intinerario.component';
+import { ItinerarioComponent } from './itinerario.component';
 
-describe('IntinerarioComponent', () => {
-  let component: IntinerarioComponent;
-  let fixture: ComponentFixture<IntinerarioComponent>;
+describe('ItinerarioComponent', () => {
+  let component: ItinerarioComponent;
+  let fixture: ComponentFixture<ItinerarioComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [IntinerarioComponent]
+      imports: [ItinerarioComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(IntinerarioComponent);
+    fixture = TestBed.createComponent(ItinerarioComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

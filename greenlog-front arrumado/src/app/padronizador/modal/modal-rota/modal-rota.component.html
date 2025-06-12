@@ -1,0 +1,49 @@
+<div 
+  class="modal-overlay" 
+  *ngIf="visivel" 
+  (click)="fechar()" 
+  aria-hidden="false"
+  role="dialog"
+  aria-modal="true"
+>
+  <div 
+    class="modal-content" 
+    (click)="$event.stopPropagation()" 
+    tabindex="-1"
+    aria-labelledby="modal-title"
+    role="document"
+  >
+    <header class="modal-header">
+      <h2 id="modal-title">Selecione uma Rota</h2>
+      <button 
+        type="button" 
+        class="close-button" 
+        (click)="fechar()" 
+        aria-label="Fechar modal"
+      >
+        &times;
+      </button>
+    </header>
+
+    <section class="modal-body">
+      <input 
+        type="text" 
+        placeholder="Pesquisar por nome ou tipo" 
+        [(ngModel)]="termoPesquisa" 
+        (input)="filtrar()" 
+        class="form-control"
+      />
+  
+      <p *ngIf="carregando">Carregando Rotas...</p>
+
+      <ul class="modal-list">
+        <li *ngFor="let rota of rotasFiltrados" (click)="selecionar(rota)">
+             {{rota.destino?.nome + "( "+rota.caminhao?.placa + " )\n"+ rota.bairrosPercorridos}}
+        </li>
+        <li *ngIf="rotas.length === 0" class="nenhum-resultado">
+          Nenhuma Rota encontrado.
+        </li>
+      </ul>
+    </section>
+  </div>
+</div>
