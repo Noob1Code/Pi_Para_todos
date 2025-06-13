@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Itinerario,ItinerarioUPDATE } from './itinerario.model';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { Itinerario, ItinerarioUPDATE } from './itinerario.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,33 +13,35 @@ export class ItinerarioService {
   constructor(private http: HttpClient) {}
 
   listar(): Observable<Itinerario[]> {
-    return this.http.get<Itinerario[]>(this.apiUrl);
+    return this.http.get<Itinerario[]>(this.apiUrl).pipe(
+      catchError((error: HttpErrorResponse) => throwError(() => error))
+    );
   }
 
   salvar(itinerario: Itinerario): Observable<ItinerarioUPDATE> {
-    console.log(this.padronizacao(itinerario))
-    return this.http.post<ItinerarioUPDATE>(this.apiUrl, this.padronizacao(itinerario));
+    const payload = this.padronizacao(itinerario);
+    return this.http.post<ItinerarioUPDATE>(this.apiUrl, payload).pipe(
+      catchError((error: HttpErrorResponse) => throwError(() => error))
+    );
   }
 
-  atualizar(id: string, itinerario: Itinerario): Observable<Itinerario> {
-    return this.http.put<Itinerario>(`${this.apiUrl}/${id}`, itinerario);
+  atualizar(id: number, itinerario: Itinerario): Observable<Itinerario> {
+    const payload = this.padronizacao(itinerario);
+    return this.http.put<Itinerario>(`${this.apiUrl}/${id}`, payload).pipe(
+      catchError((error: HttpErrorResponse) => throwError(() => error))
+    );
   }
 
   excluir(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      catchError((error: HttpErrorResponse) => throwError(() => error))
+    );
   }
 
-  validarItinerario(data: Date, rotaNome: string): Observable<{ valido: boolean }> {
-    return this.http.post<{ valido: boolean }>(`${this.apiUrl}/validar`, {
-      data,
-      rota: rotaNome
-    });
+  private padronizacao(itinerario: Itinerario): ItinerarioUPDATE {
+    return {
+      data: itinerario.data,
+      rotaId: { id: itinerario.rota.id }
+    };
   }
-
- padronizacao(itinerario: Itinerario): ItinerarioUPDATE {
-      return {
-        data: itinerario.data,
-        rotaId: { id: itinerario.rota.id }
-      };
-    }
 }

@@ -41,6 +41,19 @@
     <small id="caminhaoDescricao">Clique no campo para filtrar os agendamentos por caminhão.</small>
   </div>
 
+  <div *ngIf="caminhaoFiltrado">
+    <button class="btn cancelar" (click)="limparFiltroCaminhao()">Limpar filtro</button>
+  </div>
+
+  <!-- Mensagens -->
+  <div *ngIf="mensagem?.tipo" [ngClass]="['popup', mensagem.tipo === 'erro' ? 'error' : 'success']">
+    <span *ngIf="mensagem.tipo === 'salvo'">✅</span>
+    <span *ngIf="mensagem.tipo === 'editado'">✏️</span>
+    <span *ngIf="mensagem.tipo === 'excluido'">🗑️</span>
+    <span *ngIf="mensagem.tipo === 'erro'">❌</span>
+    {{ mensagem.texto }}
+  </div>
+
   <!-- Calendário -->
   <section class="calendar" aria-label="Calendário de agendamentos">
     <!-- Cabeçalho dos dias da semana -->
@@ -51,27 +64,26 @@
 
     <!-- Dias do mês -->
     <button
-      type="button"
-      class="day"
-      *ngFor="let dia of diasDoMes"
-      [ngClass]="{
-        hoje: isHoje(dia),
-        selecionado: isSelecionado(dia),
-        agendado: temAgendamento(dia)
-      }"
-      (click)="abrirFormulario(dia)"
-    >
-      <strong>{{ dia.getDate() }}</strong>
+  type="button"
+  class="day"
+  *ngFor="let dia of diasDoMes"
+  [ngClass]="{
+    hoje: isHoje(dia),
+    selecionado: isSelecionado(dia),
+  }"
+  (click)="abrirFormulario(dia)"
+>
+  <strong>{{ dia.getDate() }}</strong>
 
-      <!-- Alfinete clicável -->
-      <span
-        *ngIf="temAgendamento(dia)"
-        class="pin-icon"
-        (click)="verAgendamentos(dia); $event.stopPropagation()"
-        title="Ver agendamentos do dia"
-        style="cursor: pointer;"
-      >📌</span>
-    </button>
+  <!-- Alfinete clicável -->
+  <span
+    *ngIf="temAgendamento(dia)"
+    class="pin-icon"
+    title="Ver agendamentos do dia"
+    (click)="verAgendamentos(dia); $event.stopPropagation()"
+    style="cursor: pointer;"
+  >📌</span>
+</button>
   </section>
 
   <!-- Consulta de Agendamentos -->
@@ -115,10 +127,11 @@
       </div>
 
       <div class="button-group">
-        <button class="btn salvar" (click)="agendar()" [disabled]="!rotaSelecionada">💾 Agendar</button>
+        <button class="btn salvar" (click)="salvar()" [disabled]="!rotaSelecionada">💾 Agendar</button>
         <button class="btn cancelar" (click)="fecharAgendamento()">❌ Cancelar</button>
       </div>
     </div>
   </section>
 
 </main>
+   
