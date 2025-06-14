@@ -1,11 +1,10 @@
-// Atualizado: ItinerarioComponent com backend + edição/exclusão
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ModalRotaComponent } from "../padronizador/modal/modal-rota/modal-rota.component";
+import { ModalCaminhaoComponent } from "../padronizador/modal/modal-caminhao/modal-caminhao.component";
 import { Rota } from '../cadastrar/rota/rota.model';
 import { Caminhao } from '../cadastrar/caminhao/caminhao.modal';
-import { ModalCaminhaoComponent } from "../padronizador/modal/modal-caminhao/modal-caminhao.component";
 import { ItinerarioService } from './itinerario.service';
 import { Itinerario } from './itinerario.model';
 
@@ -17,9 +16,9 @@ import { Itinerario } from './itinerario.model';
   styleUrl: './itinerario.component.css'
 })
 export class ItinerarioComponent implements OnInit {
-  diasDaSemana: string[] = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-  mesSelecionado: number = new Date().getMonth();
-  anoSelecionado: number = new Date().getFullYear();
+  diasDaSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  mesSelecionado = new Date().getMonth();
+  anoSelecionado = new Date().getFullYear();
 
   diasDoMes: Date[] = [];
   diasVazios: any[] = [];
@@ -30,16 +29,36 @@ export class ItinerarioComponent implements OnInit {
   modalCaminhaoVisivel = false;
 
   rotaSelecionada: Rota | null = null;
+  nomeDestinoSelecionado = '';
   caminhaoFiltrado: Caminhao | null = null;
 
   agendamentos: { [dataISO: string]: Itinerario[] } = {};
   itinerariosDoDia: Itinerario[] = [];
+
+  idEditando: number | null = null;
+
+  mensagem = { tipo: null as 'salvo' | 'editado' | 'excluido' | 'erro' | null, texto: '' };
 
   constructor(private itinerarioService: ItinerarioService) {}
 
   ngOnInit(): void {
     this.gerarCalendario();
     this.carregarAgendamentos();
+  }
+
+  mostrarMensagem(tipo: 'salvo' | 'editado' | 'excluido' | 'erro', textoPersonalizado?: string): void {
+    const textos = {
+      salvo: 'Itinerário agendado com sucesso!',
+      editado: 'Itinerário atualizado com sucesso!',
+      excluido: 'Itinerário excluído com sucesso!',
+      erro: textoPersonalizado || '❌ Ocorreu um erro ao processar a solicitação.'
+    };
+    this.mensagem = { tipo, texto: textos[tipo] };
+    if (tipo !== 'erro') {
+    setTimeout(() => {
+    this.mensagem = { tipo: null, texto: '' };
+    }, 6000);
+    }
   }
 
   alterarMes(delta: number): void {
@@ -55,15 +74,14 @@ export class ItinerarioComponent implements OnInit {
   }
 
   gerarCalendario(): void {
-    this.diasDoMes = [];
-    this.diasVazios = [];
     const primeiroDia = new Date(this.anoSelecionado, this.mesSelecionado, 1);
     const ultimoDia = new Date(this.anoSelecionado, this.mesSelecionado + 1, 0);
     const diaSemana = primeiroDia.getDay();
+
     this.diasVazios = Array(diaSemana).fill(null);
-    for (let d = 1; d <= ultimoDia.getDate(); d++) {
-      this.diasDoMes.push(new Date(this.anoSelecionado, this.mesSelecionado, d));
-    }
+    this.diasDoMes = Array.from({ length: ultimoDia.getDate() }, (_, i) =>
+      new Date(this.anoSelecionado, this.mesSelecionado, i + 1)
+    );
   }
 
   carregarAgendamentos(): void {
@@ -78,8 +96,7 @@ export class ItinerarioComponent implements OnInit {
   }
 
   isHoje(dia: Date): boolean {
-    const hoje = new Date();
-    return dia.toDateString() === hoje.toDateString();
+    return dia.toDateString() === new Date().toDateString();
   }
 
   isSelecionado(dia: Date): boolean {
@@ -88,19 +105,27 @@ export class ItinerarioComponent implements OnInit {
 
   temAgendamento(dia: Date): boolean {
     const chave = this.gerarChaveData(dia);
-    return this.agendamentos[chave]?.length > 0;
+    const itinerarios = this.agendamentos[chave] || [];
+
+    if (this.caminhaoFiltrado) {
+      return itinerarios.some(it => it.rota?.caminhao?.id === this.caminhaoFiltrado?.id);
+    }
+
+    return itinerarios.length > 0;
   }
+  
 
   abrirFormulario(dia: Date): void {
     this.diaSelecionado = dia;
     this.diaConsultado = null;
     this.rotaSelecionada = null;
+    this.nomeDestinoSelecionado = '';
+    this.idEditando = null;
   }
 
   verAgendamentos(dia: Date): void {
     this.diaConsultado = dia;
-    const chave = this.gerarChaveData(dia);
-    this.itinerariosDoDia = this.agendamentos[chave] || [];
+    this.itinerariosDoDia = this.obterAgendamentosDoDia(dia);
   }
 
   abrirModalRotas(): void {
@@ -123,8 +148,9 @@ export class ItinerarioComponent implements OnInit {
     document.body.style.overflow = '';
   }
 
-  onRotaSelecionado(event: Rota): void {
-    this.rotaSelecionada = event;
+  onRotaSelecionado(rota: Rota): void {
+    this.rotaSelecionada = rota;
+    this.nomeDestinoSelecionado = rota.destino?.nome || '';
     this.fecharModalRotas();
   }
 
@@ -133,43 +159,80 @@ export class ItinerarioComponent implements OnInit {
     this.fecharModalCaminhao();
   }
 
-  agendar(): void {
-    if (!this.diaSelecionado || !this.rotaSelecionada) return;
+  salvar(): void {
+    if (!this.rotaSelecionada || !this.diaSelecionado) {
+      this.mostrarMensagem('erro', 'Selecione uma data e uma rota para salvar.');
+      return;
+    }
+
     const novo: Itinerario = {
       data: this.diaSelecionado,
       rota: this.rotaSelecionada
     };
 
-    this.itinerarioService.salvar(novo).subscribe(() => {
-      this.carregarAgendamentos();
-      this.diaSelecionado = null;
-      this.rotaSelecionada = null;
-    });
+    const callback = {
+      next: () => {
+        this.carregarAgendamentos();
+        this.mostrarMensagem(this.idEditando ? 'editado' : 'salvo');
+        this.fecharAgendamento();
+      },
+      error: (err: any) => {
+        const msg = err.error?.message || 'Erro ao salvar o itinerário.';
+        this.mostrarMensagem('erro', msg);
+      }
+    };
+
+    if (this.idEditando) {
+      this.itinerarioService.atualizar(this.idEditando, novo).subscribe(callback);
+    } else {
+      this.itinerarioService.salvar(novo).subscribe(callback);
+    }
   }
 
   excluir(itinerario: Itinerario): void {
     if (!itinerario.id) return;
-    this.itinerarioService.excluir(itinerario.id.toString()).subscribe(() => {
-      this.carregarAgendamentos();
-      this.verAgendamentos(new Date(itinerario.data));
+
+    this.itinerarioService.excluir(itinerario.id.toString()).subscribe({
+      next: () => {
+        this.carregarAgendamentos();
+        this.mostrarMensagem('excluido');
+        this.verAgendamentos(new Date(itinerario.data));
+      },
+      error: (err) => {
+        const msg = err.error?.message || 'Erro ao excluir o itinerário.';
+        this.mostrarMensagem('erro', msg);
+      }
     });
   }
 
   editar(itinerario: Itinerario): void {
+    this.idEditando = itinerario.id || null;
     this.diaSelecionado = new Date(itinerario.data);
     this.rotaSelecionada = itinerario.rota;
+    this.nomeDestinoSelecionado = itinerario.rota?.destino?.nome || '';
   }
 
   obterAgendamentosDoDia(dia: Date): Itinerario[] {
     const chave = this.gerarChaveData(dia);
-    return this.agendamentos[chave] || [];
+    const todos = this.agendamentos[chave] || [];
+
+    return this.caminhaoFiltrado
+      ? todos.filter(it => it.rota?.caminhao?.id === this.caminhaoFiltrado!.id)
+      : todos;
   }
 
   private gerarChaveData(dia: Date): string {
     return dia.toISOString().split('T')[0];
   }
+
   fecharAgendamento(): void {
     this.diaSelecionado = null;
     this.rotaSelecionada = null;
+    this.nomeDestinoSelecionado = '';
+    this.idEditando = null;
   }
+
+  limparFiltroCaminhao(): void {
+  this.caminhaoFiltrado = null;
+}
 }

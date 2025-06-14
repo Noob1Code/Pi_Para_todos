@@ -1,0 +1,290 @@
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f9f9f9;
+}
+
+/* Título */
+.titulo {
+  text-align: center;
+  font-size: 26px;
+  color: #333;
+  margin-bottom: 25px;
+}
+
+/* Mensagens */
+.mensagem-sucesso {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-left: 5px solid #28a745;
+  border-radius: 6px;
+}
+
+.mensagem-erro {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-left: 5px solid #e74c3c;
+  border-radius: 6px;
+}
+
+/* Alerta de filtro */
+.alerta-filtro {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-left: 5px solid #ffc107;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Navegação de mês */
+.navegacao-mes {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.navegacao-mes button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.navegacao-mes button:hover {
+  background-color: #0056b3;
+}
+
+.navegacao-mes span {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Cabeçalho dias da semana */
+.dias-semana {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-weight: bold;
+  background-color: #f0f0f0;
+  padding: 8px 0;
+  border-radius: 6px;
+}
+
+/* Calendário */
+.calendario {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.dia {
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  text-align: center;
+  padding: 12px 6px;
+  border-radius: 8px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.dia:hover {
+  background-color: #f0f8ff;
+}
+
+.dia.vazio {
+  background-color: transparent;
+  border: none;
+}
+
+.dia.hoje {
+  background-color: #e0ffe0;
+  border: 2px solid #28a745;
+}
+
+.dia.selecionado {
+  background-color: #d0e8ff;
+  border: 2px solid #007bff;
+}
+
+.dia.com-agendamento::after {
+  content: '📌';
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  font-size: 0.9rem;
+}
+
+/* Botão visualizar */
+.btn-ver {
+  background: none;
+  border: none;
+  font-size: 14px;
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  cursor: pointer;
+}
+
+/* Itinerários do dia */
+.itinerarios-dia {
+  margin-top: 25px;
+  background-color: #fff;
+  padding: 16px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+
+.itinerarios-dia h3 {
+  margin-top: 0;
+  font-size: 1.25rem;
+  color: #333;
+}
+
+.itinerarios-dia ul {
+  list-style: none;
+  padding: 0;
+}
+
+.itinerarios-dia li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.itinerarios-dia button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 5px;
+  transition: color 0.2s;
+}
+
+.itinerarios-dia button:hover {
+  color: #007bff;
+}
+
+/* Formulário */
+.formulario-agendamento {
+  margin-top: 25px;
+  background-color: #eef2f7;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+
+.formulario-agendamento h3 {
+  margin-top: 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.campo {
+  margin-bottom: 12px;
+}
+
+.campo label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: bold;
+  color: #555;
+}
+
+.campo input[type="text"] {
+  width: 96%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white;
+}
+
+.campo button {
+  margin-top: 6px;
+  padding: 6px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.campo button:hover {
+  background-color: #0056b3;
+}
+
+/* Botões formulário */
+.botoes {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+}
+
+.botoes button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  border: none;
+}
+
+.botoes button:first-child {
+  background-color: #28a745;
+  color: white;
+}
+
+.botoes button:first-child:hover {
+  background-color: #218838;
+}
+
+.botoes button:last-child {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.botoes button:last-child:hover {
+  background-color: #c0392b;
+}
+
+/* Modais (herdam estilo) */
+app-modal-rota,
+app-modal-caminhao {
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+  .dias-semana, .calendario {
+    grid-template-columns: repeat(7, 1fr);
+  }
+
+  .itinerarios-dia li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .botoes {
+    flex-direction: column;
+  }
+}
