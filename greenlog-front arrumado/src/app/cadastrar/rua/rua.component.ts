@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Rua } from './rua.model';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { RuaService } from './rua.service';
 import { ModalBairrosComponent } from "../../padronizador/modal/modal-bairro/modal-bairro.component";
 import { Bairro } from '../bairro/bairro.model';
+import { HandleErrorMessageService } from '../../handle-error-message.service';
 
 @Component({
   selector: 'app-rua',
@@ -18,30 +19,29 @@ export class RuaComponent implements OnInit{
   ruas: Rua[] = [];
   ruaAtual: Rua = {nome: '', origem: { id: 0, nome: '' }, destino: { id: 0, nome: '' }, distancia: null}
   idEditando: number | null = null;
-
   modalOrigemVisivel = false;
   modalDestinoVisivel = false;
-
   mensagem: { tipo: 'salvo' | 'editado' | 'excluido' | 'erro' | null; texto: string } = { tipo: null, texto: '' };
 
-  constructor(private ruaService : RuaService){}
+  constructor(
+    private ruaService : RuaService,
+    private handleErrorMessage: HandleErrorMessageService,
+  ) {}
 
   mostrarMensagem(tipo: 'salvo' | 'editado' | 'excluido' | 'erro', textoPersonalizado?: string): void {
-  this.mensagem = {
-    tipo,
-    texto:
-      tipo === 'salvo' ? ' Bairro cadastrado com sucesso!' :
-      tipo === 'editado' ? ' Bairro atualizado com sucesso!' :
-      tipo === 'excluido' ? ' Bairro excluído com sucesso!' :
-      textoPersonalizado || '❌ Ocorreu um erro ao processar a solicitação.'
-  };
-
-  if (tipo !== 'erro') {
-  setTimeout(() => {
-    this.mensagem = { tipo: null, texto: '' };
-  }, 6000);
-}
-}
+    const textos = {
+      salvo: ' Rua cadastrado com sucesso!',
+      editado: ' Rua atualizado com sucesso!',
+      excluido: ' Rua excluído com sucesso!',
+      erro: textoPersonalizado || '❌ Ocorreu um erro ao processar a solicitação.'
+    };
+    this.mensagem = { tipo, texto: textos[tipo] };
+    if (tipo !== 'erro') {
+      setTimeout(() => {
+        this.mensagem = { tipo: null, texto: '' };
+      }, 6000);
+    }
+  }
 
   ngOnInit(): void {
     this.buscarTodos();
@@ -50,30 +50,30 @@ export class RuaComponent implements OnInit{
   buscarTodos(): void {
     this.ruaService.listar().subscribe({
       next: (res) => (this.ruas = res),
-      error: () => (this.mostrarMensagem('erro','Erro ao buscar ruas.')),
+      error: (err: any) => {
+        const msg = this.handleErrorMessage.handleError(err);
+        this.mostrarMensagem('erro', msg);
+      }
     });
   }
 
-  salvar(): void {
-  
+  salvar(form: NgForm): void {
+    const callback = {
+      next: () => {
+        this.mostrarMensagem(this.idEditando ? 'editado' : 'salvo');
+        this.resetForm(form);
+        this.buscarTodos();
+      },
+      error: (err: any) => {
+        const msg = this.handleErrorMessage.handleError(err);
+        this.mostrarMensagem('erro', msg);
+      }
+    };
+
     if (this.idEditando) {
-      this.ruaService.atualizar(this.idEditando, this.ruaAtual).subscribe({
-        next: () => {
-          this.mostrarMensagem('editado');
-          this.resetForm();
-          this.buscarTodos();
-        },
-        error: () => (this.mostrarMensagem('erro','Erro ao atualizar rua.')),
-      });
+      this.ruaService.atualizar(this.idEditando, this.ruaAtual).subscribe(callback);
     } else {
-      this.ruaService.salvar(this.ruaAtual).subscribe({
-        next: () => {
-          this.mostrarMensagem('salvo');
-          this.resetForm();
-          this.buscarTodos();
-        },
-        error: () => (this.mostrarMensagem('erro','Erro ao cadastrar rua.')),
-      });
+      this.ruaService.salvar(this.ruaAtual).subscribe(callback);
     }
   }
   
@@ -85,7 +85,10 @@ export class RuaComponent implements OnInit{
           this.mostrarMensagem('excluido');
           this.buscarTodos();
         },
-        error: () => (this.mostrarMensagem('erro','Erro ao excluir rua.')),
+        error: (err: any) => {
+        const msg = this.handleErrorMessage.handleError(err);
+        this.mostrarMensagem('erro', msg);
+        }
       });
     }
   }
@@ -93,13 +96,14 @@ export class RuaComponent implements OnInit{
   editar(rua: Rua): void {
     this.idEditando = rua.id ?? null;
     this.ruaAtual = { ...rua };
-
   }
   
-  resetForm(): void {
+  resetForm(form: NgForm): void {
     this.ruaAtual = {nome: '', origem: { id: 0, nome: '' }, destino: { id: 0, nome: '' }, distancia: null}
     this.idEditando = null;
-
+    if (form) {
+      form.resetForm();
+    }
   }
   
   abrirModalOrigem(): void {

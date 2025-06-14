@@ -6,7 +6,6 @@ import { Bairro } from '../../cadastrar/bairro/bairro.model';
 import { Rua } from '../../cadastrar/rua/rua.model';
 import coseBilkent from 'cytoscape-cose-bilkent';
 
-// ✅ Registra o layout FORA da classe
 cytoscape.use(coseBilkent);
 
 @Component({
@@ -47,7 +46,6 @@ export class GraphComponent implements AfterViewInit {
           });
         });
 
-        // ✅ Layout usando cose-bilkent corretamente
         const cy = cytoscape({
   container: this.cyRef.nativeElement,
   elements: elementos,
@@ -123,7 +121,6 @@ export class GraphComponent implements AfterViewInit {
   wheelSensitivity: 3
 });
 
-// Interações extras
 cy.on('tap', 'node', (event) => {
   const node = event.target;
   alert(`Bairro: ${node.data('label')}`);

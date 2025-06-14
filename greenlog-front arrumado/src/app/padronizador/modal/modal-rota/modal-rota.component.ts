@@ -24,7 +24,7 @@ export class ModalRotaComponent {
   
   ngOnInit() {
     this.carregar();
-    this.rotasFiltrados = [...this.rotas]; // inicia com todos
+    this.rotasFiltrados = [...this.rotas];
   }
   
   filtrar(): void {

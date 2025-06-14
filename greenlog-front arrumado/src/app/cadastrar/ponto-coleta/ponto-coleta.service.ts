@@ -16,7 +16,7 @@ export class PontoColetaService {
     return this.http.get<PontoColeta[]>(this.apiUrl);
   }
 
-  salvar(pontoColeta: PontoColeta): Observable<PontoColetaUPDATE> { // Retorna o tipo PontoColeta, que Ã© similar ao ResponseDTO
+  salvar(pontoColeta: PontoColeta): Observable<PontoColetaUPDATE> { 
     const dadosParaSalvar = this.padronizacao(pontoColeta);
     return this.http.post<PontoColetaUPDATE>(this.apiUrl, dadosParaSalvar);
   }
@@ -32,7 +32,7 @@ export class PontoColetaService {
   getPontosDeColetaCompativeis(caminhaoId: number | null | undefined): Observable<PontoColeta[]> {
   if (caminhaoId == null) {
     return new Observable<PontoColeta[]>(observer => {
-      observer.next([]); // retorna lista vazia
+      observer.next([]); 
       observer.complete();
     });
   }

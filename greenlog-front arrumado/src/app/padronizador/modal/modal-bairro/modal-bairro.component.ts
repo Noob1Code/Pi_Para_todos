@@ -28,7 +28,7 @@ export class ModalBairrosComponent implements OnInit {
 
   ngOnInit() {
     this.carregar();
-    this.bairrosFiltrados = [...this.bairros]; // inicia com todos
+    this.bairrosFiltrados = [...this.bairros];
   }
 
   filtrar(): void {

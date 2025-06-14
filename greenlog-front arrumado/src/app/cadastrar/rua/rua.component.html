@@ -1,4 +1,3 @@
-<!-- Modal -->
 <app-modal-bairros
   [visivel]="modalOrigemVisivel"
   (fechado)="fecharModalOrigem()"
@@ -19,7 +18,7 @@
     <h2>{{ idEditando ? 'Editar' : 'Cadastro de' }} Rua</h2>
   </header>
 
-  <form (ngSubmit)="salvar()" #formRua="ngForm">
+  <form (ngSubmit)="salvar(formRua)" #formRua="ngForm">
 
     <div class="form-group">
       <label for="nome">Nome da Rua:</label>
@@ -30,11 +29,15 @@
         [(ngModel)]="ruaAtual.nome" 
         placeholder="Ex: Rua São Juaquim"
         required
+        minlength="3"
+        pattern="^[A-Za-z0-9À-ÿ\s]+$"
         #nomeInput="ngModel"
         [ngClass]="{ 'invalid-input': nomeInput.invalid && (nomeInput.dirty || nomeInput.touched) }"
       />
       <div *ngIf="nomeInput.invalid && (nomeInput.dirty || nomeInput.touched)" class="error-message">
         <small *ngIf="nomeInput.errors?.['required']">Nome da rua é obrigatório.</small>
+        <small *ngIf="nomeInput.errors?.['minlength']">Nome do ponto deve ter no mínimo 3 caracteres.</small>
+        <small *ngIf="nomeInput.errors?.['pattern']">Digite apenas letras, numeros e espaços.</small>
       </div>
     </div>
 
@@ -83,12 +86,14 @@
         type="text" 
         [(ngModel)]="ruaAtual.distancia" 
         placeholder="Ex: 5000"
+        pattern="^[0-9]+$"
         required
         #distanciaInput="ngModel"
         [ngClass]="{ 'invalid-input': distanciaInput.invalid && (distanciaInput.dirty || distanciaInput.touched) }"
       />
       <div *ngIf="distanciaInput.invalid && (distanciaInput.dirty || distanciaInput.touched)" class="error-message">
         <small *ngIf="distanciaInput.errors?.['required']">A Distancia é obrigatória.</small>
+        <small *ngIf="distanciaInput.errors?.['pattern']">Digite apenas numeros.</small>
       </div>
     </div>
 
@@ -108,7 +113,7 @@
         type="button"
         *ngIf="idEditando"
         class="btn cancelar"
-        (click)="resetForm()"
+        (click)="resetForm(formRua)"
       >
         ❌ Cancelar Edição
       </button>

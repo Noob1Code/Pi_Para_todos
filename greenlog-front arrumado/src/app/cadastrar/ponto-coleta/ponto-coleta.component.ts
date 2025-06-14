@@ -1,15 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { PontoColeta } from './ponto-coleta.model';
 import { PontoColetaService } from './ponto-coleta.service';
 import { ModalBairrosComponent } from '../../padronizador/modal/modal-bairro/modal-bairro.component';
 import { Bairro } from '../bairro/bairro.model';
+import { HandleErrorMessageService } from '../../handle-error-message.service';
+import { NgxMaskDirective } from 'ngx-mask';
 
 @Component({
   selector: 'app-ponto-coleta',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalBairrosComponent],
+  imports: [CommonModule, FormsModule, ModalBairrosComponent,NgxMaskDirective],
   templateUrl: './ponto-coleta.component.html',
   styleUrl: './ponto-coleta.component.css'
 })
@@ -27,20 +29,20 @@ export class PontoColetaComponent implements OnInit {
     tiposResiduosAceitos: []
   };
   centro = 'Centro';
-
   idEditando: number | null = null;
   modalBairrosVisivel = false;
-
   tiposResiduosSelecionados: { [key: string]: boolean } = {};
   erroResiduos = false;
   opcoesTiposResiduos: string[] = ['Plástico', 'Papel', 'Metal', 'Orgânico'];
-
   mensagem: { tipo: 'salvo' | 'editado' | 'excluido' | 'erro' | null; texto: string } = {
     tipo: null,
     texto: ''
   };
 
-  constructor(private pontoColetaService: PontoColetaService) {}
+  constructor(
+    private pontoColetaService: PontoColetaService,
+    private handleErrorMessage: HandleErrorMessageService,
+  ) {}
 
   ngOnInit(): void {
     this.inicializarCheckboxes();
@@ -48,19 +50,17 @@ export class PontoColetaComponent implements OnInit {
   }
 
   mostrarMensagem(tipo: 'salvo' | 'editado' | 'excluido' | 'erro', textoPersonalizado?: string): void {
-    this.mensagem = {
-      tipo,
-      texto:
-        tipo === 'salvo' ? 'Ponto de coleta cadastrado com sucesso!' :
-        tipo === 'editado' ? 'Ponto de coleta atualizado com sucesso!' :
-        tipo === 'excluido' ? 'Ponto de coleta excluído com sucesso!' :
-        textoPersonalizado || '❌ Ocorreu um erro ao processar a solicitação.'
+    const textos = {
+      salvo: ' Ponto de Coleta cadastrado com sucesso!',
+      editado: ' Ponto de Coleta atualizado com sucesso!',
+      excluido: ' Ponto de Coleta excluído com sucesso!',
+      erro: textoPersonalizado || '❌ Ocorreu um erro ao processar a solicitação.'
     };
-
+    this.mensagem = { tipo, texto: textos[tipo] };
     if (tipo !== 'erro') {
-      setTimeout(() => {
-        this.mensagem = { tipo: null, texto: '' };
-      }, 6000);
+    setTimeout(() => {
+    this.mensagem = { tipo: null, texto: '' };
+    }, 6000);
     }
   }
 
@@ -80,39 +80,44 @@ export class PontoColetaComponent implements OnInit {
             : (p.tiposResiduosAceitos ? [p.tiposResiduosAceitos] : [])
         }));
       },
-      error: () => this.mostrarMensagem('erro', 'Erro ao buscar pontos de coleta.'),
+      error: (err: any) => {
+        const msg = this.handleErrorMessage.handleError(err);
+        this.mostrarMensagem('erro', msg);
+      }
     });
   }
 
-  salvar(): void {
+  salvar(form: NgForm): void {
+    const horario = this.pontoColetaAtual.horarioFuncionamento;
+
+    if (!this.validarHorario(horario!)) {
+      this.mensagem = { tipo: 'erro', texto: 'Horário inválido! Use o formato HH:MM - HH:MM e garanta que o horário inicial seja menor que o final.' };
+      return;
+    }
 
     const algumSelecionado = Object.values(this.tiposResiduosSelecionados).some(v => v === true);
-
     if (!algumSelecionado) {
-    this.erroResiduos = true;
-    return;
-  }
-
-  this.erroResiduos = false;
+      this.erroResiduos = true;
+      return;
+    }
+    this.erroResiduos = false;
+    
+    const callback = {
+      next: () => {
+        this.mostrarMensagem(this.idEditando ? 'editado' : 'salvo');
+        this.resetForm(form);
+        this.buscarTodos();
+      },
+      error: (err: any) => {
+        const msg = this.handleErrorMessage.handleError(err);
+        this.mostrarMensagem('erro', msg);
+      }
+    };
 
     if (this.idEditando) {
-      this.pontoColetaService.atualizar(this.idEditando, this.pontoColetaAtual).subscribe({
-        next: () => {
-          this.mostrarMensagem('editado');
-          this.resetForm();
-          this.buscarTodos();
-        },
-        error: () => this.mostrarMensagem('erro', 'Erro ao atualizar ponto de coleta.'),
-      });
+      this.pontoColetaService.atualizar(this.idEditando, this.pontoColetaAtual).subscribe(callback);
     } else {
-      this.pontoColetaService.salvar(this.pontoColetaAtual).subscribe({
-        next: () => {
-          this.mostrarMensagem('salvo');
-          this.resetForm();
-          this.buscarTodos();
-        },
-        error: () => this.mostrarMensagem('erro', 'Erro ao cadastrar ponto de coleta.'),
-      });
+      this.pontoColetaService.salvar(this.pontoColetaAtual).subscribe(callback);
     }
   }
 
@@ -124,7 +129,10 @@ export class PontoColetaComponent implements OnInit {
           this.mostrarMensagem('excluido');
           this.buscarTodos();
         },
-        error: () => this.mostrarMensagem('erro', 'Erro ao excluir ponto de coleta.'),
+        error: (err: any) => {
+        const msg = this.handleErrorMessage.handleError(err);
+        this.mostrarMensagem('erro', msg);
+        }
       });
     }
   }
@@ -132,7 +140,6 @@ export class PontoColetaComponent implements OnInit {
   editar(ponto: PontoColeta): void {
     this.idEditando = ponto.id ?? null;
     this.pontoColetaAtual = { ...ponto };
-
     this.tiposResiduosSelecionados = {};
     this.opcoesTiposResiduos.forEach(tipo => {
       this.tiposResiduosSelecionados[tipo] = ponto.tiposResiduosAceitos.includes(tipo);
@@ -142,7 +149,7 @@ export class PontoColetaComponent implements OnInit {
       .filter(t => this.tiposResiduosSelecionados[t]);
   }
 
-  resetForm(): void {
+  resetForm(form?: NgForm): void {
     this.pontoColetaAtual = {
       nome: '',
       responsavel: '',
@@ -153,6 +160,9 @@ export class PontoColetaComponent implements OnInit {
       bairro: { id: 0, nome: '' },
       tiposResiduosAceitos: []
     };
+    if (form) {
+      form.resetForm();
+    }
     this.idEditando = null;
     this.inicializarCheckboxes();
   }
@@ -161,11 +171,6 @@ export class PontoColetaComponent implements OnInit {
     this.opcoesTiposResiduos.forEach(tipo => {
       this.tiposResiduosSelecionados[tipo] = false;
     });
-  }
-
-  erro(mensagem: string): boolean {
-    this.mostrarMensagem('erro', mensagem);
-    return false;
   }
 
   abrirModalBairros(): void {
@@ -185,5 +190,18 @@ export class PontoColetaComponent implements OnInit {
 
   nenhumResiduoSelecionado(): boolean {
   return !Object.values(this.tiposResiduosSelecionados).some(v => v === true);
-}
+  }
+
+  validarHorario(horario: string): boolean {
+    const regex = /^([01]\d|2[0-3]):([0-5]\d)\s\-\s([01]\d|2[0-3]):([0-5]\d)$/;
+    if (!regex.test(horario)) {
+      return false;
+    }
+    const [inicio, fim] = horario.split(' - ');
+    const [horaInicio, minutoInicio] = inicio.split(':').map(Number);
+    const [horaFim, minutoFim] = fim.split(':').map(Number);
+    const totalMinutosInicio = horaInicio * 60 + minutoInicio;
+    const totalMinutosFim = horaFim * 60 + minutoFim;
+    return totalMinutosInicio < totalMinutosFim;
+  }
 }

@@ -4,7 +4,7 @@
     <h2>{{ idEditando ? 'Editar' : 'Cadastro de' }} Caminhão</h2>
   </header>
 
-  <form (ngSubmit)="salvar()" #formCaminhao="ngForm">
+  <form (ngSubmit)="salvar(formCaminhao)" #formCaminhao="ngForm">
     <div class="form-group">
       <label for="placa">Placa:</label>
       <input 
@@ -14,6 +14,7 @@
         [(ngModel)]="caminhaoAtual.placa" 
         placeholder="Ex: ABC1234"
         minlength="7"
+        pattern="^[A-Z0-9]+$"
         maxlength="7"
         required
         #placaInput="ngModel"
@@ -22,6 +23,7 @@
       <div *ngIf="placaInput.invalid && (placaInput.dirty || placaInput.touched)" class="error-message">
         <small *ngIf="placaInput.errors?.['required']">Placa é obrigatória.</small>
         <small *ngIf="placaInput.errors?.['minlength']">É obrigatório ter 7 caracteres.</small>
+        <small *ngIf="placaInput.errors?.['pattern']">Digite apenas letras maiúsculas e números.</small>
       </div>
     </div>
 
@@ -34,11 +36,15 @@
         [(ngModel)]="caminhaoAtual.motorista" 
         placeholder="Ex: João da Silva"
         required
+        minlength="3"
+        pattern="^[A-Za-zÀ-ÿ\s]+$"
         #motoristaInput="ngModel"
         [ngClass]="{ 'invalid-input': motoristaInput.invalid && (motoristaInput.dirty || motoristaInput.touched) }"
       />
       <div *ngIf="motoristaInput.invalid && (motoristaInput.dirty || motoristaInput.touched)" class="error-message">
         <small *ngIf="motoristaInput.errors?.['required']">Nome do motorista é obrigatório.</small>
+        <small *ngIf="motoristaInput.errors?.['minlength']">Nome do motorista deve ter no mínimo 3 caracteres.</small>
+        <small *ngIf="motoristaInput.errors?.['pattern']">Digite apenas letras e espaços.</small>
       </div>
     </div>
 
@@ -50,12 +56,14 @@
         type="number" 
         [(ngModel)]="caminhaoAtual.capacidade" 
         placeholder="Ex: 5000"
+        pattern="^[0-9]+$"
         required
         #capacidadeInput="ngModel"
         [ngClass]="{ 'invalid-input': capacidadeInput.invalid && (capacidadeInput.dirty || capacidadeInput.touched) }"
       />
       <div *ngIf="capacidadeInput.invalid && (capacidadeInput.dirty || capacidadeInput.touched)" class="error-message">
         <small *ngIf="capacidadeInput.errors?.['required']">Capacidade é obrigatória.</small>
+        <small *ngIf="motoristaInput.errors?.['pattern']">Digite apenas numeros.</small>
       </div>
     </div>
 
@@ -79,31 +87,21 @@
         <small>Selecione pelo menos um tipo de resíduo.</small>
       </div>
     </div>
-
-    <!-- Popups -->
-  <div *ngIf="mensagem?.tipo" [ngClass]="['popup', mensagem.tipo === 'erro' ? 'error' : 'success']">
-    <span *ngIf="mensagem.tipo === 'salvo'">✅</span>
-    <span *ngIf="mensagem.tipo === 'editado'">✏️</span>
-    <span *ngIf="mensagem.tipo === 'excluido'">🗑️</span>
-    <span *ngIf="mensagem.tipo === 'erro'">❌</span>
-    {{ mensagem.texto }}
-  </div>
+    <div *ngIf="mensagem?.tipo" [ngClass]="['popup', mensagem.tipo === 'erro' ? 'error' : 'success']">
+      <span *ngIf="mensagem.tipo === 'salvo'">✅</span>
+      <span *ngIf="mensagem.tipo === 'editado'">✏️</span>
+      <span *ngIf="mensagem.tipo === 'excluido'">🗑️</span>
+      <span *ngIf="mensagem.tipo === 'erro'">❌</span>
+      {{ mensagem.texto }}
+    </div>
 
     <div class="button-group">
       <button type="submit" class="btn salvar" [disabled]="formCaminhao.invalid || nenhumResiduoSelecionado()">
         💾 {{ idEditando ? 'Atualizar' : 'Salvar' }}
       </button>
 
-      <button
-      type="button"
-      *ngIf="idEditando"
-      class="btn cancelar cancelar-animado"
-      class="btn cancelar"
-      [class.show]="idEditando"
-      (click)="resetForm()"
-    >
-      ❌ Cancelar Edição
-    </button>
+      <button type="button" *ngIf="idEditando" class="btn cancelar cancelar-animado" class="btn cancelar"
+        [class.show]="idEditando" (click)="resetForm(formCaminhao)">❌ Cancelar Edição</button>
     </div>
   </form>
 </div>
@@ -128,7 +126,7 @@
     <tr *ngFor="let caminhao of caminhoes">
       <td>{{ caminhao.placa }}</td>
       <td>{{ caminhao.motorista }}</td>
-      <td>{{ caminhao.capacidade }}</td>
+      <td>{{ caminhao.capacidade +'Kg' }}</td>
       <td>{{ caminhao.residuos.join(', ') }}</td>
       <td>
         <button class="btn editar" (click)="editar(caminhao)">✏️ Editar</button>

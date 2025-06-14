@@ -27,7 +27,6 @@
       </div>
     </div>
 
-    <!-- Nome -->
     <div class="form-group">
       <label for="nome">Nome Completo:</label>
     <input
@@ -51,7 +50,6 @@
       </div>
     </div>
 
-    <!-- CPF -->
     <div class="form-group">
       <label for="cpf">CPF:</label>
       <input
@@ -70,7 +68,6 @@
       </div>
     </div>
 
-    <!-- Idade -->
     <div class="form-group">
       <label for="idade">Idade:</label>
       <input
@@ -90,7 +87,6 @@
       </div>
     </div>
 
-    <!-- Telefone -->
     <div class="form-group">
       <label for="telefone">Telefone:</label>
       <input
@@ -98,7 +94,9 @@
         id="telefone"
         name="telefone"
         [(ngModel)]="usuario.telefone"
-        required [mask]="'(00) 00000-0000'" placeholder="(00) 00000-0000"
+        required 
+        [mask]="'(00) 00000-0000'" 
+        placeholder="(00) 00000-0000"
         #telefoneInput="ngModel"
         [ngClass]="{ 'invalid-input': telefoneInput.invalid && (telefoneInput.dirty || telefoneInput.touched) }"
         /> <div *ngIf="telefoneInput.invalid && (telefoneInput.dirty || telefoneInput.touched)" class="error-message">
@@ -106,7 +104,6 @@
       </div>
     </div>
 
-    <!-- Gênero -->
     <div class="form-group">
       <label for="genero">Gênero:</label>
       <select
@@ -125,7 +122,6 @@
       </div>
     </div>
 
-    <!-- Senha -->
     <div class="form-group">
       <label for="senha">Senha:</label>
       <input
@@ -145,7 +141,6 @@
       </div>
     </div>
 
-    <!-- Mensagens -->
     <div *ngIf="mensagemErro" class="error-message api-error">
       {{ mensagemErro }}
     </div>
