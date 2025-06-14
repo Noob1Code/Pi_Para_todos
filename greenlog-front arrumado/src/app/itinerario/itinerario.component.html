@@ -39,7 +39,7 @@
   <div *ngIf="caminhaoFiltrado">
     <button class="btn cancelar" (click)="limparFiltroCaminhao()">Limpar filtro</button>
   </div>
-
+  
   <div *ngIf="mensagem?.tipo" [ngClass]="['popup', mensagem.tipo === 'erro' ? 'error' : 'success']">
     <span *ngIf="mensagem.tipo === 'salvo'">✅</span>
     <span *ngIf="mensagem.tipo === 'editado'">✏️</span>

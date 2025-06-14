@@ -38,7 +38,7 @@ export class ItinerarioComponent implements OnInit {
   private itinerarioService: ItinerarioService,
   private handleErrorMessage: HandleErrorMessageService,
   ) {}
-
+  
   ngOnInit(): void {
     this.gerarCalendario();
     this.carregarAgendamentos();
@@ -108,7 +108,6 @@ export class ItinerarioComponent implements OnInit {
     if (this.caminhaoFiltrado) {
       return itinerarios.some(it => it.rota?.caminhao?.id === this.caminhaoFiltrado?.id);
     }
-
     return itinerarios.length > 0;
   }
   
@@ -229,10 +228,7 @@ export class ItinerarioComponent implements OnInit {
     this.nomeDestinoSelecionado = '';
     this.idEditando = null;
   }
-
   limparFiltroCaminhao(): void {
   this.caminhaoFiltrado = null;
   }
-
-  
 }
