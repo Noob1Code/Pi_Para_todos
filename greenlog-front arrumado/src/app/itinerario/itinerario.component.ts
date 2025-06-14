@@ -7,6 +7,7 @@ import { Rota } from '../cadastrar/rota/rota.model';
 import { Caminhao } from '../cadastrar/caminhao/caminhao.modal';
 import { ItinerarioService } from './itinerario.service';
 import { Itinerario } from './itinerario.model';
+import { HandleErrorMessageService } from '../handle-error-message.service';
 
 @Component({
   standalone: true,
@@ -19,28 +20,25 @@ export class ItinerarioComponent implements OnInit {
   diasDaSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
   mesSelecionado = new Date().getMonth();
   anoSelecionado = new Date().getFullYear();
-
   diasDoMes: Date[] = [];
   diasVazios: any[] = [];
   diaConsultado: Date | null = null;
   diaSelecionado: Date | null = null;
-
   modalRotasVisivel = false;
   modalCaminhaoVisivel = false;
-
   rotaSelecionada: Rota | null = null;
   nomeDestinoSelecionado = '';
   caminhaoFiltrado: Caminhao | null = null;
-
   agendamentos: { [dataISO: string]: Itinerario[] } = {};
   itinerariosDoDia: Itinerario[] = [];
-
   idEditando: number | null = null;
-
   mensagem = { tipo: null as 'salvo' | 'editado' | 'excluido' | 'erro' | null, texto: '' };
 
-  constructor(private itinerarioService: ItinerarioService) {}
-
+  constructor(
+  private itinerarioService: ItinerarioService,
+  private handleErrorMessage: HandleErrorMessageService,
+  ) {}
+  
   ngOnInit(): void {
     this.gerarCalendario();
     this.carregarAgendamentos();
@@ -110,11 +108,9 @@ export class ItinerarioComponent implements OnInit {
     if (this.caminhaoFiltrado) {
       return itinerarios.some(it => it.rota?.caminhao?.id === this.caminhaoFiltrado?.id);
     }
-
     return itinerarios.length > 0;
   }
   
-
   abrirFormulario(dia: Date): void {
     this.diaSelecionado = dia;
     this.diaConsultado = null;
@@ -177,7 +173,7 @@ export class ItinerarioComponent implements OnInit {
         this.fecharAgendamento();
       },
       error: (err: any) => {
-        const msg = err.error?.message || 'Erro ao salvar o itinerário.';
+        const msg = this.handleErrorMessage.handleError(err);
         this.mostrarMensagem('erro', msg);
       }
     };
@@ -189,6 +185,7 @@ export class ItinerarioComponent implements OnInit {
     }
   }
 
+
   excluir(itinerario: Itinerario): void {
     if (!itinerario.id) return;
 
@@ -198,8 +195,8 @@ export class ItinerarioComponent implements OnInit {
         this.mostrarMensagem('excluido');
         this.verAgendamentos(new Date(itinerario.data));
       },
-      error: (err) => {
-        const msg = err.error?.message || 'Erro ao excluir o itinerário.';
+      error: (err: any) => {
+        const msg = this.handleErrorMessage.handleError(err);
         this.mostrarMensagem('erro', msg);
       }
     });
@@ -231,8 +228,7 @@ export class ItinerarioComponent implements OnInit {
     this.nomeDestinoSelecionado = '';
     this.idEditando = null;
   }
-
   limparFiltroCaminhao(): void {
   this.caminhaoFiltrado = null;
-}
+  }
 }

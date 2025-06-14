@@ -3,7 +3,6 @@
   <form (ngSubmit)="salvar(formBairro)" #formBairro="ngForm" class="form-group">
     <h2>{{ idEditando ? 'Editar' : 'Cadastro de' }} Bairro 🏘️</h2>
 
-    <!-- Nome do Bairro -->
     <div class="form-group">
       <label for="nome">Nome do Bairro:</label>
       <input 
@@ -12,41 +11,37 @@
         type="text" 
         [(ngModel)]="bairroAtual.nome" 
         required
+        minlength="3" 
         placeholder="Ex: Setor Bueno"
+        pattern="^[A-Za-zÀ-ÿ\s]+$"
         #nomeInput="ngModel"
         [ngClass]="{ 'invalid-input': nomeInput.invalid && (nomeInput.dirty || nomeInput.touched) }"
       />
       <div *ngIf="nomeInput.invalid && (nomeInput.dirty || nomeInput.touched)" class="error-message">
         <small *ngIf="nomeInput.errors?.['required']">Nome do bairro é obrigatório.</small>
+        <small *ngIf="nomeInput.errors?.['minlength']">Nome do bairro deve ter no mínimo 3 caracteres.</small>
+        <small *ngIf="nomeInput.errors?.['pattern']">Digite apenas letras e espaços.</small>
       </div>
     </div>
 
-    <!-- Mensagens -->
-  <div *ngIf="mensagem?.tipo" [ngClass]="['popup', mensagem.tipo === 'erro' ? 'error' : 'success']">
-    <span *ngIf="mensagem.tipo === 'salvo'">✅</span>
-    <span *ngIf="mensagem.tipo === 'editado'">✏️</span>
-    <span *ngIf="mensagem.tipo === 'excluido'">🗑️</span>
-    <span *ngIf="mensagem.tipo === 'erro'">❌</span>
-    {{ mensagem.texto }}
-  </div>
+    <div *ngIf="mensagem?.tipo" [ngClass]="['popup', mensagem.tipo === 'erro' ? 'error' : 'success']">
+      <span *ngIf="mensagem.tipo === 'salvo'">✅</span>
+      <span *ngIf="mensagem.tipo === 'editado'">✏️</span>
+      <span *ngIf="mensagem.tipo === 'excluido'">🗑️</span>
+      <span *ngIf="mensagem.tipo === 'erro'">❌</span>
+      {{ mensagem.texto }}
+    </div>
 
-    <!-- Botões -->
-     <div class="button-group">
+    <div class="button-group">
     <button type="submit" x class="btn salvar"[disabled]="formBairro.invalid">
       💾 {{ idEditando ? 'Atualizar' : 'Salvar' }}
     </button>
 
     <button
-      type="button"
-      *ngIf="idEditando"
-      class="btn cancelar cancelar-animado"
-      class="btn cancelar"
-      [class.show]="idEditando"
-      (click)="resetForm()"
-    >
-      ❌ Cancelar Edição
-    </button>
-     </div>
+      type="button" *ngIf="idEditando" class="btn cancelar cancelar-animado" class="btn cancelar" 
+      [class.show]="idEditando" (click)="resetForm(formBairro)"
+    >❌ Cancelar Edição</button>
+    </div>
   </form>
 </div>
 
@@ -67,9 +62,20 @@
     <tr *ngFor="let bairro of bairros">
       <td>{{ bairro.nome }}</td>
       <td>
-        <button class="btn editar" (click)="editar(bairro)">✏️ Editar</button>
-        <button class="btn excluir" (click)="excluir(bairro.id!)">🗑️ Excluir</button>
-      </td>
+  <button 
+    class="btn editar" 
+    (click)="editar(bairro)" 
+    [disabled]="bairro.nome === 'Centro'">
+    ✏️ Editar
+  </button>
+
+  <button 
+    class="btn excluir" 
+    (click)="excluir(bairro.id!)" 
+    [disabled]="bairro.nome === 'Centro'">
+    🗑️ Excluir
+  </button>
+</td>
     </tr>
     <tr *ngIf="bairros.length === 0">
       <td colspan="2" style="text-align: center;">Nenhum Bairro cadastrado.</td>

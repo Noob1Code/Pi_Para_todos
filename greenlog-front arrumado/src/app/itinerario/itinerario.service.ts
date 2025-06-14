@@ -19,11 +19,19 @@ export class ItinerarioService {
   }
 
   salvar(itinerario: Itinerario): Observable<ItinerarioUPDATE> {
-    const payload = this.padronizacao(itinerario);
-    return this.http.post<ItinerarioUPDATE>(this.apiUrl, payload).pipe(
-      catchError((error: HttpErrorResponse) => throwError(() => error))
-    );
-  }
+    console.log(this.padronizacao(itinerario))
+    return this.http.post<ItinerarioUPDATE>(this.apiUrl, this.padronizacao(itinerario)).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Erro completo recebido do backend:', error); // <-- Adicione esta linha
+        if (error.status === 409) {
+          console.error('Erro 409: Conflito detectado', error);
+          const mensagemErro = error.error?.erro || 'Conflito: recurso já existe ou conflito detectado.';
+          return throwError(() => new Error(mensagemErro));
+        }
+      return throwError(() => error);
+    })
+  );
+}
 
   atualizar(id: number, itinerario: Itinerario): Observable<Itinerario> {
     const payload = this.padronizacao(itinerario);

@@ -23,7 +23,7 @@ export class AppComponent {
   constructor(public router: Router) {}
 
   isLayoutVisible(): boolean {
-    const hiddenRoutes = ['/login', '/cadastro']; // adicione mais se quiser
+    const hiddenRoutes = ['/login', '/cadastro']; 
     return !hiddenRoutes.includes(this.router.url);
   }
 

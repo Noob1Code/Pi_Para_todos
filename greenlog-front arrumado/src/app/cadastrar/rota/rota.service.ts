@@ -2,7 +2,6 @@ import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { CaminhoDTO, Rota, RotaUPDATE } from "./rota.model";
 import { Injectable } from "@angular/core";
-import { PontoColeta } from "../ponto-coleta/ponto-coleta.model";
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +35,6 @@ export class RotaService {
     });
   }
 
-  // Método corrigido para enviar o ID do bairro ao backend
   private padronizacao(rota: Rota): RotaUPDATE {
     if (!rota.caminhao || !rota.destino) {
       throw new Error("Caminhão e Destino são obrigatórios para salvar a rota.");

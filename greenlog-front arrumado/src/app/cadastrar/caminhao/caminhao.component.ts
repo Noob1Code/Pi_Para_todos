@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Caminhao } from './caminhao.modal';
 import { CaminhaoService } from './caminhao.service';
+import { HandleErrorMessageService } from '../../handle-error-message.service';
 
 @Component({
   selector: 'app-caminhao',
@@ -16,31 +17,30 @@ export class CaminhaoComponent implements OnInit{
   caminhoes: Caminhao[] = [];
   caminhaoAtual: Caminhao = { placa: '', motorista: '', capacidade: null, residuos: []};
   idEditando: number | null = null;
-  
   tiposResiduosSelecionados: { [key: string]: boolean } = {};
   opcoesTiposResiduos: string[] = ['Plástico', 'Papel', 'Metal', 'Orgânico'];
   erroResiduos = false;
-  
   mensagem: { tipo: 'salvo' | 'editado' | 'excluido' | 'erro' | null; texto: string } = { tipo: null, texto: '' };
 
-  constructor(private caminhaoService: CaminhaoService) {}
+  constructor(
+    private caminhaoService: CaminhaoService,
+    private handleErrorMessage: HandleErrorMessageService,
+  ) {}
 
   mostrarMensagem(tipo: 'salvo' | 'editado' | 'excluido' | 'erro', textoPersonalizado?: string): void {
-  this.mensagem = {
-    tipo,
-    texto:
-      tipo === 'salvo' ? ' Bairro cadastrado com sucesso!' :
-      tipo === 'editado' ? ' Bairro atualizado com sucesso!' :
-      tipo === 'excluido' ? ' Bairro excluído com sucesso!' :
-      textoPersonalizado || '❌ Ocorreu um erro ao processar a solicitação.'
-  };
-
-  if (tipo !== 'erro') {
-  setTimeout(() => {
-    this.mensagem = { tipo: null, texto: '' };
-  }, 6000);
-}
-}
+    const textos = {
+      salvo: ' Caminhão, cadastrado com sucesso!',
+      editado: ' Caminhão, atualizado com sucesso!',
+      excluido: ' Caminhão, excluído com sucesso!',
+      erro: textoPersonalizado || '❌ Ocorreu um erro ao processar a solicitação.'
+    };
+    this.mensagem = { tipo, texto: textos[tipo] };
+    if (tipo !== 'erro') {
+      setTimeout(() => {
+        this.mensagem = { tipo: null, texto: '' };
+      }, 6000);
+    }
+  }
 
   ngOnInit(): void {
     this.inicializarCheckboxes();
@@ -48,56 +48,52 @@ export class CaminhaoComponent implements OnInit{
   }
 
   onTipoResiduoChange(tipo: string, isChecked: boolean): void {
-  this.tiposResiduosSelecionados[tipo] = isChecked;
-
-  this.caminhaoAtual.residuos = this.opcoesTiposResiduos
-    .filter(t => this.tiposResiduosSelecionados[t]);
+    this.tiposResiduosSelecionados[tipo] = isChecked;
+    this.caminhaoAtual.residuos = this.opcoesTiposResiduos.filter(t => this.tiposResiduosSelecionados[t]);
   }
 
   buscarTodos(): void {
-  this.caminhaoService.listar().subscribe({
-    next: (res) => {
-      this.caminhoes = res.map((caminhao) => ({
-        ...caminhao,
-        residuos: Array.isArray(caminhao.residuos)
-          ? caminhao.residuos
-          : (caminhao.residuos ? [caminhao.residuos] : [])
-      }));
-    },
-    error: () => (this.mostrarMensagem('erro','Erro ao buscar caminhões.')),
-  });
-}
-
-  salvar(): void {
-    
-    const algumSelecionado = Object.values(this.tiposResiduosSelecionados).some(v => v === true);
-
-    if (!algumSelecionado) {
-    this.erroResiduos = true;
-    return;
+    this.caminhaoService.listar().subscribe({
+      next: (res) => {
+        this.caminhoes = res.map((caminhao) => ({
+          ...caminhao,
+          residuos: Array.isArray(caminhao.residuos)
+            ? caminhao.residuos
+            : (caminhao.residuos ? [caminhao.residuos] : [])
+        }));
+      },
+      error: (err: any) => {
+        const msg = this.handleErrorMessage.handleError(err);
+        this.mostrarMensagem('erro', msg);
+      }
+    });
   }
 
-  this.erroResiduos = false;
+  salvar(form: NgForm): void {
+    
+    const algumSelecionado = Object.values(this.tiposResiduosSelecionados).some(v => v === true);
+    if (!algumSelecionado) {
+      this.erroResiduos = true;
+      return;
+    }
+    this.erroResiduos = false;
+
+    const callback = {
+      next: () => {
+        this.mostrarMensagem(this.idEditando ? 'editado' : 'salvo');
+        this.resetForm(form);
+        this.buscarTodos();
+      },
+      error: (err: any) => {
+        const msg = this.handleErrorMessage.handleError(err);
+        this.mostrarMensagem('erro', msg);
+      }
+    };
 
     if (this.idEditando) {
-      this.caminhaoService.atualizar(this.idEditando, this.caminhaoAtual).subscribe({
-        next: () => {
-          this.mostrarMensagem('editado');
-          this.resetForm();
-          this.buscarTodos();
-        },
-        error: () => (this.mostrarMensagem('erro','Erro ao atualizar caminhao.')),
-      });
+      this.caminhaoService.atualizar(this.idEditando, this.caminhaoAtual).subscribe(callback);
     } else {
-      console.log('Enviando caminhão:', this.caminhaoAtual);
-      this.caminhaoService.salvar(this.caminhaoAtual).subscribe({
-        next: () => {
-          this.mostrarMensagem('salvo');
-          this.resetForm();
-          this.buscarTodos();
-        },
-        error: () => (this.mostrarMensagem('erro','Erro ao cadastrar caminhao.')),
-      });
+      this.caminhaoService.salvar(this.caminhaoAtual).subscribe(callback);
     }
   }
 
@@ -109,7 +105,10 @@ export class CaminhaoComponent implements OnInit{
           this.mostrarMensagem('excluido');
           this.buscarTodos();
         },
-        error: () => (this.mostrarMensagem('erro','Erro ao excluir caminhao.')),
+        error: (err: any) => {
+        const msg = this.handleErrorMessage.handleError(err);
+        this.mostrarMensagem('erro', msg);
+        }
       });
     }
   }
@@ -118,26 +117,27 @@ export class CaminhaoComponent implements OnInit{
     this.idEditando = caminhao.id ?? null;
     this.caminhaoAtual = { ...caminhao };
   
-  this.tiposResiduosSelecionados = {};
+    this.tiposResiduosSelecionados = {};
 
-  this.opcoesTiposResiduos.forEach(tipo => {
-    this.tiposResiduosSelecionados[tipo] = caminhao.residuos.includes(tipo);
-  });
+    this.opcoesTiposResiduos.forEach(tipo => {
+      this.tiposResiduosSelecionados[tipo] = caminhao.residuos.includes(tipo);
+    });
 
-  this.caminhaoAtual.residuos = this.opcoesTiposResiduos
-    .filter(t => this.tiposResiduosSelecionados[t]);
+    this.caminhaoAtual.residuos = this.opcoesTiposResiduos.filter(t => this.tiposResiduosSelecionados[t]);
   }
 
-  resetForm(): void {
+  resetForm(form?: NgForm): void {
     this.caminhaoAtual = {
       placa: '',
       motorista: '',
       capacidade: null,
       residuos: []
     };
+    if (form) {
+      form.resetForm();
+    }
     this.idEditando = null;
     this.inicializarCheckboxes();
-    
   }
 
   inicializarCheckboxes(): void {
@@ -147,7 +147,6 @@ export class CaminhaoComponent implements OnInit{
   }
 
   nenhumResiduoSelecionado(): boolean {
-  return !Object.values(this.tiposResiduosSelecionados).some(v => v === true);
-}
-
+    return !Object.values(this.tiposResiduosSelecionados).some(v => v === true);
+  }
 }

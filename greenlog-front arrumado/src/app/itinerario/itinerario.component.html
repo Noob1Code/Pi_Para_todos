@@ -1,11 +1,9 @@
-<!-- Modal de Seleção de Rota -->
 <app-modal-rota 
   [visivel]="modalRotasVisivel" 
   (fechado)="fecharModalRotas()" 
   (rotaSelecionado)="onRotaSelecionado($event)">
 </app-modal-rota>
 
-<!-- Modal de Seleção de Caminhão -->
 <app-modal-caminhao
   [visivel]="modalCaminhaoVisivel"
   (fechado)="fecharModalCaminhao()"
@@ -14,19 +12,16 @@
 
 <main class="form-container">
 
-  <!-- Cabeçalho -->
   <header>
     <h2>GreenLog - Planejamento de Itinerários</h2>
   </header>
 
-  <!-- Navegação de Mês -->
   <nav class="form-group mes-navegacao" aria-label="Navegação entre meses">
     <button class="btn" (click)="alterarMes(-1)" aria-label="Mês anterior">⬅️</button>
     <span class="mes-atual" aria-live="polite">{{ mesSelecionado + 1 }}/{{ anoSelecionado }}</span>
     <button class="btn" (click)="alterarMes(1)" aria-label="Próximo mês">➡️</button>
   </nav>
 
-  <!-- Filtro por Caminhão -->
   <div class="form-group filtro-caminhao">
     <label for="caminhaoFiltro">Caminhão Selecionado:</label>
     <input
@@ -44,8 +39,7 @@
   <div *ngIf="caminhaoFiltrado">
     <button class="btn cancelar" (click)="limparFiltroCaminhao()">Limpar filtro</button>
   </div>
-
-  <!-- Mensagens -->
+  
   <div *ngIf="mensagem?.tipo" [ngClass]="['popup', mensagem.tipo === 'erro' ? 'error' : 'success']">
     <span *ngIf="mensagem.tipo === 'salvo'">✅</span>
     <span *ngIf="mensagem.tipo === 'editado'">✏️</span>
@@ -54,15 +48,10 @@
     {{ mensagem.texto }}
   </div>
 
-  <!-- Calendário -->
   <section class="calendar" aria-label="Calendário de agendamentos">
-    <!-- Cabeçalho dos dias da semana -->
     <div class="header" *ngFor="let dia of diasDaSemana">{{ dia }}</div>
-
-    <!-- Dias vazios antes do início do mês -->
     <div class="day vazio" *ngFor="let v of diasVazios" aria-hidden="true"></div>
 
-    <!-- Dias do mês -->
     <button
   type="button"
   class="day"
@@ -75,7 +64,6 @@
 >
   <strong>{{ dia.getDate() }}</strong>
 
-  <!-- Alfinete clicável -->
   <span
     *ngIf="temAgendamento(dia)"
     class="pin-icon"
@@ -86,7 +74,6 @@
 </button>
   </section>
 
-  <!-- Consulta de Agendamentos -->
   <section *ngIf="diaConsultado" class="consulta" aria-live="polite">
     <h3>Agendamentos para {{ diaConsultado | date: 'fullDate' }}:</h3>
 
@@ -94,7 +81,6 @@
       <ul>
         <li *ngFor="let agendamento of obterAgendamentosDoDia(diaConsultado)">
           Caminhão: {{ agendamento.rota.caminhao?.placa }} – Destino: {{ agendamento.rota.destino?.nome }}
-          <!-- Ações -->
           <button class="btn editar" title="Editar" (click)="editar(agendamento)">✏️</button>
           <button class="btn excluir" title="Excluir" (click)="excluir(agendamento)">🗑️</button>
         </li>
@@ -106,7 +92,6 @@
     </ng-template>
   </section>
 
-  <!-- Modal de Agendamento -->
   <section *ngIf="diaSelecionado" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="agendamentoTitulo">
     <div class="modal-form">
       <h3 id="agendamentoTitulo">Agendar Rota para {{ diaSelecionado | date: 'fullDate' }}</h3>

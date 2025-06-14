@@ -1,4 +1,3 @@
-<!-- MODIFICADO: Usando o seletor e os eventos corretos do modal de Ponto de Coleta -->
 <app-modal-ponto-coleta 
   [visivel]="modalPontosColetaVisivel"
   [caminhoaid]="caminhaoid!"
@@ -19,8 +18,6 @@
   </header>
 
   <form (ngSubmit)="salvar(formRota)" #formRota="ngForm">
-
-    <!-- Botão de seleção de caminhão -->
     <div class="form-group">
       <label for="caminhao">Caminhão Selecionado:</label>
       <input
@@ -40,7 +37,6 @@
       </div>
     </div>
 
-    <!-- Seleção do tipo de resíduo (limitado aos do caminhão) -->
     <div class="form-group" *ngIf="rotaAtual.caminhao">
       <label for="residuo">Tipo de Resíduo (1 por rota):</label>
       <select
@@ -59,7 +55,6 @@
       </div>
     </div>
 
-    <!-- Botão de seleção de destino (ponto de coleta) -->
     <div class="form-group">
       <label for="destino">Destino (Ponto de Coleta):</label>
       <input
@@ -80,7 +75,6 @@
       </div>
     </div>
 
-    <!-- Botão de cálculo -->
     <div class="form-group">
       <button
           type="button"
@@ -92,7 +86,6 @@
       </button>
     </div>
 
-    <!-- Visualização da rota -->
     <div *ngIf="rotaAtual.bairrosPercorridos.length > 0" class="resumo-rota">
       <h4>Resumo da Rota:</h4>
       <p><strong>Caminho:</strong> {{ rotaAtual.bairrosPercorridos.join(' → ') }}</p>
@@ -116,7 +109,6 @@
       {{ mensagem.texto }}
     </div>
 
-    <!-- Botões -->
     <div class="button-group">
       <button
         type="submit"
@@ -125,12 +117,11 @@
       >
         💾 {{ idEditando ? 'Atualizar' : 'Salvar' }}
       </button>
-      <button type="button" class="btn cancelar" *ngIf="idEditando" (click)="resetForm()">❌ Cancelar Edição</button>
+      <button type="button" class="btn cancelar" *ngIf="idEditando" (click)="resetForm(formRota)">❌ Cancelar Edição</button>
     </div>
   </form>
 </div>
 
-<!-- Tabela de Rotas Cadastradas -->
 <hr>
 <header>
   <h3>Rotas Cadastradas:</h3>
@@ -149,7 +140,6 @@
   <tbody>
     <tr *ngFor="let rota of rotas">
       <td>{{ rota.caminhao?.placa }}</td>
-      <!-- MODIFICADO: Exibe o nome do bairro do destino de forma mais segura -->
       <td>{{ rota.destino?.nome }} <span *ngIf="rota.destino?.bairro?.nome">({{ rota.destino?.bairro?.nome }})</span></td>
       <td>{{ rota.tipoResiduo }}</td>
       <td>{{ rota.bairrosPercorridos.join(', ') }}</td>

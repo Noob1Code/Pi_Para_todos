@@ -25,7 +25,7 @@ export class ModalCaminhaoComponent implements OnInit {
   
   ngOnInit() {
     this.carregar();
-    this.caminhoesFiltrados = [...this.caminhoes]; // inicia com todos
+    this.caminhoesFiltrados = [...this.caminhoes];
   }
   
   filtrar(): void {
