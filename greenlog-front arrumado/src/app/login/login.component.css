@@ -1,22 +1,21 @@
-/* Estilo principal do container de login */
+
 .login-container {
-  max-width: 500px;
-  margin: 40px auto;
-  padding: 25px;
+  position: relative;
+  z-index: 1;
+  max-width: 400px;
+  width: 100%;
+  padding: 30px;
   background-color: #f8f9fa;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  font-family: 'Segoe UI', sans-serif;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-/* Título do formulário */
 .login-form h2 {
   text-align: center;
   margin-bottom: 20px;
   color: #333;
 }
 
-/* Grupos de input */
 .form-group {
   margin-bottom: 15px;
   display: flex;
@@ -42,25 +41,21 @@ input:focus {
   border-color: #007bff;
 }
 
-/* Inputs inválidos */
 .invalid-input {
   border-color: #dc3545 !important;
 }
 
-/* Mensagens de erro */
 .error-message {
   color: #dc3545;
   font-size: 13px;
   margin-top: 4px;
 }
 
-/* Erros da API */
 .api-error {
   text-align: center;
   margin-bottom: 10px;
 }
 
-/* Botão de login */
 .login-button {
   width: 100%;
   padding: 12px;
@@ -82,7 +77,6 @@ input:focus {
   background-color: #0056b3;
 }
 
-/* Link para registro */
 .register-link {
   text-align: center;
   margin-top: 15px;

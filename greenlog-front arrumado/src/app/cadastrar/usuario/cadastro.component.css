@@ -1,12 +1,14 @@
 /* Container principal do cadastro */
 .cadastro-container {
-  max-width: 500px;
-  margin: 40px auto;
+  width: 100%;
+  max-width: 450px; /* era 500px */
   padding: 25px;
   background-color: #f8f9fa;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   font-family: 'Segoe UI', sans-serif;
+  transform: scale(0.9); /* reduz em 10% */
+  transform-origin: center;
 }
 
 /* Título do formulário */

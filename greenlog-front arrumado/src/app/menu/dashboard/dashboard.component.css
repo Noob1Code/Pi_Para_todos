@@ -1,0 +1,39 @@
+.dashboard-content {
+  padding: 20px;
+  background-color: #f4f7fa;
+  min-height: calc(100vh - 60px); /* Ajuste se sua barra tiver outra altura */
+}
+
+.charts-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+.chart-box {
+  flex: 1 1 45%;
+  background-color: #1b2a41;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  min-width: 300px;
+}
+
+.chart-box h2 {
+  font-size: 1.2rem;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.graph-section {
+  background-color: #1b2a41;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.graph-section h2 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+}

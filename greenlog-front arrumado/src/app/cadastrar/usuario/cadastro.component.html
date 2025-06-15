@@ -1,6 +1,5 @@
-<app-topbar *ngIf="usuarioLogado"></app-topbar>
-<app-sidebar *ngIf="usuarioLogado"></app-sidebar>
 
+<div class="login-page">
 <div class="cadastro-container">
   <form (ngSubmit)="salvar(cadastroForm)" #cadastroForm="ngForm" class="cadastro-form">
     <h2>Cadastro de Usuário 🧑‍💻</h2>
@@ -77,6 +76,7 @@
         [(ngModel)]="usuario.idade"
         required
         min="18"
+        max="80"
         #idadeInput="ngModel"
         placeholder="Sua idade"
         [ngClass]="{ 'invalid-input': idadeInput.invalid && (idadeInput.dirty || idadeInput.touched) }"
@@ -84,6 +84,7 @@
       <div *ngIf="idadeInput.invalid && (idadeInput.dirty || idadeInput.touched)" class="error-message">
         <small *ngIf="idadeInput.errors?.['required']">Idade é obrigatória.</small>
         <small *ngIf="idadeInput.errors?.['min']">Deve ter mais de 18 anos para se cadastrar!</small>
+        <small *ngIf="idadeInput.errors?.['max']">Deve ter menos de 80 anos para se cadastrar!</small>
       </div>
     </div>
 
@@ -156,4 +157,5 @@
     <button type="button" class="btn editar" (click)="voltar()">↩️ Voltar</button>
 
   </form>
+</div>
 </div>
