@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager; // IMPORT ADICIONADO
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken; // IMPORT ADICIONADO
-import org.springframework.security.core.Authentication; // IMPORT ADICIONADO
-import org.springframework.security.core.context.SecurityContextHolder; // IMPORT ADICIONADO
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +23,7 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager; // DEPENDÊNCIA ADICIONADA
+    private final AuthenticationManager authenticationManager;
 
     @Transactional
     public UsuarioResponseDTO cadastrarUsuario(UsuarioCadastroDTO dto) {
@@ -49,10 +49,7 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public Optional<UsuarioResponseDTO> login(LoginRequestDTO loginRequest) {
-        // A lógica de verificação manual é substituída pela autenticação gerenciada pelo Spring.
-        // O AuthenticationManager já usa o PasswordEncoder internamente.
         try {
-            // 1. TENTA AUTENTICAR O USUÁRIO
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                     loginRequest.getUsername(), 
@@ -60,15 +57,12 @@ public class UsuarioService {
                 )
             );
 
-            // 2. SE A AUTENTICAÇÃO FOR BEM-SUCEDIDA, COLOCA O "CRACHÁ" NO CONTEXTO
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // 3. RETORNA OS DADOS DO USUÁRIO LOGADO
             return usuarioRepository.findByUsername(loginRequest.getUsername())
                     .map(this::toResponseDTO);
 
         } catch (Exception e) {
-            // Se a autenticação falhar (usuário/senha errados), o authenticationManager lança uma exceção.
             return Optional.empty();
         }
     }

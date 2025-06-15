@@ -1,5 +1,6 @@
 greenlong\dto\PontoColetaCadastroDTO.class
 greenlong\service\ItinerarioService.class
+greenlong\exception\GlobalExceptionHandler.class
 greenlong\model\Itinerario.class
 greenlong\controller\CaminhaoController.class
 greenlong\repository\CaminhaoRepository$CaminhaoTotalAnualProjection.class

@@ -53,17 +53,18 @@
       <input 
         id="capacidade" 
         name="capacidade" 
-        type="number" 
+        type="text"
         [(ngModel)]="caminhaoAtual.capacidade" 
         placeholder="Ex: 5000"
-        pattern="^[0-9]+$"
+        pattern="^[0-9]{1,7}$"
+        maxlength="7"
         required
         #capacidadeInput="ngModel"
         [ngClass]="{ 'invalid-input': capacidadeInput.invalid && (capacidadeInput.dirty || capacidadeInput.touched) }"
       />
       <div *ngIf="capacidadeInput.invalid && (capacidadeInput.dirty || capacidadeInput.touched)" class="error-message">
         <small *ngIf="capacidadeInput.errors?.['required']">Capacidade é obrigatória.</small>
-        <small *ngIf="motoristaInput.errors?.['pattern']">Digite apenas numeros.</small>
+        <small *ngIf="capacidadeInput.errors?.['pattern']">Digite até 7 números e digite apenas numeros.</small>
       </div>
     </div>
 

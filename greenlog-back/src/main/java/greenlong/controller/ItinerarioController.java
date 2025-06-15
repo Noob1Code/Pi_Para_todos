@@ -11,7 +11,6 @@ import greenlong.service.ItinerarioService;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -38,32 +37,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ItinerarioController {
 
-   private final ItinerarioService itinerarioService;
+    private final ItinerarioService itinerarioService;
 
     @PostMapping
-    public ResponseEntity<?> criarItinerario(@Valid @RequestBody ItinerarioRequestDTO dto) {
-        try {
-            ItinerarioResponseDTO novoItinerario = itinerarioService.criarItinerario(dto);
-            return new ResponseEntity<>(novoItinerario, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", e.getMessage()));
-        } catch (IllegalStateException e) {
-
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("erro", e.getMessage()));
-        }
+    public ResponseEntity<ItinerarioResponseDTO> criarItinerario(@Valid @RequestBody ItinerarioRequestDTO dto) {
+        ItinerarioResponseDTO novoItinerario = itinerarioService.criarItinerario(dto);
+        return new ResponseEntity<>(novoItinerario, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizarItinerario(@PathVariable Long id, @Valid @RequestBody ItinerarioRequestDTO dto) {
-        try {
-            ItinerarioResponseDTO itinerarioAtualizado = itinerarioService.atualizarItinerario(id, dto);
-            return ResponseEntity.ok(itinerarioAtualizado);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", e.getMessage()));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("erro", e.getMessage()));
-        }
+    public ResponseEntity<ItinerarioResponseDTO> atualizarItinerario(@PathVariable Long id, @Valid @RequestBody ItinerarioRequestDTO dto) {
+        ItinerarioResponseDTO itinerarioAtualizado = itinerarioService.atualizarItinerario(id, dto);
+        return ResponseEntity.ok(itinerarioAtualizado);
     }
     
     @GetMapping

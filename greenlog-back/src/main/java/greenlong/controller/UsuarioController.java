@@ -34,17 +34,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UsuarioController {
 
-    private final UsuarioService usuarioService;
+     private final UsuarioService usuarioService;
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<?> cadastrarUsuario(@Valid @RequestBody UsuarioCadastroDTO usuarioDTO) {
-        try {
-            // TIPO DE RETORNO CORRIGIDO
-            UsuarioResponseDTO response = usuarioService.cadastrarUsuario(usuarioDTO);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("erro", e.getMessage()));
-        }
+    public ResponseEntity<UsuarioResponseDTO> cadastrarUsuario(@Valid @RequestBody UsuarioCadastroDTO usuarioDTO) {
+        UsuarioResponseDTO response = usuarioService.cadastrarUsuario(usuarioDTO);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
@@ -56,7 +51,6 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("erro", "Usuário ou senha inválidos."));
         }
     }
-
 
     @GetMapping
     public ResponseEntity<List<UsuarioResponseDTO>> listarUsuarios() {

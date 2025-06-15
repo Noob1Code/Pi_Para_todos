@@ -34,6 +34,7 @@ export class CaminhaoComponent implements OnInit{
       excluido: ' Caminhão, excluído com sucesso!',
       erro: textoPersonalizado || '❌ Ocorreu um erro ao processar a solicitação.'
     };
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     this.mensagem = { tipo, texto: textos[tipo] };
     if (tipo !== 'erro') {
       setTimeout(() => {
@@ -114,6 +115,7 @@ export class CaminhaoComponent implements OnInit{
   }
 
   editar(caminhao: Caminhao): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     this.idEditando = caminhao.id ?? null;
     this.caminhaoAtual = { ...caminhao };
   

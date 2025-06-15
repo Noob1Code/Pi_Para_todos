@@ -33,6 +33,7 @@ export class PontoColetaComponent implements OnInit {
   modalBairrosVisivel = false;
   tiposResiduosSelecionados: { [key: string]: boolean } = {};
   erroResiduos = false;
+  telefoneMask: string = '(00) 0000-0000';
   opcoesTiposResiduos: string[] = ['Plástico', 'Papel', 'Metal', 'Orgânico'];
   mensagem: { tipo: 'salvo' | 'editado' | 'excluido' | 'erro' | null; texto: string } = {
     tipo: null,
@@ -45,11 +46,13 @@ export class PontoColetaComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.telefoneMask = '(00) 00000-0000';
     this.inicializarCheckboxes();
     this.buscarTodos();
   }
 
   mostrarMensagem(tipo: 'salvo' | 'editado' | 'excluido' | 'erro', textoPersonalizado?: string): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     const textos = {
       salvo: ' Ponto de Coleta cadastrado com sucesso!',
       editado: ' Ponto de Coleta atualizado com sucesso!',
@@ -138,6 +141,7 @@ export class PontoColetaComponent implements OnInit {
   }
 
   editar(ponto: PontoColeta): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     this.idEditando = ponto.id ?? null;
     this.pontoColetaAtual = { ...ponto };
     this.tiposResiduosSelecionados = {};
@@ -203,5 +207,11 @@ export class PontoColetaComponent implements OnInit {
     const totalMinutosInicio = horaInicio * 60 + minutoInicio;
     const totalMinutosFim = horaFim * 60 + minutoFim;
     return totalMinutosInicio < totalMinutosFim;
+  }
+
+  onTelefoneChange(valor: string) {
+    if (!valor) return;
+    const digitsOnly = valor.replace(/\D/g, '');
+    this.telefoneMask = digitsOnly.length > 10 ? '(00) 00000-0000' : '(00) 0000-0000';
   }
 }

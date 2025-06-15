@@ -30,11 +30,9 @@ public class RotaMapper {
         
         var caminhaoDTO = caminhaoMapper.toResponseDTO(rota.getCaminhao());
 
-        // 2. CONVERSÃO DO BAIRRO DE DESTINO PARA O DTO CORRETO
         BairroDTO destinoDTO = null;
         if (rota.getDestino() != null) {
             Bairro destino = rota.getDestino();
-            // Cria uma instância do BairroDTO principal
             destinoDTO = new BairroDTO(destino.getId(), destino.getNome()); 
         }
 
@@ -45,7 +43,7 @@ public class RotaMapper {
         return new RotaResponseDTO(
                 rota.getId(),
                 caminhaoDTO,
-                destinoDTO, // 3. AGORA OS TIPOS SÃO COMPATÍVEIS
+                destinoDTO, 
                 rota.getTipoResiduo(),
                 rota.getBairrosPercorridos(),
                 arestasDTO,
@@ -54,7 +52,6 @@ public class RotaMapper {
     }
 
     private ConexaoDTO toConexaoDTO(Conexao con) {
-        // Aqui, usamos o BairroDTO aninhado, pois ele pertence à ConexaoDTO
         ConexaoDTO.BairroDTO origemDTO = (con.getOrigem() != null) 
             ? new ConexaoDTO.BairroDTO(con.getOrigem().getId(), con.getOrigem().getNome()) 
             : null;

@@ -13,6 +13,7 @@
         [(ngModel)]="usuario.username"
         required
         minlength="3" 
+        pattern="^[A-Za-z0-9À-ÿ\s]+$"
         #usernameInput="ngModel"
         placeholder="Crie seu username"
         [ngClass]="{ 'invalid-input': usernameInput.invalid && (usernameInput.dirty || usernameInput.touched) }"

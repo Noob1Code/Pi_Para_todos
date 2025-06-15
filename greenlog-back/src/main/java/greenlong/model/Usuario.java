@@ -51,8 +51,6 @@ public class Usuario implements UserDetails { // 1. IMPLEMENTA A INTERFACE UserD
 
     @Column(nullable = false)
     private String senha;
-
-    // 2. MÉTODOS REQUERIDOS PELA INTERFACE UserDetails
     
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

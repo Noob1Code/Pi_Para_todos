@@ -10,8 +10,6 @@ import greenlong.service.BairroService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,9 +32,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/bairros")
 @RequiredArgsConstructor
 public class BairrosController {
-
-    @Autowired
-    private BairroService bairroService;
+    
+    private final BairroService bairroService;
 
     @GetMapping
     public ResponseEntity<List<BairroDTO>> listarTodos() {
@@ -44,12 +41,12 @@ public class BairrosController {
     }
     
     @PostMapping
-    public ResponseEntity<BairroDTO> criar(@RequestBody BairroRequestDTO bairroRequest) {
+    public ResponseEntity<BairroDTO> criar(@Valid @RequestBody BairroRequestDTO bairroRequest) {
         BairroDTO bairroSalvo = bairroService.criarBairro(bairroRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(bairroSalvo);
     }
     
-     @PutMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<BairroDTO> atualizarBairro(@PathVariable Long id, @Valid @RequestBody BairroRequestDTO bairroRequest) {
         return bairroService.atualizarBairro(id, bairroRequest)
                 .map(ResponseEntity::ok)
@@ -58,13 +55,9 @@ public class BairrosController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarBairro(@PathVariable Long id) {
-        try {
-            if (bairroService.deletarBairro(id)) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.notFound().build();
-        } catch (DataIntegrityViolationException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        if (bairroService.deletarBairro(id)) {
+            return ResponseEntity.noContent().build();
         }
+        return ResponseEntity.notFound().build();
     }
 }

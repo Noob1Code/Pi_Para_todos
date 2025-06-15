@@ -122,6 +122,9 @@ export class ItinerarioComponent implements OnInit {
   verAgendamentos(dia: Date): void {
     this.diaConsultado = dia;
     this.itinerariosDoDia = this.obterAgendamentosDoDia(dia);
+    setTimeout(() => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }, 100);
   }
 
   abrirModalRotas(): void {
@@ -204,7 +207,7 @@ export class ItinerarioComponent implements OnInit {
 
   editar(itinerario: Itinerario): void {
     this.idEditando = itinerario.id || null;
-    this.diaSelecionado = new Date(itinerario.data);
+    this.diaSelecionado = this.normalizarDataLocal(itinerario.data);
     this.rotaSelecionada = itinerario.rota;
     this.nomeDestinoSelecionado = itinerario.rota?.destino?.nome || '';
   }
@@ -228,7 +231,16 @@ export class ItinerarioComponent implements OnInit {
     this.nomeDestinoSelecionado = '';
     this.idEditando = null;
   }
+
   limparFiltroCaminhao(): void {
-  this.caminhaoFiltrado = null;
+    this.caminhaoFiltrado = null;
+  }
+
+  private normalizarDataLocal(data: string | Date): Date {
+    if (typeof data === 'string') {
+      const [ano, mes, dia] = data.split('T')[0].split('-').map(Number);
+      return new Date(ano, mes - 1, dia); // mês começa em 0
+    }
+    return new Date(data);
   }
 }

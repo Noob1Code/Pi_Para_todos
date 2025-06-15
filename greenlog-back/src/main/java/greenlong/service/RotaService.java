@@ -51,11 +51,11 @@ public class RotaService {
      * @param dto DTO simples contendo os IDs de caminhão, destino e o tipo de resíduo.
      * @return O DTO da rota que foi salva no banco de dados.
      */
-    @Transactional
+     @Transactional
     public RotaResponseDTO criarRota(RotaRequestDTO dto) {
         Caminhao caminhao = caminhaoRepository.findById(dto.getCaminhaoId().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Caminhão não encontrado."));
-
+                
         boolean caminhaoPodeColetar = caminhao.getResiduos().stream()
                 .anyMatch(residuo -> residuo.getNome().equalsIgnoreCase(dto.getTipoResiduo()));
 
@@ -181,8 +181,8 @@ public class RotaService {
 
     @Transactional
     public boolean deletarRota(Long id) {
-        if (!rotaRepository.existsById(id)) {
-            return false;
+         if (!rotaRepository.existsById(id)) {
+             throw new IllegalArgumentException("Rota com ID " + id + " não encontrada.");
         }
 
         if (itinerarioRepository.existsByRotaId(id)) {

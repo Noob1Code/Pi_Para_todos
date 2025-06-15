@@ -16,14 +16,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication; // IMPORT ADICIONADO
-import org.springframework.security.core.context.SecurityContextHolder; // IMPORT ADICIONADO
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import greenlong.model.Caminhao;
 import greenlong.model.Residuo;
 import greenlong.repository.CaminhaoRepository;
+import greenlong.repository.RotaRepository;
 import java.util.Collections;
 import java.util.stream.Collectors;
+import org.springframework.dao.DataIntegrityViolationException;
 
 /**
  *
@@ -41,6 +43,7 @@ public class PontoColetaService {
     private final ResiduoRepository residuoRepository;
     private final AuditoriaService auditoriaService;
     private final CaminhaoRepository caminhaoRepository;
+    private final RotaRepository rotaRepository;
     
 
     @Transactional
@@ -59,7 +62,6 @@ public class PontoColetaService {
         PontoColeta novoPontoColeta = toEntity(new PontoColeta(), dto, bairro, residuos);
         PontoColeta salvo = pontoColetaRepository.save(novoPontoColeta);
 
-        // CORRIGIDO: Captura o usuário e passa para o método de auditoria
         String usuarioLogado = getUsuarioLogado();
         auditoriaService.logPontoColetaActivity(salvo.getId(), null, toResponseDTO(salvo), "INSERT", usuarioLogado);
         
@@ -75,24 +77,20 @@ public class PontoColetaService {
     
     @Transactional(readOnly = true)
     public List<PontoColetaResponseDTO> listarPontosCompativeisPorCaminhao(Long caminhaoId) {
-        // 2. Busca o caminhão pelo ID. O .orElseThrow() lida com o caso de ID não encontrado.
         Caminhao caminhao = caminhaoRepository.findById(caminhaoId)
                 .orElseThrow(() -> new IllegalArgumentException("Caminhão com ID " + caminhaoId + " não encontrado."));
 
-        // 3. Extrai a lista de nomes dos resíduos que o caminhão suporta
         List<String> nomesResiduosDoCaminhao = caminhao.getResiduos().stream()
                 .map(Residuo::getNome)
                 .collect(Collectors.toList());
 
-        // 4. Se o caminhão não coleta nada, retorna uma lista vazia
         if (nomesResiduosDoCaminhao.isEmpty()) {
             return Collections.emptyList();
         }
 
-        // 5. Usa o novo método do PontoColetaRepository para buscar e retornar os pontos compatíveis
         return pontoColetaRepository.findDistinctByTiposResiduosAceitos_NomeIn(nomesResiduosDoCaminhao)
                 .stream()
-                .map(this::toResponseDTO) // Reutiliza seu método de conversão
+                .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -122,7 +120,6 @@ public class PontoColetaService {
             PontoColeta atualizado = toEntity(existente, dto, bairro, residuos);
             pontoColetaRepository.save(atualizado);
 
-            // CORRIGIDO: Captura o usuário e passa para o método de auditoria
             String usuarioLogado = getUsuarioLogado();
             auditoriaService.logPontoColetaActivity(atualizado.getId(), estadoAntes, toResponseDTO(atualizado), "UPDATE", usuarioLogado);
 
@@ -132,22 +129,25 @@ public class PontoColetaService {
 
     @Transactional
     public boolean deletarPontoColeta(Long id) {
-        Optional<PontoColeta> pontoColetaOpt = pontoColetaRepository.findById(id);
+        PontoColeta pontoParaDeletar = pontoColetaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ponto de coleta com ID " + id + " não encontrado."));
 
-        if (pontoColetaOpt.isPresent()) {
-            PontoColeta pontoParaDeletar = pontoColetaOpt.get();
-
-            PontoColetaResponseDTO estadoAntes = toResponseDTO(pontoParaDeletar);
-
-            pontoColetaRepository.deleteById(id);
-
-            // CORRIGIDO: Captura o usuário e passa para o método de auditoria
-            String usuarioLogado = getUsuarioLogado();
-            auditoriaService.logPontoColetaActivity(id, estadoAntes, null, "DELETE", usuarioLogado);
-
-            return true;
+        Bairro bairroDoPonto = pontoParaDeletar.getBairro();
+        if (bairroDoPonto != null) {
+            if (rotaRepository.existsByDestinoId(bairroDoPonto.getId())) {
+                throw new DataIntegrityViolationException("Este ponto de coleta não pode ser excluído, pois o bairro '" 
+                        + bairroDoPonto.getNome() + "' é o destino de uma ou mais rotas ativas.");
+            }
         }
-        return false;
+
+        PontoColetaResponseDTO estadoAntes = toResponseDTO(pontoParaDeletar);
+        String usuarioLogado = getUsuarioLogado();
+
+        pontoColetaRepository.delete(pontoParaDeletar);
+
+        auditoriaService.logPontoColetaActivity(id, estadoAntes, null, "DELETE", usuarioLogado);
+
+        return true;
     }
 
     private PontoColetaResponseDTO toResponseDTO(PontoColeta pontoColeta) {
