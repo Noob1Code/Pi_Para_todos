@@ -5,15 +5,19 @@
 
 package greenlong.service;
 
-import greenlong.dto.CaminhaoDTO;
-import greenlong.dto.CaminhaoDistanciaDTO;
-import greenlong.dto.DistanciaExtremosDTO;
+
+import greenlong.dto.CaminhaoDetalhesMensaisDTO;
+import greenlong.dto.ExtremosAnualComDetalhesMensaisDTO;
 import greenlong.dto.ItinerariosPorDiaDTO;
 import greenlong.repository.CaminhaoRepository;
+import greenlong.repository.CaminhaoRepository.CaminhaoTotalAnualProjection;
+import greenlong.repository.CaminhaoRepository.DistanciaMensalProjection;
 import greenlong.repository.ItinerarioRepository;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,38 +44,56 @@ public class RelatorioService {
                 .collect(Collectors.toList());
     }
     
-     /**
-     * Busca os caminhões com a maior e a menor distância percorrida em um ano.
-     * @param ano O ano para o qual o relatório será gerado.
-     * @return Um DTO contendo os dados do caminhão com maior e menor distância.
-     */
     @Transactional(readOnly = true)
-    public DistanciaExtremosDTO getExtremosDistanciaPorAno(Integer ano) {
-        // 1. Busca os dados brutos do banco
-        List<CaminhaoRepository.CaminhaoDistanciaProjection> projecoes = caminhaoRepository.findDistanciasAnuaisPorCaminhao(ano);
-
-        // Se não houver dados para o ano, retorna nulo
-        if (projecoes.isEmpty()) {
+    public ExtremosAnualComDetalhesMensaisDTO getDetalhesMensaisParaExtremosAnuais(Integer ano) {
+        // 1. Encontra os totais anuais de todos os caminhões
+        List<CaminhaoTotalAnualProjection> totaisAnuais = caminhaoRepository.findTotaisAnuaisPorCaminhao(ano);
+        if (totaisAnuais.isEmpty()) {
             return null;
         }
 
-        // 2. Converte as projeções para uma lista de DTOs
-        List<CaminhaoDistanciaDTO> distanciasPorCaminhao = new ArrayList<>();
-        for (CaminhaoRepository.CaminhaoDistanciaProjection p : projecoes) {
-            CaminhaoDTO caminhaoDTO = new CaminhaoDTO(p.getId(), p.getPlaca(), p.getMotorista(), p.getCapacidade(), null);
-            distanciasPorCaminhao.add(new CaminhaoDistanciaDTO(caminhaoDTO, p.getQuilometrosPercorridos()));
+        // 2. Identifica os caminhões com o maior e menor total anual
+        Optional<CaminhaoTotalAnualProjection> maiorOpt = totaisAnuais.stream()
+                .max(Comparator.comparing(CaminhaoTotalAnualProjection::getTotalAnual));
+
+        // Para o menor, filtramos para incluir apenas caminhões que rodaram
+        Optional<CaminhaoTotalAnualProjection> menorOpt = totaisAnuais.stream()
+                .filter(c -> c.getTotalAnual() > 0)
+                .min(Comparator.comparing(CaminhaoTotalAnualProjection::getTotalAnual));
+
+        // 3. Busca os detalhes mensais para esses dois caminhões
+        CaminhaoDetalhesMensaisDTO maiorDTO = maiorOpt
+                .map(proj -> criarDetalhesDTO(ano, proj))
+                .orElse(null);
+
+        CaminhaoDetalhesMensaisDTO menorDTO = menorOpt
+                .map(proj -> criarDetalhesDTO(ano, proj))
+                .orElse(null);
+        
+        // Se o maior e o menor forem o mesmo caminhão (caso de apenas 1 caminhão ter rodado)
+        if(maiorDTO != null && menorDTO != null && maiorDTO.getPlaca().equals(menorDTO.getPlaca())){
+            menorDTO = null; // Evita duplicidade na resposta
         }
 
-        // 3. Encontra o máximo e o mínimo na lista
-        CaminhaoDistanciaDTO maiorDistancia = distanciasPorCaminhao.stream()
-                .max(Comparator.comparing(CaminhaoDistanciaDTO::getQuilometrosPercorridos))
-                .orElse(null);
-
-        CaminhaoDistanciaDTO menorDistancia = distanciasPorCaminhao.stream()
-                .min(Comparator.comparing(CaminhaoDistanciaDTO::getQuilometrosPercorridos))
-                .orElse(null);
-
-        return new DistanciaExtremosDTO(maiorDistancia, menorDistancia);
+        return new ExtremosAnualComDetalhesMensaisDTO(maiorDTO, menorDTO);
     }
 
+    private CaminhaoDetalhesMensaisDTO criarDetalhesDTO(Integer ano, CaminhaoTotalAnualProjection proj) {
+        // Busca o histórico mensal do caminhão
+        List<DistanciaMensalProjection> distancias = caminhaoRepository.findDistanciasMensaisParaCaminhao(ano, proj.getId());
+        
+        // Formata os dados em uma lista de 12 meses
+        Double[] mensais = new Double[12];
+        Arrays.fill(mensais, 0.0);
+        for (DistanciaMensalProjection d : distancias) {
+            mensais[d.getMes() - 1] = d.getDistanciaMensal(); // Mês 1 vai para o índice 0
+        }
+
+        return new CaminhaoDetalhesMensaisDTO(
+                proj.getPlaca(),
+                proj.getMotorista(),
+                proj.getTotalAnual(),
+                Arrays.asList(mensais)
+        );
+    }
 }

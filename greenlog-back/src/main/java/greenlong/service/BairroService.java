@@ -1,8 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
 package greenlong.service;
 
 import greenlong.dto.BairroRequestDTO;
@@ -24,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @data 06/06/2025
  * @brief Class BairroService
  */
-
 @Service
 @RequiredArgsConstructor
 public class BairroService {
@@ -51,7 +45,7 @@ public class BairroService {
         return toDTO(novoBairro);
     }
     
-@Transactional
+    @Transactional
     public Optional<BairroDTO> atualizarBairro(Long id, BairroRequestDTO dto) {
         Optional<Bairro> existentePorNome = bairrosRepository.findByNomeIgnoreCase(dto.getNome());
         if (existentePorNome.isPresent() && !existentePorNome.get().getId().equals(id)) {
@@ -59,6 +53,9 @@ public class BairroService {
         }
 
         return bairrosRepository.findById(id).map(bairroExistente -> {
+            if ("Centro".equalsIgnoreCase(bairroExistente.getNome())) {
+                throw new DataIntegrityViolationException("O bairro 'Centro' não pode ser atualizado.");
+            }
             bairroExistente.setNome(dto.getNome());
             Bairro bairroAtualizado = bairrosRepository.save(bairroExistente);
             return toDTO(bairroAtualizado);
@@ -67,15 +64,21 @@ public class BairroService {
 
      @Transactional
     public boolean deletarBairro(Long id) {
-        if (!bairrosRepository.existsById(id)) {
+        Bairro bairro = bairrosRepository.findById(id)
+                .orElse(null);
+
+        if (bairro == null) {
             return false;
         }
-        
+
+        if ("Centro".equalsIgnoreCase(bairro.getNome())) {
+            throw new DataIntegrityViolationException("O bairro 'Centro' não pode ser excluído.");
+        }
+
         if (pontoColetaRepository.existsByBairroId(id)) {
             throw new DataIntegrityViolationException("Este bairro não pode ser excluído, pois está associado a um ou mais pontos de coleta.");
         }
 
-        // 3. Se não houver dependências, exclui o bairro
         bairrosRepository.deleteById(id);
         return true;
     }

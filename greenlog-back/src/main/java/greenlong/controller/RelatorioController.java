@@ -5,7 +5,8 @@
 
 package greenlong.controller;
 
-import greenlong.dto.DistanciaExtremosDTO;
+
+import greenlong.dto.ExtremosAnualComDetalhesMensaisDTO;
 import greenlong.dto.ItinerariosPorDiaDTO;
 import greenlong.service.RelatorioService;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -37,8 +39,9 @@ public class RelatorioController {
     }
     
     @GetMapping("/extremos-distancia")
-    public ResponseEntity<DistanciaExtremosDTO> getExtremosDistancia(@RequestParam Integer ano) {
-    DistanciaExtremosDTO resultado = relatorioService.getExtremosDistanciaPorAno(ano);
-    return ResponseEntity.ok(resultado);
-}
+    public ResponseEntity<ExtremosAnualComDetalhesMensaisDTO> getExtremosDistancia(@RequestParam Integer ano) {
+        ExtremosAnualComDetalhesMensaisDTO resultado = relatorioService.getDetalhesMensaisParaExtremosAnuais(ano);
+        return ResponseEntity.ok(resultado);
+    }
+
 }

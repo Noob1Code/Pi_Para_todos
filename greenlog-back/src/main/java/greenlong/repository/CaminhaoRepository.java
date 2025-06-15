@@ -25,33 +25,41 @@ public interface CaminhaoRepository extends JpaRepository<Caminhao, Long> {
     boolean existsByPlacaIgnoreCase(String placa);
     Optional<Caminhao> findByPlacaIgnoreCase(String placa);
     
-    interface CaminhaoDistanciaProjection {
+    // Projeção para o total anual de um caminhão
+    interface CaminhaoTotalAnualProjection {
         Long getId();
         String getPlaca();
         String getMotorista();
-        Integer getCapacidade();
-        Double getQuilometrosPercorridos();
+        Double getTotalAnual();
     }
 
+    // Projeção para os dados mensais de um caminhão
+    interface DistanciaMensalProjection {
+        Integer getMes();
+        Double getDistanciaMensal();
+    }
+    
+    // Query 1: Busca o total percorrido por cada caminhão no ano
     @Query(value = """
         SELECT
-            c.id AS id,
-            c.placa AS placa,
-            c.motorista AS motorista,
-            c.capacidade AS capacidade,
-            SUM(r.distancia_total) AS quilometrosPercorridos
-        FROM
-            caminhao c
-        JOIN
-            rotas r ON c.id = r.caminhao_id
-        JOIN
-            itinerarios i ON r.id = i.rota_id
-        WHERE
-            EXTRACT(YEAR FROM i.data) = :ano
-        GROUP BY
-            c.id, c.placa, c.motorista, c.capacidade
-        HAVING
-            SUM(r.distancia_total) > 0
+            c.id, c.placa, c.motorista,
+            COALESCE(SUM(r.distancia_total), 0) AS totalAnual
+        FROM caminhao c
+        LEFT JOIN rotas r ON c.id = r.caminhao_id
+        LEFT JOIN itinerarios i ON r.id = i.rota_id AND EXTRACT(YEAR FROM i.data) = :ano
+        GROUP BY c.id, c.placa, c.motorista
     """, nativeQuery = true)
-    List<CaminhaoDistanciaProjection> findDistanciasAnuaisPorCaminhao(@Param("ano") Integer ano);
+    List<CaminhaoTotalAnualProjection> findTotaisAnuaisPorCaminhao(@Param("ano") Integer ano);
+
+    // Query 2: Busca a distância mensal para UM caminhão específico
+    @Query(value = """
+        SELECT
+            EXTRACT(MONTH FROM i.data) AS mes,
+            SUM(r.distancia_total) AS distanciaMensal
+        FROM rotas r
+        JOIN itinerarios i ON r.id = i.rota_id
+        WHERE r.caminhao_id = :caminhaoId AND EXTRACT(YEAR FROM i.data) = :ano
+        GROUP BY mes
+    """, nativeQuery = true)
+    List<DistanciaMensalProjection> findDistanciasMensaisParaCaminhao(@Param("ano") Integer ano, @Param("caminhaoId") Long caminhaoId);
 }
