@@ -47,5 +47,5 @@ public class Conexao {
     @JoinColumn(name = "destino_bairro_id") 
     private Bairro destino;
     
-    private Integer quilometros;
+    private double quilometros;
 }
