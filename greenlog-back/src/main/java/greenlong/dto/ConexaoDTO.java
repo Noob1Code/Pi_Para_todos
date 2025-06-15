@@ -51,5 +51,5 @@ public class ConexaoDTO {
     
     @JsonProperty("distancia")
     @Positive(message = "A distância deve ser um valor positivo.")
-    private Integer quilometros;
+    private double quilometros;
 }

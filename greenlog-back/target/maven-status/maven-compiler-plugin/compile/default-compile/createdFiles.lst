@@ -6,6 +6,7 @@ greenlong\dto\CaminhaoDTO.class
 greenlong\dto\RotaRequestDTO$ObjetoId.class
 greenlong\dto\RotaUpdateRequestDTO.class
 greenlong\GreenlogApplication.class
+greenlong\repository\CaminhaoRepository$CaminhaoDistanciaProjection.class
 greenlong\config\WebConfig.class
 greenlong\model\Conexao.class
 greenlong\dto\ConexaoDTO.class
@@ -13,15 +14,18 @@ greenlong\model\PontoColeta.class
 greenlong\dto\RotaRequestDTO.class
 greenlong\dto\UsuarioCadastroDTO.class
 greenlong\service\UsuarioService.class
+greenlong\controller\RelatorioController.class
 greenlong\service\RotaService.class
 greenlong\repository\AuditoriaCaminhaoRepository.class
 greenlong\mapper\RotaMapper.class
+greenlong\dto\CaminhaoDistanciaDTO.class
 greenlong\repository\AuditoriaPontoColetaRepository.class
 greenlong\controller\ConexaoController.class
 greenlong\model\Caminhao.class
 greenlong\service\CaminhaoService.class
 greenlong\dto\ItinerarioRequestDTO.class
 greenlong\config\SecurityConfig.class
+greenlong\service\RelatorioService.class
 greenlong\service\DijkstraService.class
 greenlong\dto\PontoColetaCadastroDTO$BairroIdDTO.class
 greenlong\repository\ConexaoRepository.class
@@ -42,6 +46,7 @@ greenlong\repository\RotaRepository.class
 greenlong\dto\ConexaoDTO$BairroDTO.class
 greenlong\service\PontoColetaService.class
 greenlong\dto\BairroDTO.class
+greenlong\repository\ItinerarioRepository$ItinerariosPorDiaProjection.class
 greenlong\dto\BairroRequestDTO.class
 greenlong\dto\UsuarioResponseDTO.class
 greenlong\model\Residuo.class
@@ -52,7 +57,9 @@ greenlong\service\ConexaoService.class
 greenlong\dto\PontoColetaResponseDTO.class
 greenlong\repository\ItinerarioRepository.class
 greenlong\repository\ResiduoRepository.class
+greenlong\dto\DistanciaExtremosDTO.class
 greenlong\model\Bairro.class
+greenlong\dto\ItinerariosPorDiaDTO.class
 greenlong\dto\LoginRequestDTO.class
 greenlong\dto\CaminhoDTO.class
 greenlong\repository\PontoColetaRepository.class
