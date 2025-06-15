@@ -37,3 +37,49 @@
   font-size: 1.2rem;
   margin-bottom: 15px;
 }
+
+.ano-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #0f192e;
+  padding: 6px 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.ano-selector label {
+  font-weight: bold;
+  color: #d1e0ff;
+}
+
+.ano-selector input {
+  background-color: #1b2a41;
+  border: 1px solid #3a4d6a;
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 6px 10px;
+  width: 80px;
+  font-size: 15px;
+  transition: border-color 0.2s ease;
+}
+
+.ano-selector input:focus {
+  outline: none;
+  border-color: #4fc3f7;
+  box-shadow: 0 0 5px rgba(79, 195, 247, 0.5);
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.chart-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: white;
+}

@@ -1,5 +1,6 @@
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
 import { NgxEchartsModule } from 'ngx-echarts';
 
 @Component({
@@ -7,47 +8,65 @@ import { NgxEchartsModule } from 'ngx-echarts';
   standalone: true,
   imports: [CommonModule, NgxEchartsModule],
   templateUrl: './grafico-linha.component.html',
-  styleUrls: ['./grafico-linha.component.css'],  // corrigido
+  styleUrls: ['./grafico-linha.component.css'],
 })
-export class GraficoLinhaComponent {
-  chartOptions = {
-  backgroundColor: '#12212F',  // <- Aqui
-  title: {
-    text: 'Vendas por Mês',
-    textStyle: {
-      color: '#ffffff',        // Cor do título para contrastar
-    },
-  },
-  tooltip: {},
-  xAxis: {
-    data: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-    axisLine: { lineStyle: { color: '#ffffff' } },  // Cor dos eixos
-    axisLabel: { color: '#ffffff' },               // Cor dos textos no eixo
-  },
-  yAxis: {
-    axisLine: { lineStyle: { color: '#ffffff' } },
-    axisLabel: { color: '#ffffff' },
-  },
-  series: [
-    {
-      name: 'Vendas',
-      type: 'line',
-      data: [500, 800, 600, 1200, 900, 1100],
-      lineStyle: {
-        color: '#4CAF50',  // Cor da linha (verde por exemplo)
-      },
-      itemStyle: {
-        color: '#4CAF50',  // Cor dos pontos
-      },
-    },
-  ],
-};
-
+export class GraficoLinhaComponent implements OnChanges {
+  @Input() ano!: number;
+  chartOptions: any;
   private echartsInstance: any;
+
+  constructor(private http: HttpClient) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['ano'] && this.ano) {
+      this.carregarDados(this.ano);
+    }
+  }
+
+  carregarDados(ano: number) {
+    this.http.get<any>(`http://localhost:8080/api/relatorios/extremos-distancia?ano=${ano}`)
+      .subscribe(data => {
+        const nomes = [
+          `${data.maiorDistancia.caminhao.placa} (Maior)`,
+          `${data.menorDistancia.caminhao.placa} (Menor)`
+        ];
+        const valores = [
+          data.maiorDistancia.quilometrosPercorridos,
+          data.menorDistancia.quilometrosPercorridos
+        ];
+
+        this.chartOptions = {
+          backgroundColor: '#12212F',
+          title: {
+            text: `Distância Percorrida - ${ano}`,
+            textStyle: { color: '#ffffff' },
+          },
+          tooltip: {},
+          xAxis: {
+            data: nomes,
+            axisLine: { lineStyle: { color: '#ffffff' } },
+            axisLabel: { color: '#ffffff' },
+          },
+          yAxis: {
+            axisLine: { lineStyle: { color: '#ffffff' } },
+            axisLabel: { color: '#ffffff' },
+          },
+          series: [
+            {
+              name: 'Distância (km)',
+              type: 'line',
+              data: valores,
+              lineStyle: { color: '#4CAF50' },
+              itemStyle: { color: '#4CAF50' },
+            },
+          ],
+        };
+
+        setTimeout(() => this.echartsInstance?.resize(), 0);
+      });
+  }
 
   onChartInit(ec: any) {
     this.echartsInstance = ec;
-    // Força o resize para evitar problema de width/height 0
-    setTimeout(() => this.echartsInstance.resize(), 0);
   }
 }

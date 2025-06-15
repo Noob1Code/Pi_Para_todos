@@ -2,8 +2,14 @@
 
   <div class="charts-row">
     <div class="chart-box">
-      <h2>Gráfico de Linha 📈</h2>
-      <app-grafico-linha></app-grafico-linha>
+      <div class="chart-header">
+        <h2>Gráfico de Linha 📈</h2>
+        <div class="ano-selector">
+          <label for="ano">Ano:</label>
+          <input id="ano" type="number" [(ngModel)]="anoSelecionado" min="2000" max="2099" />
+        </div>
+      </div>
+      <app-grafico-linha [ano]="anoSelecionado"></app-grafico-linha>
     </div>
 
     <div class="chart-box">

@@ -5,13 +5,11 @@ import { NgxMaskDirective } from 'ngx-mask';
 import { Usuario } from './cadastro.model';
 import { CadastroUsuarioService } from './cadastro.service';
 import { Router } from '@angular/router';
-import { TopbarComponent } from "../../padronizador/menu/topbar/topbar.component";
-import { SidebarComponent } from "../../padronizador/menu/sidebar/sidebar.component";
 
 @Component({
   selector: 'app-cadastro-usuario',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgxMaskDirective, TopbarComponent, SidebarComponent],
+  imports: [CommonModule, FormsModule, NgxMaskDirective],
   templateUrl: './cadastro.component.html',
   styleUrl: './cadastro.component.css'
 })

@@ -86,7 +86,8 @@
         type="text" 
         [(ngModel)]="ruaAtual.distancia" 
         placeholder="Ex: 5000"
-        pattern="^[0-9]+$"
+        pattern="^[0-9]+(\.[0-9]+)?$"
+        min = 0
         required
         #distanciaInput="ngModel"
         [ngClass]="{ 'invalid-input': distanciaInput.invalid && (distanciaInput.dirty || distanciaInput.touched) }"
