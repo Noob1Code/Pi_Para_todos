@@ -1,0 +1,17 @@
+:host {
+  display: block;
+  width: 100%;   /* ou uma largura fixa */
+  height: 400px; /* mesma altura do gráfico */
+}:host {
+  display: block;
+  width: 100%;
+  height: 400px;
+  background-color: #12212F;
+  padding: 10px;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+echarts {
+  background-color: #12212F;
+}

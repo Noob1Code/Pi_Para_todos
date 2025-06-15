@@ -96,6 +96,14 @@
     <div class="modal-form">
       <h3 id="agendamentoTitulo">Agendar Rota para {{ diaSelecionado | date: 'fullDate' }}</h3>
 
+      <div *ngIf="mensagem?.tipo" [ngClass]="['popup', mensagem.tipo === 'erro' ? 'error' : 'success']">
+        <span *ngIf="mensagem.tipo === 'salvo'">✅</span>
+        <span *ngIf="mensagem.tipo === 'editado'">✏️</span>
+        <span *ngIf="mensagem.tipo === 'excluido'">🗑️</span>
+        <span *ngIf="mensagem.tipo === 'erro'">❌</span>
+          {{ mensagem.texto }}
+      </div>
+
       <div class="form-group">
         <label for="rota">Rota Selecionada:</label>
         <input

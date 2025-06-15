@@ -40,7 +40,7 @@ public class RotaService {
     private final BairrosRepository bairroRepository;
     private final DijkstraService dijkstraService;
     private final RotaMapper rotaMapper;
-    private final ItinerarioRepository itinerarioRepository; // 2. DEPENDÊNCIA ADICIONADA
+    private final ItinerarioRepository itinerarioRepository;
 
     @Value("${greenlong.logistica.bairro-origem-padrao:Centro}")
     private String nomeBairroOrigem;
@@ -66,6 +66,10 @@ public class RotaService {
 
         Bairro destino = bairroRepository.findById(dto.getDestinoId().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Bairro de destino não encontrado."));
+        
+        if (destino.getNome().equalsIgnoreCase(nomeBairroOrigem)) {
+            throw new IllegalStateException("O bairro de destino não pode ser o bairro de origem (Centro).");
+        }
 
         Bairro origem = bairroRepository.findByNomeIgnoreCase(nomeBairroOrigem)
                 .orElseThrow(() -> new IllegalArgumentException("Bairro de origem '" + nomeBairroOrigem + "' não encontrado no banco de dados."));
@@ -104,6 +108,10 @@ public class RotaService {
 
         Bairro novoDestino = bairroRepository.findById(dto.getDestino().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Bairro de destino com ID " + dto.getDestino().getId() + " não encontrado."));
+        
+         if (novoDestino.getNome().equalsIgnoreCase(nomeBairroOrigem)) {
+            throw new IllegalStateException("O bairro de destino não pode ser o bairro de origem (Centro).");
+        }
 
         boolean caminhaoPodeColetar = caminhao.getResiduos().stream()
                 .anyMatch(residuo -> residuo.getNome().equalsIgnoreCase(dto.getTipoResiduo()));
@@ -141,6 +149,12 @@ public class RotaService {
      */
     @Transactional(readOnly = true)
     public CalculoRotaResponseDTO calcularRota(Long destinoId) {
+        bairroRepository.findById(destinoId).ifPresent(destino -> {
+            if (destino.getNome().equalsIgnoreCase(nomeBairroOrigem)) {
+                throw new IllegalStateException("Não é possível calcular uma rota para o próprio bairro de origem (Centro).");
+            }
+        });
+        
         Bairro origem = bairroRepository.findByNomeIgnoreCase(nomeBairroOrigem)
                 .orElseThrow(() -> new IllegalArgumentException("Bairro de origem '" + nomeBairroOrigem + "' não encontrado no banco de dados."));
 
