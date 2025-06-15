@@ -44,7 +44,6 @@ public class AuditoriaService {
         }
     }
 
-    // 1. ADICIONADO O PARÂMETRO 'usuario'
     @Async
     public void logCaminhaoActivity(Long caminhaoId, Object antes, Object depois, String acao, String usuario) {
         String antesJson = toJson(antes);
@@ -52,20 +51,17 @@ public class AuditoriaService {
 
         log.info("DIAGNÓSTICO DE AUDITORIA (CAMINHÃO): ANTES=[{}], DEPOIS=[{}]", antesJson, depoisJson);
 
-        // 2. PASSAR O USUÁRIO PARA O CONSTRUTOR DA ENTIDADE
         AuditoriaCaminhao logEntry = new AuditoriaCaminhao(caminhaoId, antesJson, depoisJson, acao, usuario);
         auditoriaCaminhaoRepository.save(logEntry);
     }
 
-    // 1. ADICIONADO O PARÂMETRO 'usuario'
     @Async
     public void logPontoColetaActivity(Long pontoColetaId, Object antes, Object depois, String acao, String usuario) {
         String antesJson = toJson(antes);
         String depoisJson = toJson(depois);
 
         log.info("DIAGNÓSTICO DE AUDITORIA (PONTO COLETA): ANTES=[{}], DEPOIS=[{}]", antesJson, depoisJson);
-        
-        // 2. PASSAR O USUÁRIO PARA O CONSTRUTOR DA ENTIDADE
+
         AuditoriaPontoColeta logEntry = new AuditoriaPontoColeta(pontoColetaId, antesJson, depoisJson, acao, usuario);
         auditoriaPontoColetaRepository.save(logEntry);
     }

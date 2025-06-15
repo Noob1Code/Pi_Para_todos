@@ -14,9 +14,8 @@ export class GraficoLinhaComponent implements OnChanges {
   @Input() ano!: number;
   chartOptions: any;
 
-  // Nomes dos meses para o eixo X
   private mesesDoAno = [ 'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez' ];
-  private echartsInstance: any; // Adicione esta linha se também foi removida
+  private echartsInstance: any; 
 
   constructor(private http: HttpClient) {}
 
@@ -27,8 +26,6 @@ export class GraficoLinhaComponent implements OnChanges {
   }
 
   carregarDados(ano: number) {
-    // ... seu código para carregar dados continua aqui ...
-    // (a lógica de carregarDados está correta e não precisa mudar)
     this.http.get<any>(`http://localhost:8080/api/relatorios/extremos-distancia?ano=${ano}`)
       .subscribe(data => {
         
@@ -98,7 +95,6 @@ export class GraficoLinhaComponent implements OnChanges {
       });
   }
 
-  // MÉTODO ADICIONADO PARA CORRIGIR O ERRO
   onChartInit(ec: any) {
     this.echartsInstance = ec;
   }

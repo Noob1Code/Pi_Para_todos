@@ -86,7 +86,7 @@
         type="text" 
         [(ngModel)]="ruaAtual.distancia" 
         placeholder="Ex: 5000"
-        pattern="^[0-9]+(\.[0-9]+)?$"
+        pattern="^[0-9]{1,7}(\.[0-9]{1,3})?$"
         min = 0
         required
         #distanciaInput="ngModel"
@@ -94,7 +94,7 @@
       />
       <div *ngIf="distanciaInput.invalid && (distanciaInput.dirty || distanciaInput.touched)" class="error-message">
         <small *ngIf="distanciaInput.errors?.['required']">A Distancia é obrigatória.</small>
-        <small *ngIf="distanciaInput.errors?.['pattern']">Digite apenas numeros.</small>
+        <small *ngIf="distanciaInput.errors?.['pattern']"> Digite até 7 dígitos antes do ponto, até 3 após o ponto, e utilize apenas números e ponto (.)</small>
       </div>
     </div>
 

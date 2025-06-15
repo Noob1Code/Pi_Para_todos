@@ -37,20 +37,20 @@ public class ConexaoService {
     @Transactional
     public ConexaoDTO criarConexao(ConexaoDTO dto) {
         Bairro origem = bairrosRepository.findById(dto.getOrigem().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Bairro de origem não encontrado com ID: " + dto.getOrigem().getId())); //
+                .orElseThrow(() -> new IllegalArgumentException("Bairro de origem não encontrado com ID: " + dto.getOrigem().getId()));
 
         Bairro destino = bairrosRepository.findById(dto.getDestino().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Bairro de destino não encontrado com ID: " + dto.getDestino().getId())); //
-
+                .orElseThrow(() -> new IllegalArgumentException("Bairro de destino não encontrado com ID: " + dto.getDestino().getId()));
+        
         if (origem.getId().equals(destino.getId())) {
             throw new IllegalArgumentException("O bairro de origem não pode ser o mesmo que o de destino.");
         }
 
         Conexao conexao = new Conexao();
-        conexao.setRua(dto.getRua()); //
-        conexao.setQuilometros(dto.getQuilometros()); //
-        conexao.setOrigem(origem); //
-        conexao.setDestino(destino); //
+        conexao.setRua(dto.getRua()); 
+        conexao.setQuilometros(dto.getQuilometros());
+        conexao.setOrigem(origem);
+        conexao.setDestino(destino);
 
         Conexao novaConexao = conexaoRepository.save(conexao);
         return toDTO(novaConexao);
@@ -69,10 +69,10 @@ public class ConexaoService {
                 throw new IllegalArgumentException("O bairro de origem não pode ser o mesmo que o de destino.");
             }
             
-            conexaoExistente.setRua(dto.getRua()); //
-            conexaoExistente.setQuilometros(dto.getQuilometros()); //
-            conexaoExistente.setOrigem(origem); //
-            conexaoExistente.setDestino(destino); //
+            conexaoExistente.setRua(dto.getRua());
+            conexaoExistente.setQuilometros(dto.getQuilometros());
+            conexaoExistente.setOrigem(origem);
+            conexaoExistente.setDestino(destino);
 
             conexaoRepository.save(conexaoExistente);
             return toDTO(conexaoExistente);
@@ -81,19 +81,17 @@ public class ConexaoService {
 
     @Transactional
     public boolean deletarConexao(Long id) {
-        // -> VALIDAÇÃO DE INTEGRIDADE ADICIONADA
         if (rotaRepository.existsByArestasPercorridas_Id(id)) {
             throw new DataIntegrityViolationException("Esta conexão não pode ser excluída, pois faz parte de uma ou mais rotas salvas.");
         }
 
-        if (conexaoRepository.existsById(id)) { //
-            conexaoRepository.deleteById(id); //
+        if (conexaoRepository.existsById(id)) {
+            conexaoRepository.deleteById(id);
             return true;
         }
         return false;
     }
 
-    // O método listarTodas() e toDTO() permanecem os mesmos.
     @Transactional(readOnly = true)
     public List<ConexaoDTO> listarTodas() {
         return conexaoRepository.findAll().stream()

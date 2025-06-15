@@ -24,8 +24,7 @@ import org.springframework.stereotype.Repository;
 public interface CaminhaoRepository extends JpaRepository<Caminhao, Long> {
     boolean existsByPlacaIgnoreCase(String placa);
     Optional<Caminhao> findByPlacaIgnoreCase(String placa);
-    
-    // Projeção para o total anual de um caminhão
+        
     interface CaminhaoTotalAnualProjection {
         Long getId();
         String getPlaca();
@@ -33,7 +32,6 @@ public interface CaminhaoRepository extends JpaRepository<Caminhao, Long> {
         Double getTotalAnual();
     }
 
-    // Projeção para os dados mensais de um caminhão
     interface DistanciaMensalProjection {
         Integer getMes();
         Double getDistanciaMensal();

@@ -98,27 +98,19 @@ public class CaminhaoService {
     }
 
     @Transactional
-    public boolean deletarCaminhao(Long id) {
-        Optional<Caminhao> caminhaoOpt = caminhaoRepository.findById(id);
+    public void deletarCaminhao(Long id) {
+        Caminhao caminhaoParaDeletar = caminhaoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Caminhão com ID " + id + " não encontrado."));
 
-        if (caminhaoOpt.isPresent()) {
-            
-            // VALIDAÇÃO DE INTEGRIDADE ADICIONADA
-            if (itinerarioRepository.existsByRota_Caminhao_Id(id)) {
-                throw new DataIntegrityViolationException("Este caminhão não pode ser excluído, pois possui itinerários agendados.");
-            }
-            
-            Caminhao caminhaoParaDeletar = caminhaoOpt.get();
-            CaminhaoDTO estadoAntes = caminhaoMapper.toResponseDTO(caminhaoParaDeletar);
-
-            caminhaoRepository.deleteById(id);
-            
-            String usuarioLogado = getUsuarioLogado();
-            auditoriaService.logCaminhaoActivity(id, estadoAntes, null, "DELETE", usuarioLogado);
-
-            return true;
+        if (itinerarioRepository.existsByRota_Caminhao_Id(id)) {
+            throw new DataIntegrityViolationException("Este caminhão não pode ser excluído, pois possui itinerários agendados.");
         }
-        return false;
+
+        CaminhaoDTO estadoAntes = caminhaoMapper.toResponseDTO(caminhaoParaDeletar);
+        String usuarioLogado = getUsuarioLogado();
+
+        caminhaoRepository.delete(caminhaoParaDeletar);
+        auditoriaService.logCaminhaoActivity(id, estadoAntes, null, "DELETE", usuarioLogado);
     }
 
     private Caminhao toEntity(Caminhao caminhao, CaminhaoRequestDTO dto, List<Residuo> residuos) {

@@ -63,7 +63,6 @@ public class ItinerarioService {
         Rota novaRota = rotaRepository.findById(dto.getRotaId().getId())
             .orElseThrow(() -> new IllegalArgumentException("Rota com ID " + dto.getRotaId().getId() + " não encontrada."));
 
-        // VALIDAÇÃO DE CONFLITO: Verifica conflitos, mas ignora o próprio itinerário que estamos editando
         itinerarioRepository.findByDataAndRota_Caminhao_IdAndIdNot(dto.getData(), novaRota.getCaminhao().getId(), id)
             .ifPresent(i -> {
                 throw new IllegalStateException("Conflito: O caminhão (placa: " + novaRota.getCaminhao().getPlaca() + ") já está "

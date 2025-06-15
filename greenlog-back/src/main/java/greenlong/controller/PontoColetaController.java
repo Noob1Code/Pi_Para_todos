@@ -10,7 +10,6 @@ import greenlong.dto.PontoColetaResponseDTO;
 import greenlong.service.PontoColetaService;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,13 +38,9 @@ public class PontoColetaController {
     private final PontoColetaService pontoColetaService;
 
     @PostMapping
-    public ResponseEntity<?> criarPontoColeta(@Valid @RequestBody PontoColetaCadastroDTO dto) {
-        try {
-            PontoColetaResponseDTO response = pontoColetaService.criarPontoColeta(dto);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("erro", e.getMessage()));
-        }
+    public ResponseEntity<PontoColetaResponseDTO> criarPontoColeta(@Valid @RequestBody PontoColetaCadastroDTO dto) {
+        PontoColetaResponseDTO response = pontoColetaService.criarPontoColeta(dto);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -54,12 +49,9 @@ public class PontoColetaController {
     }
     
     @GetMapping("/compativeis")
-    public ResponseEntity<List<PontoColetaResponseDTO>> listarPontosCompativeis(
-            @RequestParam Long caminhaoId
-    ) {
+    public ResponseEntity<List<PontoColetaResponseDTO>> listarPontosCompativeis(@RequestParam Long caminhaoId) {
         List<PontoColetaResponseDTO> pontosCompativeis = pontoColetaService.listarPontosCompativeisPorCaminhao(caminhaoId);
         if (pontosCompativeis.isEmpty()) {
-            // Retorna 204 No Content se não houver pontos compatíveis
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(pontosCompativeis);
@@ -73,14 +65,10 @@ public class PontoColetaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizarPontoColeta(@PathVariable Long id, @Valid @RequestBody PontoColetaCadastroDTO dto) {
-         try {
-            return pontoColetaService.atualizarPontoColeta(id, dto)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("erro", e.getMessage()));
-        }
+    public ResponseEntity<PontoColetaResponseDTO> atualizarPontoColeta(@PathVariable Long id, @Valid @RequestBody PontoColetaCadastroDTO dto) {
+        return pontoColetaService.atualizarPontoColeta(id, dto)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

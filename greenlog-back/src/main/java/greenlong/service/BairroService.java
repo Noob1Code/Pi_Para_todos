@@ -36,7 +36,7 @@ public class BairroService {
     @Transactional
     public BairroDTO criarBairro(BairroRequestDTO dto) {
         bairrosRepository.findByNomeIgnoreCase(dto.getNome()).ifPresent(b -> {
-            throw new DataIntegrityViolationException("Um bairro com o nome '" + dto.getNome() + "' já existe.");
+            throw new IllegalArgumentException("Um bairro com o nome '" + dto.getNome() + "' já existe.");
         });
 
         Bairro bairro = new Bairro();
@@ -47,34 +47,31 @@ public class BairroService {
     
     @Transactional
     public Optional<BairroDTO> atualizarBairro(Long id, BairroRequestDTO dto) {
-        Optional<Bairro> existentePorNome = bairrosRepository.findByNomeIgnoreCase(dto.getNome());
-        if (existentePorNome.isPresent() && !existentePorNome.get().getId().equals(id)) {
-            throw new DataIntegrityViolationException("Outro bairro com o nome '" + dto.getNome() + "' já existe.");
-        }
-
         return bairrosRepository.findById(id).map(bairroExistente -> {
             if ("Centro".equalsIgnoreCase(bairroExistente.getNome())) {
-                throw new DataIntegrityViolationException("O bairro 'Centro' não pode ser atualizado.");
+                throw new IllegalArgumentException("O bairro 'Centro' não pode ser atualizado.");
             }
+            
+            Optional<Bairro> existentePorNome = bairrosRepository.findByNomeIgnoreCase(dto.getNome());
+            if (existentePorNome.isPresent() && !existentePorNome.get().getId().equals(id)) {
+                throw new IllegalArgumentException("Outro bairro com o nome '" + dto.getNome() + "' já existe.");
+            }
+
             bairroExistente.setNome(dto.getNome());
             Bairro bairroAtualizado = bairrosRepository.save(bairroExistente);
             return toDTO(bairroAtualizado);
         });
     }
 
-     @Transactional
+    @Transactional
     public boolean deletarBairro(Long id) {
         Bairro bairro = bairrosRepository.findById(id)
-                .orElse(null);
-
-        if (bairro == null) {
-            return false;
-        }
+                .orElseThrow(() -> new IllegalArgumentException("Bairro com ID " + id + " não encontrado."));
 
         if ("Centro".equalsIgnoreCase(bairro.getNome())) {
-            throw new DataIntegrityViolationException("O bairro 'Centro' não pode ser excluído.");
+            throw new IllegalArgumentException("O bairro 'Centro' não pode ser excluído.");
         }
-
+        
         if (pontoColetaRepository.existsByBairroId(id)) {
             throw new DataIntegrityViolationException("Este bairro não pode ser excluído, pois está associado a um ou mais pontos de coleta.");
         }

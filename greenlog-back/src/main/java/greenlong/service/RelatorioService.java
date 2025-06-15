@@ -46,22 +46,18 @@ public class RelatorioService {
     
     @Transactional(readOnly = true)
     public ExtremosAnualComDetalhesMensaisDTO getDetalhesMensaisParaExtremosAnuais(Integer ano) {
-        // 1. Encontra os totais anuais de todos os caminhões
         List<CaminhaoTotalAnualProjection> totaisAnuais = caminhaoRepository.findTotaisAnuaisPorCaminhao(ano);
         if (totaisAnuais.isEmpty()) {
             return null;
         }
 
-        // 2. Identifica os caminhões com o maior e menor total anual
         Optional<CaminhaoTotalAnualProjection> maiorOpt = totaisAnuais.stream()
                 .max(Comparator.comparing(CaminhaoTotalAnualProjection::getTotalAnual));
 
-        // Para o menor, filtramos para incluir apenas caminhões que rodaram
         Optional<CaminhaoTotalAnualProjection> menorOpt = totaisAnuais.stream()
                 .filter(c -> c.getTotalAnual() > 0)
                 .min(Comparator.comparing(CaminhaoTotalAnualProjection::getTotalAnual));
 
-        // 3. Busca os detalhes mensais para esses dois caminhões
         CaminhaoDetalhesMensaisDTO maiorDTO = maiorOpt
                 .map(proj -> criarDetalhesDTO(ano, proj))
                 .orElse(null);
@@ -69,24 +65,21 @@ public class RelatorioService {
         CaminhaoDetalhesMensaisDTO menorDTO = menorOpt
                 .map(proj -> criarDetalhesDTO(ano, proj))
                 .orElse(null);
-        
-        // Se o maior e o menor forem o mesmo caminhão (caso de apenas 1 caminhão ter rodado)
+
         if(maiorDTO != null && menorDTO != null && maiorDTO.getPlaca().equals(menorDTO.getPlaca())){
-            menorDTO = null; // Evita duplicidade na resposta
+            menorDTO = null;
         }
 
         return new ExtremosAnualComDetalhesMensaisDTO(maiorDTO, menorDTO);
     }
 
     private CaminhaoDetalhesMensaisDTO criarDetalhesDTO(Integer ano, CaminhaoTotalAnualProjection proj) {
-        // Busca o histórico mensal do caminhão
         List<DistanciaMensalProjection> distancias = caminhaoRepository.findDistanciasMensaisParaCaminhao(ano, proj.getId());
-        
-        // Formata os dados em uma lista de 12 meses
+
         Double[] mensais = new Double[12];
         Arrays.fill(mensais, 0.0);
         for (DistanciaMensalProjection d : distancias) {
-            mensais[d.getMes() - 1] = d.getDistanciaMensal(); // Mês 1 vai para o índice 0
+            mensais[d.getMes() - 1] = d.getDistanciaMensal();
         }
 
         return new CaminhaoDetalhesMensaisDTO(

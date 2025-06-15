@@ -81,10 +81,10 @@
         name="telefoneResponsavel" 
         [(ngModel)]="pontoColetaAtual.telefoneResponsavel" 
         required 
-        [mask]="'(00) 00000-0000'" 
+        [mask]="telefoneMask"
+        (input)="onTelefoneChange(telefoneInput.value)" 
         [dropSpecialCharacters]="false" 
         placeholder="(00) 00000-0000"
-        required
         #telefoneInput="ngModel"
         [ngClass]="{ 'invalid-input': telefoneInput.invalid && (telefoneInput.dirty || telefoneInput.touched) }"
       />

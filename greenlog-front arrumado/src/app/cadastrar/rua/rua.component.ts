@@ -35,6 +35,7 @@ export class RuaComponent implements OnInit{
       excluido: ' Rua excluído com sucesso!',
       erro: textoPersonalizado || '❌ Ocorreu um erro ao processar a solicitação.'
     };
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     this.mensagem = { tipo, texto: textos[tipo] };
     if (tipo !== 'erro') {
       setTimeout(() => {
@@ -96,6 +97,7 @@ export class RuaComponent implements OnInit{
   editar(rua: Rua): void {
     this.idEditando = rua.id ?? null;
     this.ruaAtual = { ...rua };
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   
   resetForm(form: NgForm): void {
