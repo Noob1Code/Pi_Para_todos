@@ -5,6 +5,7 @@
 
 package greenlong.dto;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,14 +13,16 @@ import lombok.NoArgsConstructor;
 /**
  *
  * @author Kayque de Freitas <kayquefreitas08@gmail.com>
- * @data 14/06/2025
- * @brief Class CaminhaoDistanciaDTO
+ * @data 15/06/2025
+ * @brief Class CaminhaoDetalhesMensaisDTO
  */
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CaminhaoDistanciaDTO {
-    private CaminhaoDTO caminhao;
-    private Double quilometrosPercorridos;
+public class CaminhaoDetalhesMensaisDTO {
+    private String placa;
+    private String motorista;
+    private double distanciaTotalAnual;
+    private List<Double> distanciasMensais;
 }

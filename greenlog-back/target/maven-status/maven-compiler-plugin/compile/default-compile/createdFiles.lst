@@ -2,11 +2,11 @@ greenlong\dto\PontoColetaCadastroDTO.class
 greenlong\service\ItinerarioService.class
 greenlong\model\Itinerario.class
 greenlong\controller\CaminhaoController.class
+greenlong\repository\CaminhaoRepository$CaminhaoTotalAnualProjection.class
 greenlong\dto\CaminhaoDTO.class
 greenlong\dto\RotaRequestDTO$ObjetoId.class
 greenlong\dto\RotaUpdateRequestDTO.class
 greenlong\GreenlogApplication.class
-greenlong\repository\CaminhaoRepository$CaminhaoDistanciaProjection.class
 greenlong\config\WebConfig.class
 greenlong\model\Conexao.class
 greenlong\dto\ConexaoDTO.class
@@ -14,16 +14,17 @@ greenlong\model\PontoColeta.class
 greenlong\dto\RotaRequestDTO.class
 greenlong\dto\UsuarioCadastroDTO.class
 greenlong\service\UsuarioService.class
+greenlong\dto\ExtremosAnualComDetalhesMensaisDTO.class
 greenlong\controller\RelatorioController.class
 greenlong\service\RotaService.class
 greenlong\repository\AuditoriaCaminhaoRepository.class
 greenlong\mapper\RotaMapper.class
-greenlong\dto\CaminhaoDistanciaDTO.class
 greenlong\repository\AuditoriaPontoColetaRepository.class
 greenlong\controller\ConexaoController.class
 greenlong\model\Caminhao.class
 greenlong\service\CaminhaoService.class
 greenlong\dto\ItinerarioRequestDTO.class
+greenlong\dto\CaminhaoDetalhesMensaisDTO.class
 greenlong\config\SecurityConfig.class
 greenlong\service\RelatorioService.class
 greenlong\service\DijkstraService.class
@@ -37,6 +38,7 @@ greenlong\controller\ItinerarioController.class
 greenlong\model\Usuario.class
 greenlong\service\BairroService.class
 greenlong\service\CustomUserDetailsService.class
+greenlong\repository\CaminhaoRepository$DistanciaMensalProjection.class
 greenlong\repository\UsuarioRepository.class
 greenlong\controller\RotaController.class
 greenlong\dto\CalculoRotaResponseDTO.class
@@ -57,7 +59,6 @@ greenlong\service\ConexaoService.class
 greenlong\dto\PontoColetaResponseDTO.class
 greenlong\repository\ItinerarioRepository.class
 greenlong\repository\ResiduoRepository.class
-greenlong\dto\DistanciaExtremosDTO.class
 greenlong\model\Bairro.class
 greenlong\dto\ItinerariosPorDiaDTO.class
 greenlong\dto\LoginRequestDTO.class

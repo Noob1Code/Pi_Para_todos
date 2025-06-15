@@ -13,7 +13,10 @@ import { NgxEchartsModule } from 'ngx-echarts';
 export class GraficoLinhaComponent implements OnChanges {
   @Input() ano!: number;
   chartOptions: any;
-  private echartsInstance: any;
+
+  // Nomes dos meses para o eixo X
+  private mesesDoAno = [ 'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez' ];
+  private echartsInstance: any; // Adicione esta linha se também foi removida
 
   constructor(private http: HttpClient) {}
 
@@ -24,48 +27,78 @@ export class GraficoLinhaComponent implements OnChanges {
   }
 
   carregarDados(ano: number) {
+    // ... seu código para carregar dados continua aqui ...
+    // (a lógica de carregarDados está correta e não precisa mudar)
     this.http.get<any>(`http://localhost:8080/api/relatorios/extremos-distancia?ano=${ano}`)
       .subscribe(data => {
-        const nomes = [
-          `${data.maiorDistancia.caminhao.placa} (Maior)`,
-          `${data.menorDistancia.caminhao.placa} (Menor)`
-        ];
-        const valores = [
-          data.maiorDistancia.quilometrosPercorridos,
-          data.menorDistancia.quilometrosPercorridos
-        ];
+        
+        const series = [];
+        const legendas = [];
 
+        if (data && data.maiorDistanciaAnual) {
+          const nomeSerie = `${data.maiorDistanciaAnual.placa} (Maior)`;
+          legendas.push(nomeSerie);
+          series.push({
+            name: nomeSerie,
+            type: 'line',
+            smooth: true,
+            data: data.maiorDistanciaAnual.distanciasMensais,
+            lineStyle: { color: '#4CAF50' },
+            itemStyle: { color: '#4CAF50' },
+          });
+        }
+
+        if (data && data.menorDistanciaAnual) {
+            const nomeSerie = `${data.menorDistanciaAnual.placa} (Menor)`;
+            legendas.push(nomeSerie);
+            series.push({
+              name: nomeSerie,
+              type: 'line',
+              smooth: true,
+              data: data.menorDistanciaAnual.distanciasMensais,
+              lineStyle: { color: '#F44336' },
+              itemStyle: { color: '#F44336' },
+            });
+        }
+        
         this.chartOptions = {
           backgroundColor: '#12212F',
           title: {
-            text: `Distância Percorrida - ${ano}`,
+            text: `Performance Mensal por Caminhão - ${ano}`,
+            left: 'center',
             textStyle: { color: '#ffffff' },
           },
-          tooltip: {},
-          xAxis: {
-            data: nomes,
+          tooltip: {
+            trigger: 'axis'
+          },
+          legend: {
+            data: legendas,
+            textStyle: { color: '#ffffff' },
+            bottom: 10,
+          },
+          grid: {
+            left: '3%', right: '4%', bottom: '10%', containLabel: true
+          },
+          xAxis: [{
+            type: 'category',
+            boundaryGap: false,
+            data: this.mesesDoAno,
             axisLine: { lineStyle: { color: '#ffffff' } },
             axisLabel: { color: '#ffffff' },
-          },
-          yAxis: {
+          }],
+          yAxis: [{
+            type: 'value',
+            name: 'Distância (km)',
             axisLine: { lineStyle: { color: '#ffffff' } },
             axisLabel: { color: '#ffffff' },
-          },
-          series: [
-            {
-              name: 'Distância (km)',
-              type: 'line',
-              data: valores,
-              lineStyle: { color: '#4CAF50' },
-              itemStyle: { color: '#4CAF50' },
-            },
-          ],
+            splitLine: { lineStyle: { color: '#2a3a4a' } }
+          }],
+          series: series,
         };
-
-        setTimeout(() => this.echartsInstance?.resize(), 0);
       });
   }
 
+  // MÉTODO ADICIONADO PARA CORRIGIR O ERRO
   onChartInit(ec: any) {
     this.echartsInstance = ec;
   }
