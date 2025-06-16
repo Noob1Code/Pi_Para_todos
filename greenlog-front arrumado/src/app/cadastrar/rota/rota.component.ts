@@ -182,4 +182,7 @@ export class RotaComponent implements OnInit {
       }
     });
   }
+  aoTrocarTipoResiduo(): void {
+    this.rotaAtual.destino = null;
+  }
 }

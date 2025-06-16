@@ -46,7 +46,7 @@ export class PontoColetaComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.telefoneMask = '(00) 00000-0000';
+    this.telefoneMask = '(00) 0000-0000';
     this.inicializarCheckboxes();
     this.buscarTodos();
   }
@@ -207,11 +207,5 @@ export class PontoColetaComponent implements OnInit {
     const totalMinutosInicio = horaInicio * 60 + minutoInicio;
     const totalMinutosFim = horaFim * 60 + minutoFim;
     return totalMinutosInicio < totalMinutosFim;
-  }
-
-  onTelefoneChange(valor: string) {
-    if (!valor) return;
-    const digitsOnly = valor.replace(/\D/g, '');
-    this.telefoneMask = digitsOnly.length > 10 ? '(00) 00000-0000' : '(00) 0000-0000';
   }
 }
