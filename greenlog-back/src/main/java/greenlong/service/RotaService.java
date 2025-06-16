@@ -14,6 +14,7 @@ import greenlong.model.Rota;
 import greenlong.repository.BairrosRepository;
 import greenlong.repository.CaminhaoRepository;
 import greenlong.repository.ItinerarioRepository;
+import greenlong.repository.PontoColetaRepository;
 import greenlong.repository.RotaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,7 @@ public class RotaService {
     private final DijkstraService dijkstraService;
     private final RotaMapper rotaMapper;
     private final ItinerarioRepository itinerarioRepository;
+    private final PontoColetaRepository pontoColetaRepository;
 
     @Value("${greenlong.logistica.bairro-origem-padrao:Centro}")
     private String nomeBairroOrigem;
@@ -118,6 +120,16 @@ public class RotaService {
 
         if (!caminhaoPodeColetar) {
             throw new IllegalStateException("O novo caminhão com placa " + caminhao.getPlaca() + " não está configurado para coletar o resíduo do tipo '" + dto.getTipoResiduo() + "'.");
+        }
+        
+        boolean destinoCompativel = pontoColetaRepository.existsByBairroIdAndTiposResiduosAceitos_Nome(
+                novoDestino.getId(),
+                dto.getTipoResiduo()
+        );
+
+        if (!destinoCompativel) {
+            throw new IllegalStateException("Não é possível atualizar a rota, pois não há pontos de coleta no bairro '"
+                    + novoDestino.getNome() + "' que aceitem o resíduo do tipo '" + dto.getTipoResiduo() + "'.");
         }
 
         if (!rotaExistente.getDestino().getId().equals(novoDestino.getId())) {
